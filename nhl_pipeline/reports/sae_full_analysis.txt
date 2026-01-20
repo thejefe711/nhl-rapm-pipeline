@@ -1,0 +1,99 @@
+=== MODEL INFO ===
+n_samples: 3045
+n_components: 12
+alpha: 1.0
+features (9):
+  - corsi_off_rapm_5v5
+  - corsi_def_rapm_5v5
+  - xg_off_rapm_5v5
+  - xg_def_rapm_5v5
+  - finishing_residual_rapm_5v5
+  - penalties_taken_rapm_5v5
+  - turnover_to_xg_swing_rapm_5v5_w10
+  - takeaway_to_xg_swing_rapm_5v5_w10
+  - giveaway_to_xg_swing_rapm_5v5_w10
+
+=== DICTIONARY COEFFICIENTS ===
+Shape: (12, 9) (n_dims x n_features)
+
+Dictionary matrix (rows=dims, cols=features):
+Features: ['corsi_off_rapm_5v5', 'corsi_def_rapm_5v5', 'xg_off_rapm_5v5', 'xg_def_rapm_5v5', 'finishing_residual_rapm_5v5', 'penalties_taken_rapm_5v5', 'turnover_to_xg_swing_rapm_5v5_w10', 'takeaway_to_xg_swing_rapm_5v5_w10', 'giveaway_to_xg_swing_rapm_5v5_w10']
+  Dim  0: [-0.366, -0.261, -0.630, -0.350, +0.498, +0.006, +0.120, +0.090, +0.086]
+  Dim  1: [-0.004, -0.020, +0.024, +0.018, -0.027, +0.005, +0.653, +0.684, +0.322]
+  Dim  2: [+0.417, -0.207, +0.708, -0.501, -0.118, -0.024, -0.043, +0.062, -0.101]
+  Dim  3: [-0.002, -0.005, +0.005, +0.002, -0.013, -0.999, +0.009, +0.026, -0.008]
+  Dim  4: [-0.085, -0.009, -0.055, -0.033, +0.052, -0.009, -0.164, -0.874, +0.441]
+  Dim  5: [-0.741, -0.642, -0.041, -0.028, +0.026, -0.005, -0.122, -0.014, -0.145]
+  Dim  6: [+0.074, +0.469, -0.083, +0.770, -0.376, -0.008, -0.110, +0.005, -0.143]
+  Dim  7: [-0.520, -0.429, -0.101, -0.064, +0.714, +0.007, -0.084, -0.124, -0.015]
+  Dim  8: [-0.138, -0.399, -0.206, -0.639, +0.472, +0.007, -0.267, -0.120, -0.251]
+  Dim  9: [-0.375, -0.086, -0.653, -0.085, +0.414, +0.004, -0.341, -0.131, -0.337]
+  Dim 10: [+0.601, -0.782, +0.058, -0.078, +0.084, +0.026, -0.065, -0.069, -0.031]
+  Dim 11: [+0.026, +0.013, -0.000, +0.024, -0.026, -0.006, +0.612, -0.015, +0.789]
+
+=== DICTIONARY SPARSITY ===
+  Dim  0: 8/9 features active (|coef|>0.01), max|coef|=0.630
+  Dim  1: 7/9 features active (|coef|>0.01), max|coef|=0.684
+  Dim  2: 9/9 features active (|coef|>0.01), max|coef|=0.708
+  Dim  3: 3/9 features active (|coef|>0.01), max|coef|=0.999
+  Dim  4: 7/9 features active (|coef|>0.01), max|coef|=0.874
+  Dim  5: 8/9 features active (|coef|>0.01), max|coef|=0.741
+  Dim  6: 7/9 features active (|coef|>0.01), max|coef|=0.770
+  Dim  7: 8/9 features active (|coef|>0.01), max|coef|=0.714
+  Dim  8: 8/9 features active (|coef|>0.01), max|coef|=0.639
+  Dim  9: 8/9 features active (|coef|>0.01), max|coef|=0.653
+  Dim 10: 9/9 features active (|coef|>0.01), max|coef|=0.782
+  Dim 11: 7/9 features active (|coef|>0.01), max|coef|=0.789
+
+=== LATENT CODE STATS (pooled across seasons) ===
+ dim_idx    n    mean    std  mean_abs  pct_zero
+       0 3045 -0.0243 0.5621    0.1418      86.7
+       1 3045 -0.0066 0.6018    0.1743      81.3
+       2 3045 -0.0123 0.4214    0.0974      88.7
+       3 3045 -0.0074 0.7707    0.1676      94.4
+       4 3045 -0.0118 0.4148    0.1100      84.9
+       5 3045 -0.0003 0.3710    0.0927      85.9
+       6 3045 -0.0158 0.4448    0.1005      89.6
+       7 3045 -0.0040 0.4289    0.0990      88.4
+       8 3045  0.0288 0.6410    0.1629      85.5
+       9 3045 -0.0288 0.5492    0.1261      87.6
+      10 3045  0.0066 0.2707    0.0715      86.0
+      11 3045 -0.0067 0.5816    0.1692      81.3
+
+=== DIMENSION LABELS (auto-generated) ===
+
+=== INTER-DIMENSION CORRELATIONS ===
+(Should be near-diagonal. High off-diagonal = dimensions are redundant)
+dim_idx    0     1     2     3     4     5     6     7     8     9     10    11
+dim_idx                                                                        
+0        1.00  0.04 -0.14 -0.02  0.01  0.06 -0.13  0.07  0.17  0.18 -0.01  0.06
+1        0.04  1.00  0.00  0.02 -0.15 -0.03 -0.05 -0.03 -0.06 -0.08 -0.02  0.19
+2       -0.14  0.00  1.00  0.05 -0.05 -0.01 -0.09 -0.02  0.07 -0.14  0.06 -0.03
+3       -0.02  0.02  0.05  1.00 -0.02  0.01  0.03 -0.01 -0.02 -0.01 -0.02  0.00
+4        0.01 -0.15 -0.05 -0.02  1.00  0.00 -0.03  0.12  0.03  0.08 -0.01  0.09
+5        0.06 -0.03 -0.01  0.01  0.00  1.00 -0.03  0.11  0.10  0.08  0.02 -0.11
+6       -0.13 -0.05 -0.09  0.03 -0.03 -0.03  1.00 -0.03 -0.19 -0.00 -0.05 -0.04
+7        0.07 -0.03 -0.02 -0.01  0.12  0.11 -0.03  1.00  0.07  0.06  0.03 -0.01
+8        0.17 -0.06  0.07 -0.02  0.03  0.10 -0.19  0.07  1.00  0.12  0.04 -0.05
+9        0.18 -0.08 -0.14 -0.01  0.08  0.08 -0.00  0.06  0.12  1.00 -0.01 -0.08
+10      -0.01 -0.02  0.06 -0.02 -0.01  0.02 -0.05  0.03  0.04 -0.01  1.00 -0.03
+11       0.06  0.19 -0.03  0.00  0.09 -0.11 -0.04 -0.01 -0.05 -0.08 -0.03  1.00
+
+=== RECONSTRUCTION ANALYSIS ===
+Scaler mean: [np.float64(0.0), np.float64(-0.0), np.float64(-0.0), np.float64(0.0), np.float64(0.0), np.float64(-0.0), np.float64(0.0), np.float64(-0.0), np.float64(-0.0)]
+Scaler scale: [np.float64(1.4115), np.float64(1.3972), np.float64(0.3912), np.float64(0.4053), np.float64(0.6995), np.float64(0.0081), np.float64(0.0516), np.float64(0.0302), np.float64(0.0406)]
+
+Reconstruction MSE (scaled): 0.2165
+Reconstruction R^2 (scaled): 0.7716
+(R^2 of 1.0 = perfect reconstruction, 0.0 = as bad as mean, <0 = worse than mean)
+
+=== PER-FEATURE RECONSTRUCTION R^2 ===
+  corsi_off_rapm_5v5                      : R^2 = 0.703
+  corsi_def_rapm_5v5                      : R^2 = 0.708
+  xg_off_rapm_5v5                         : R^2 = 0.838
+  xg_def_rapm_5v5                         : R^2 = 0.838
+  finishing_residual_rapm_5v5             : R^2 = 0.817
+  penalties_taken_rapm_5v5                : R^2 = 0.930
+  turnover_to_xg_swing_rapm_5v5_w10       : R^2 = 0.702
+  takeaway_to_xg_swing_rapm_5v5_w10       : R^2 = 0.733
+  giveaway_to_xg_swing_rapm_5v5_w10       : R^2 = 0.622

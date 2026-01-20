@@ -1,0 +1,40 @@
+============================================================
+NARRATIVES REPORT
+============================================================
+
+Total narratives: 462
+Method: Template-based (no API cost)
+
+
+SAMPLE NARRATIVES:
+----------------------------------------
+
+Sidney Crosby (F):
+  Sidney Crosby is an elite offensive forward excelling in offensive production and discipline. His playing style is comparable to Anthony Beauvillier and Casey Mittelstadt. Offense is improving significantly while defense is declining significantly.
+
+Anze Kopitar (F):
+  Anze Kopitar is an elite offensive forward with excellent offensive production. His playing style is comparable to Alex Laferriere and Andrei Kuzmenko. Offense is trending upward while defense is improving significantly.
+
+Trevor Lewis (F):
+  Trevor Lewis is an elite two-way forward excelling in offensive production and defensive impact. His playing style is comparable to Philip Tomasino and Evan Rodrigues. Offense is improving significantly while defense is improving significantly.
+
+Claude Giroux (F):
+  Claude Giroux is an elite offensive forward with strengths in offensive production, defensive impact, and discipline. His playing style is comparable to Drake Batherson and Connor McMichael. Offense is trending upward while defense is trending upward.
+
+James van Riemsdyk (F):
+  James van Riemsdyk is an elite two-way forward with strengths in offensive production, defensive impact, and finishing ability. His playing style is comparable to Brandon Duhaime and Mikael Backlund. Offense is improving significantly while defense is trending upward.
+
+Mikael Backlund (F):
+  Mikael Backlund is an elite two-way forward with strengths in offensive production, defensive impact, and discipline. His playing style is comparable to Nic Dowd and James van Riemsdyk. Defensive metrics are improving significantly.
+
+Max Pacioretty (F):
+  Max Pacioretty is an elite offensive forward with strengths in offensive production, transition play, and finishing ability. His playing style is comparable to Justin Brazeau and Alexandre Texier.
+
+Lars Eller (F):
+  Lars Eller is an elite offensive forward with strengths in offensive production, discipline, and finishing ability. His playing style is comparable to Cole Sillinger and Sean Monahan. Offense is improving significantly while defense is declining significantly.
+
+Kyle Palmieri (F):
+  Kyle Palmieri is an offensively-inclined forward excelling in offensive production and transition play. His playing style is comparable to Brock Nelson and Maxim Tsyplakov. Offense is trending downward while defense is declining significantly.
+
+Ryan O'Reilly (F):
+  Ryan O'Reilly is an elite two-way forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Lucas Condotta and Philip Tomasino. Defensive metrics are trending upward.

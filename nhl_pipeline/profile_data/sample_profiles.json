@@ -1,0 +1,681 @@
+[
+  {
+    "player_id": 8479318,
+    "full_name": "Auston Matthews",
+    "position": "F",
+    "archetype": "Two-Way Forward",
+    "percentiles": {
+      "offense": 99.9,
+      "defense": 6.3,
+      "transition": 99.6,
+      "special_teams": 97.2,
+      "discipline": 70.0,
+      "finishing": 96.6
+    },
+    "trends": {
+      "offense": 0.333,
+      "defense": -2.024
+    },
+    "similar_players": [
+      {
+        "name": "William Nylander",
+        "similarity": 0.921
+      },
+      {
+        "name": "Pavel Buchnevich",
+        "similarity": 0.908
+      },
+      {
+        "name": "Shane Pinto",
+        "similarity": 0.895
+      }
+    ],
+    "flags": {},
+    "narrative": "Auston Matthews is an elite offensive forward with strengths in offensive production, transition play, and special teams contributions. His playing style is comparable to William Nylander and Pavel Buchnevich. Offense is trending upward while defense is declining significantly."
+  },
+  {
+    "player_id": 8478402,
+    "full_name": "Connor McDavid",
+    "position": "F",
+    "archetype": "Playmaker",
+    "percentiles": {
+      "offense": 99.8,
+      "defense": 88.8,
+      "transition": 97.5,
+      "special_teams": 84.5,
+      "discipline": 98.7,
+      "finishing": 0.8
+    },
+    "trends": {
+      "offense": 0.762,
+      "defense": 1.352
+    },
+    "similar_players": [
+      {
+        "name": "Filip Forsberg",
+        "similarity": 0.837
+      },
+      {
+        "name": "Leon Draisaitl",
+        "similarity": 0.836
+      },
+      {
+        "name": "Sebastian Aho",
+        "similarity": 0.833
+      }
+    ],
+    "flags": {},
+    "narrative": "Connor McDavid is an elite two-way forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Filip Forsberg and Leon Draisaitl. Offense is improving significantly while defense is improving significantly."
+  },
+  {
+    "player_id": 8475786,
+    "full_name": "Zach Hyman",
+    "position": "F",
+    "archetype": "Two-Way Forward",
+    "percentiles": {
+      "offense": 99.6,
+      "defense": 82.9,
+      "transition": 99.1,
+      "special_teams": 74.4,
+      "discipline": 3.1,
+      "finishing": 0.3
+    },
+    "trends": {
+      "offense": 0.363,
+      "defense": 1.304
+    },
+    "similar_players": [
+      {
+        "name": "Yegor Sharangovich",
+        "similarity": 0.966
+      },
+      {
+        "name": "Filip Forsberg",
+        "similarity": 0.923
+      },
+      {
+        "name": "Cole Schwindt",
+        "similarity": 0.912
+      }
+    ],
+    "flags": {},
+    "narrative": "Zach Hyman is an elite offensive forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Yegor Sharangovich and Filip Forsberg. Offense is trending upward while defense is improving significantly."
+  },
+  {
+    "player_id": 8482093,
+    "full_name": "Seth Jarvis",
+    "position": "F",
+    "archetype": "Two-Way Forward",
+    "percentiles": {
+      "offense": 99.5,
+      "defense": 94.1,
+      "transition": 96.7,
+      "special_teams": 74.0,
+      "discipline": 69.4,
+      "finishing": 31.2
+    },
+    "trends": {
+      "offense": 1.756,
+      "defense": 1.349
+    },
+    "similar_players": [
+      {
+        "name": "Leo Carlsson",
+        "similarity": 0.981
+      },
+      {
+        "name": "Adam Gaudette",
+        "similarity": 0.981
+      },
+      {
+        "name": "Shane Wright",
+        "similarity": 0.974
+      }
+    ],
+    "flags": {},
+    "narrative": "Seth Jarvis is an elite two-way forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Leo Carlsson and Adam Gaudette. Offense is improving significantly while defense is improving significantly."
+  },
+  {
+    "player_id": 8482109,
+    "full_name": "Alexis Lafreni\u00e8re",
+    "position": "F",
+    "archetype": "Two-Way Forward",
+    "percentiles": {
+      "offense": 99.5,
+      "defense": 99.4,
+      "transition": 86.8,
+      "special_teams": 17.5,
+      "discipline": 17.5,
+      "finishing": 4.3
+    },
+    "trends": {
+      "offense": 1.387,
+      "defense": 2.214
+    },
+    "similar_players": [
+      {
+        "name": "Ryan Donato",
+        "similarity": 0.976
+      },
+      {
+        "name": "Mats Zuccarello",
+        "similarity": 0.973
+      },
+      {
+        "name": "Nick Cousins",
+        "similarity": 0.97
+      }
+    ],
+    "flags": {},
+    "narrative": "Alexis Lafreni\u00e8re is an elite two-way forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Ryan Donato and Mats Zuccarello. Offense is improving significantly while defense is improving significantly."
+  },
+  {
+    "player_id": 8480078,
+    "full_name": "Filip Chytil",
+    "position": "F",
+    "archetype": "Defensive Forward",
+    "percentiles": {
+      "offense": 99.3,
+      "defense": 78.7,
+      "transition": 78.4,
+      "special_teams": 27.4,
+      "discipline": 31.0,
+      "finishing": 9.3
+    },
+    "trends": {
+      "offense": 2.137,
+      "defense": 0.297
+    },
+    "similar_players": [
+      {
+        "name": "Shane Wright",
+        "similarity": 0.99
+      },
+      {
+        "name": "Sebastian Aho",
+        "similarity": 0.99
+      },
+      {
+        "name": "Andrei Svechnikov",
+        "similarity": 0.98
+      }
+    ],
+    "flags": {},
+    "narrative": "Filip Chytil is an elite offensive forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Shane Wright and Sebastian Aho. Offense is improving significantly while defense is trending upward."
+  },
+  {
+    "player_id": 8480208,
+    "full_name": "Drake Batherson",
+    "position": "F",
+    "archetype": "Two-Way Forward",
+    "percentiles": {
+      "offense": 99.2,
+      "defense": 85.8,
+      "transition": 79.1,
+      "special_teams": 79.8,
+      "discipline": 70.1,
+      "finishing": 66.5
+    },
+    "trends": {
+      "offense": 0.996,
+      "defense": 0.15
+    },
+    "similar_players": [
+      {
+        "name": "William Nylander",
+        "similarity": 0.975
+      },
+      {
+        "name": "Connor McMichael",
+        "similarity": 0.973
+      },
+      {
+        "name": "Claude Giroux",
+        "similarity": 0.972
+      }
+    ],
+    "flags": {},
+    "narrative": "Drake Batherson is an elite two-way forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to William Nylander and Connor McMichael. Offensive numbers are improving significantly."
+  },
+  {
+    "player_id": 8475842,
+    "full_name": "Sam Carrick",
+    "position": "F",
+    "archetype": "Defensive Forward",
+    "percentiles": {
+      "offense": 99.2,
+      "defense": 63.6,
+      "transition": 86.6,
+      "special_teams": 17.7,
+      "discipline": 26.3,
+      "finishing": 97.7
+    },
+    "trends": {
+      "offense": -2.997,
+      "defense": -0.592
+    },
+    "similar_players": [
+      {
+        "name": "Shane Pinto",
+        "similarity": 0.975
+      },
+      {
+        "name": "Taylor Raddysh",
+        "similarity": 0.925
+      },
+      {
+        "name": "Claude Giroux",
+        "similarity": 0.912
+      }
+    ],
+    "flags": {},
+    "narrative": "Sam Carrick is an elite offensive forward with strengths in offensive production, transition play, and finishing ability. His playing style is comparable to Shane Pinto and Taylor Raddysh. Offense is declining significantly while defense is declining significantly."
+  },
+  {
+    "player_id": 8475848,
+    "full_name": "Brendan Gallagher",
+    "position": "F",
+    "archetype": "Defensive Forward",
+    "percentiles": {
+      "offense": 99.0,
+      "defense": 2.4,
+      "transition": 94.8,
+      "special_teams": 32.2,
+      "discipline": 21.6,
+      "finishing": 65.8
+    },
+    "trends": {
+      "offense": 0.37,
+      "defense": -1.102
+    },
+    "similar_players": [
+      {
+        "name": "Sean Monahan",
+        "similarity": 0.976
+      },
+      {
+        "name": "Cole Sillinger",
+        "similarity": 0.954
+      },
+      {
+        "name": "Jean-Gabriel Pageau",
+        "similarity": 0.95
+      }
+    ],
+    "flags": {},
+    "narrative": "Brendan Gallagher is an elite offensive forward excelling in offensive production and transition play. His playing style is comparable to Sean Monahan and Cole Sillinger. Offense is trending upward while defense is declining significantly."
+  },
+  {
+    "player_id": 8476880,
+    "full_name": "Tom Wilson",
+    "position": "F",
+    "archetype": "Two-Way Forward",
+    "percentiles": {
+      "offense": 98.9,
+      "defense": 51.2,
+      "transition": 24.2,
+      "special_teams": 49.5,
+      "discipline": 14.9,
+      "finishing": 37.3
+    },
+    "trends": {
+      "offense": 0.927,
+      "defense": -0.05
+    },
+    "similar_players": [
+      {
+        "name": "Connor McMichael",
+        "similarity": 0.997
+      },
+      {
+        "name": "Jonatan Berggren",
+        "similarity": 0.98
+      },
+      {
+        "name": "Filip Chytil",
+        "similarity": 0.961
+      }
+    ],
+    "flags": {},
+    "narrative": "Tom Wilson is an elite offensive forward with elite offensive production. His playing style is comparable to Connor McMichael and Jonatan Berggren. Offensive numbers are improving significantly."
+  },
+  {
+    "player_id": 8480830,
+    "full_name": "Andrei Svechnikov",
+    "position": "F",
+    "archetype": "Two-Way Forward",
+    "percentiles": {
+      "offense": 98.8,
+      "defense": 35.7,
+      "transition": 90.6,
+      "special_teams": 47.7,
+      "discipline": 73.5,
+      "finishing": 12.7
+    },
+    "trends": {
+      "offense": 1.608,
+      "defense": -0.636
+    },
+    "similar_players": [
+      {
+        "name": "Sebastian Aho",
+        "similarity": 0.987
+      },
+      {
+        "name": "Filip Chytil",
+        "similarity": 0.98
+      },
+      {
+        "name": "Shane Wright",
+        "similarity": 0.975
+      }
+    ],
+    "flags": {},
+    "narrative": "Andrei Svechnikov is an elite offensive forward with strengths in offensive production, transition play, and discipline. His playing style is comparable to Sebastian Aho and Filip Chytil. Offense is improving significantly while defense is declining significantly."
+  },
+  {
+    "player_id": 8478427,
+    "full_name": "Sebastian Aho",
+    "position": "F",
+    "archetype": "Two-Way Forward",
+    "percentiles": {
+      "offense": 98.7,
+      "defense": 75.2,
+      "transition": 90.7,
+      "special_teams": 63.6,
+      "discipline": 73.9,
+      "finishing": 11.9
+    },
+    "trends": {
+      "offense": 1.566,
+      "defense": 0.604
+    },
+    "similar_players": [
+      {
+        "name": "Shane Wright",
+        "similarity": 0.993
+      },
+      {
+        "name": "Filip Chytil",
+        "similarity": 0.99
+      },
+      {
+        "name": "Andrei Svechnikov",
+        "similarity": 0.987
+      }
+    ],
+    "flags": {},
+    "narrative": "Sebastian Aho is an elite offensive forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Shane Wright and Filip Chytil. Offense is improving significantly while defense is improving significantly."
+  },
+  {
+    "player_id": 8483524,
+    "full_name": "Shane Wright",
+    "position": "F",
+    "archetype": "Defensive Forward",
+    "percentiles": {
+      "offense": 98.5,
+      "defense": 79.1,
+      "transition": 85.7,
+      "discipline": 61.1,
+      "finishing": 21.6
+    },
+    "trends": {
+      "offense": -2.194,
+      "defense": -0.094
+    },
+    "similar_players": [
+      {
+        "name": "Sebastian Aho",
+        "similarity": 0.993
+      },
+      {
+        "name": "Filip Chytil",
+        "similarity": 0.99
+      },
+      {
+        "name": "Andrei Svechnikov",
+        "similarity": 0.975
+      }
+    ],
+    "flags": {},
+    "narrative": "Shane Wright is an elite offensive forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Sebastian Aho and Filip Chytil. Offensive numbers are declining significantly."
+  },
+  {
+    "player_id": 8477939,
+    "full_name": "William Nylander",
+    "position": "F",
+    "archetype": "Playmaker",
+    "percentiles": {
+      "offense": 98.4,
+      "defense": 65.2,
+      "transition": 90.2,
+      "special_teams": 86.4,
+      "discipline": 17.7,
+      "finishing": 40.2
+    },
+    "trends": {
+      "offense": -0.443,
+      "defense": -0.621
+    },
+    "similar_players": [
+      {
+        "name": "Drake Batherson",
+        "similarity": 0.975
+      },
+      {
+        "name": "Dylan Strome",
+        "similarity": 0.971
+      },
+      {
+        "name": "Shane Wright",
+        "similarity": 0.968
+      }
+    ],
+    "flags": {},
+    "narrative": "William Nylander is an elite offensive forward with strengths in offensive production, transition play, and special teams contributions. His playing style is comparable to Drake Batherson and Dylan Strome. Offense is trending downward while defense is declining significantly."
+  },
+  {
+    "player_id": 8477497,
+    "full_name": "Sean Monahan",
+    "position": "F",
+    "archetype": "Two-Way Forward",
+    "percentiles": {
+      "offense": 98.4,
+      "defense": 4.4,
+      "transition": 42.4,
+      "special_teams": 38.8,
+      "discipline": 25.5,
+      "finishing": 59.4
+    },
+    "trends": {
+      "offense": 0.901,
+      "defense": -0.859
+    },
+    "similar_players": [
+      {
+        "name": "Cole Sillinger",
+        "similarity": 0.987
+      },
+      {
+        "name": "Brendan Gallagher",
+        "similarity": 0.976
+      },
+      {
+        "name": "Lars Eller",
+        "similarity": 0.971
+      }
+    ],
+    "flags": {},
+    "narrative": "Sean Monahan is an elite offensive forward with elite offensive production. His playing style is comparable to Cole Sillinger and Brendan Gallagher. Offense is improving significantly while defense is declining significantly."
+  },
+  {
+    "player_id": 8479323,
+    "full_name": "Adam Fox",
+    "position": "D",
+    "archetype": "Two-Way Defenseman",
+    "percentiles": {
+      "offense": 100.0,
+      "defense": 99.1,
+      "transition": 72.5,
+      "special_teams": 98.0,
+      "discipline": 18.2,
+      "finishing": 13.5
+    },
+    "trends": {
+      "offense": 2.281,
+      "defense": 0.248
+    },
+    "similar_players": [
+      {
+        "name": "Rasmus Andersson",
+        "similarity": 0.942
+      },
+      {
+        "name": "Kris Letang",
+        "similarity": 0.937
+      },
+      {
+        "name": "Martin Feh\u00c3\u00a9rv\u00c3\u00a1ry",
+        "similarity": 0.937
+      }
+    ],
+    "flags": {},
+    "narrative": "Adam Fox is an elite two-way defenseman with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Rasmus Andersson and Kris Letang. Offense is improving significantly while defense is trending upward."
+  },
+  {
+    "player_id": 8478460,
+    "full_name": "Zach Werenski",
+    "position": "D",
+    "archetype": "Two-Way Defenseman",
+    "percentiles": {
+      "offense": 99.9,
+      "defense": 9.8,
+      "transition": 33.4,
+      "special_teams": 38.5,
+      "discipline": 24.1,
+      "finishing": 98.1
+    },
+    "trends": {
+      "offense": 0.707,
+      "defense": -0.727
+    },
+    "similar_players": [
+      {
+        "name": "Ivan Provorov",
+        "similarity": 0.987
+      },
+      {
+        "name": "Matthew Kessel",
+        "similarity": 0.94
+      },
+      {
+        "name": "Zach Whitecloud",
+        "similarity": 0.88
+      }
+    ],
+    "flags": {},
+    "narrative": "Zach Werenski is an elite offensive defenseman excelling in offensive production and finishing ability. His playing style is comparable to Ivan Provorov and Matthew Kessel. Offense is improving significantly while defense is declining significantly."
+  },
+  {
+    "player_id": 8482762,
+    "full_name": "Simon Edvinsson",
+    "position": "D",
+    "archetype": "Offensive Defenseman",
+    "percentiles": {
+      "offense": 99.8,
+      "defense": 98.2,
+      "transition": 87.8,
+      "special_teams": 70.9,
+      "discipline": 34.3,
+      "finishing": 1.4
+    },
+    "trends": {
+      "offense": -3.79,
+      "defense": -1.774
+    },
+    "similar_players": [
+      {
+        "name": "Kris Letang",
+        "similarity": 0.978
+      },
+      {
+        "name": "Rasmus Andersson",
+        "similarity": 0.973
+      },
+      {
+        "name": "Noah Dobson",
+        "similarity": 0.964
+      }
+    ],
+    "flags": {},
+    "narrative": "Simon Edvinsson is an elite two-way defenseman with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Kris Letang and Rasmus Andersson. Offense is declining significantly while defense is declining significantly."
+  },
+  {
+    "player_id": 8475218,
+    "full_name": "Mattias Ekholm",
+    "position": "D",
+    "archetype": "Two-Way Defenseman",
+    "percentiles": {
+      "offense": 99.6,
+      "defense": 96.4,
+      "transition": 99.5,
+      "special_teams": 11.8,
+      "discipline": 4.6,
+      "finishing": 3.1
+    },
+    "trends": {
+      "offense": 2.682,
+      "defense": -0.065
+    },
+    "similar_players": [
+      {
+        "name": "Moritz Seider",
+        "similarity": 0.957
+      },
+      {
+        "name": "Simon Edvinsson",
+        "similarity": 0.919
+      },
+      {
+        "name": "Jalen Chatfield",
+        "similarity": 0.896
+      }
+    ],
+    "flags": {},
+    "narrative": "Mattias Ekholm is an elite two-way defenseman with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Moritz Seider and Simon Edvinsson. Offensive numbers are improving significantly."
+  },
+  {
+    "player_id": 8480865,
+    "full_name": "Noah Dobson",
+    "position": "D",
+    "archetype": "Two-Way Defenseman",
+    "percentiles": {
+      "offense": 99.5,
+      "defense": 92.8,
+      "transition": 42.0,
+      "special_teams": 13.0,
+      "discipline": 93.8,
+      "finishing": 2.7
+    },
+    "trends": {
+      "offense": 1.963,
+      "defense": -0.007
+    },
+    "similar_players": [
+      {
+        "name": "Rasmus Andersson",
+        "similarity": 0.971
+      },
+      {
+        "name": "Simon Edvinsson",
+        "similarity": 0.964
+      },
+      {
+        "name": "Alex Pietrangelo",
+        "similarity": 0.931
+      }
+    ],
+    "flags": {},
+    "narrative": "Noah Dobson is an elite two-way defenseman with strengths in offensive production, defensive impact, and discipline. His playing style is comparable to Rasmus Andersson and Simon Edvinsson. Offensive numbers are improving significantly."
+  }
+]

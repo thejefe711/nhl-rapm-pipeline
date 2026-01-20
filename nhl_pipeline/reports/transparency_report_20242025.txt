@@ -1,0 +1,48 @@
+NHL ANALYTICS TRANSPARENCY REPORT
+========================================
+
+RAPM EXPLANATION
+----------------
+RAPM (Regularized Adjusted Plus-Minus) Analysis:
+- Measures each player's contribution to goal differential while on ice
+- Adjusts for teammates and opponents using ridge regression
+- 5v5 only to focus on even-strength play
+- Per-60 minute rates for comparability across playing time
+
+LATENT SKILLS EXPLANATION
+-------------------------
+Latent Skills (Sparse Autoencoder):
+- Learns hidden patterns from 14 RAPM metrics
+- Reduces dimensionality while preserving important information
+- Identifies stable player traits (e.g., "Play driver", "Elite shutdown")
+- Uses regularization to prevent overfitting
+
+FORECASTING EXPLANATION
+-----------------------
+DLM Forecasting (Dynamic Linear Models):
+- Kalman filter-based predictions of future performance
+- Accounts for trend and uncertainty
+- 95% confidence intervals show prediction reliability
+- Adapts to recent performance changes
+
+DATA SOURCES
+------------
+- NHL play-by-play data (events, shots, goals)
+- Player shift data (on-ice combinations)
+- Game results and scheduling data
+- Advanced metrics computed via ridge regression
+
+LIMITATIONS
+-----------
+- Based on available tracking data quality
+- Small sample sizes for some players/seasons
+- Correlation does not equal causation in statistical models
+- Cannot capture unobservable factors (effort, coaching, etc.)
+
+VALIDATION METHODS
+------------------
+- Cross-validation of model predictions
+- Comparison against established NHL metrics
+- Stability analysis of learned representations
+- Outlier detection and data quality checks
+

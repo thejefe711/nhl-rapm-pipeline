@@ -1,0 +1,51 @@
+============================================================
+CATEGORIZATION REPORT
+============================================================
+
+Total rows: 3,075
+
+Category score statistics (2024-2025 season):
+
+  OFFENSE:
+    Mean: nan
+    Std: nan
+    Min: nan
+    Max: nan
+
+  DEFENSE:
+    Mean: nan
+    Std: nan
+    Min: nan
+    Max: nan
+
+  TRANSITION:
+    Mean: nan
+    Std: nan
+    Min: nan
+    Max: nan
+
+  SPECIAL_TEAMS:
+    Mean: nan
+    Std: nan
+    Min: nan
+    Max: nan
+
+  DISCIPLINE:
+    Mean: nan
+    Std: nan
+    Min: nan
+    Max: nan
+
+  FINISHING:
+    Mean: nan
+    Std: nan
+    Min: nan
+    Max: nan
+
+
+Top 5 players by OFFENSE_percentile (2024-2025):
+
+Top 5 players by DEFENSE_percentile (2024-2025):
+
+
+McDavid profile (2024-2025):

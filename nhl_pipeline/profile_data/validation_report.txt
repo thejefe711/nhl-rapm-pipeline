@@ -1,0 +1,48 @@
+============================================================
+VALIDATION REPORT
+============================================================
+
+Total profiles: 1219
+Overall validation: FAILED
+
+CHECKS:
+
+  required_fields: ✓ PASS
+
+  percentiles_valid: ✓ PASS
+
+  known_players: ✓ PASS
+
+  elite_players: ✗ FAIL
+    - Nathan MacKinnon offense percentile = 71 (expected >80)
+
+  similarity_valid: ✓ PASS
+
+
+SAMPLE PROFILES:
+----------------------------------------
+
+Corey Perry:
+  Position: F
+  Archetype: Two-Way Forward
+  Percentiles: OFFENSE=67%, DEFENSE=98%, SPECIAL_TEAMS=23%
+
+Corey Perry:
+  Position: F
+  Archetype: Two-Way Forward
+  Percentiles: OFFENSE=67%, DEFENSE=98%, SPECIAL_TEAMS=23%
+
+Alex Ovechkin:
+  Position: F
+  Archetype: Two-Way Forward
+  Percentiles: OFFENSE=10%, DEFENSE=68%, SPECIAL_TEAMS=75%
+
+Alex Ovechkin:
+  Position: F
+  Archetype: Defensive Forward
+  Percentiles: OFFENSE=10%, DEFENSE=68%, SPECIAL_TEAMS=75%
+
+Evgeni Malkin:
+  Position: F
+  Archetype: Two-Way Forward
+  Percentiles: OFFENSE=2%, DEFENSE=0%, SPECIAL_TEAMS=47%

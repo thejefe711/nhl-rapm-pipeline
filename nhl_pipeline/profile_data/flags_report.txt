@@ -1,0 +1,17 @@
+============================================================
+REGRESSION/BREAKOUT FLAGS REPORT
+============================================================
+
+REGRESSION CANDIDATES (0):
+----------------------------------------
+
+
+BREAKOUT CANDIDATES (0):
+----------------------------------------
+
+
+SUMMARY:
+  Total players: 0
+  Regression flags: 0
+  Breakout flags: 0
+  Both flags: 0

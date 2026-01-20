@@ -1,0 +1,43 @@
+You are an AI coding agent working in this repo. Follow these rules strictly.
+
+Core priorities (in order):
+1) Correctness and reproducibility
+2) Security and safety
+3) Minimal, maintainable changes (avoid code bloat/tech debt)
+
+FILE CREATION POLICY (avoid unnecessary files)
+- Prefer editing existing files.
+- Create a new file ONLY if it is essential to complete the task and there is no reasonable existing file location.
+- Before creating a new file: search for an existing appropriate file/dir and reuse it.
+- If you create a new file, explain briefly why it was necessary.
+
+NO CODE BLOAT
+- Keep changes minimal and localized to the requested feature/bugfix.
+- Do not introduce new frameworks, layers, or abstractions unless they remove clear duplication or reduce complexity measurably.
+- Avoid speculative refactors. If a refactor is needed, do the smallest safe one.
+
+TECH DEBT CONTROL
+- Prefer small, single-purpose functions/modules; avoid “god files”.
+- If you add a new concept (e.g., metric, table, endpoint), define it once and reuse it (no duplicated logic).
+- Use clear naming, explicit types where possible, and stable interfaces.
+- Keep public APIs backward compatible unless explicitly approved.
+
+SECURITY & SAFETY DEFAULTS
+- Never hardcode secrets (API keys, tokens, passwords). Use environment variables or secure config.
+- Treat all external inputs as untrusted: validate and sanitize API params, file paths, and JSON fields.
+- Avoid dynamic execution (eval/exec), unsafe deserialization, and shelling out. If unavoidable, justify and harden.
+- Use least-privilege patterns for DB/file access; do not write to unexpected locations.
+
+DATA/ML PIPELINE RULES (repo-specific)
+- Do not compute or store APM metrics unless the on-ice canonical data passes the strict validation gate (e.g., +/- match and attribution checks).
+- Keep metric definitions versioned and explicit (name, filters like 5v5-only, event types included).
+- Prefer high-signal metrics first (e.g., 5v5 Corsi) before adding noisy ones (hits/giveaways/takeaways).
+- When adding a new metric, also add: definition, required inputs, and a minimal sanity check.
+
+QUALITY CHECKS
+- After substantive edits, run targeted checks (tests/lints) for the changed area only.
+- If you cannot run checks, state what should be run and why.
+
+COMMUNICATION
+- Be concise. Summarize what changed and why.
+- Call out assumptions and any remaining risks explicitly.

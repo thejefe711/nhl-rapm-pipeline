@@ -1,0 +1,223 @@
+{
+  "1_rapm_mcdavid_2024": {
+    "blocked_shot_to_xg_swing_rapm_5v5_w10": 0.0245,
+    "corsi_def_rapm_5v5": 2.9652,
+    "corsi_off_rapm_5v5": 5.1277,
+    "corsi_pk_def_rapm": 0.7679,
+    "corsi_pp_off_rapm": 3.1625,
+    "corsi_rapm_5v5": 7.8526,
+    "faceoff_loss_to_xg_swing_rapm_5v5_w10": 0.2095,
+    "finishing_residual_rapm_5v5": -2.9402,
+    "giveaway_to_xg_swing_rapm_5v5_w10": 0.1116,
+    "goals_rapm_5v5": -0.2771,
+    "hd_xg_def_rapm_5v5_ge020": 0.0164,
+    "hd_xg_off_rapm_5v5_ge020": 2.4504,
+    "hd_xg_rapm_5v5_ge020": 2.4541,
+    "penalties_drawn_rapm_5v5": 0.03,
+    "penalties_taken_rapm_5v5": -0.03,
+    "primary_assist_rapm_5v5": -0.108,
+    "secondary_assist_rapm_5v5": -0.0389,
+    "takeaway_to_xg_swing_rapm_5v5_w10": 0.0084,
+    "turnover_to_xg_swing_rapm_5v5_w10": 0.12,
+    "xg_def_rapm_5v5": 0.1613,
+    "xg_off_rapm_5v5": 2.5195,
+    "xg_pk_def_rapm": 0.0289,
+    "xg_pp_off_rapm": 0.153,
+    "xg_primary_assist_on_goals_rapm_5v5": -0.0559,
+    "xg_rapm_5v5": 2.6631,
+    "xg_secondary_assist_on_goals_rapm_5v5": -0.0149
+  },
+  "2_dlm_tables": [
+    "dlm_forecasts"
+  ],
+  "2_dlm_samples": {
+    "dlm_forecasts": {
+      "schema": [
+        {
+          "column_name": "model_name",
+          "column_type": "VARCHAR"
+        },
+        {
+          "column_name": "season",
+          "column_type": "VARCHAR"
+        },
+        {
+          "column_name": "window_size",
+          "column_type": "INTEGER"
+        },
+        {
+          "column_name": "window_end_game_id",
+          "column_type": "VARCHAR"
+        },
+        {
+          "column_name": "window_end_time_utc",
+          "column_type": "VARCHAR"
+        },
+        {
+          "column_name": "player_id",
+          "column_type": "INTEGER"
+        },
+        {
+          "column_name": "dim_idx",
+          "column_type": "INTEGER"
+        },
+        {
+          "column_name": "horizon_games",
+          "column_type": "INTEGER"
+        },
+        {
+          "column_name": "forecast_mean",
+          "column_type": "DOUBLE"
+        },
+        {
+          "column_name": "forecast_var",
+          "column_type": "DOUBLE"
+        },
+        {
+          "column_name": "filtered_mean",
+          "column_type": "DOUBLE"
+        },
+        {
+          "column_name": "filtered_var",
+          "column_type": "DOUBLE"
+        },
+        {
+          "column_name": "n_obs",
+          "column_type": "INTEGER"
+        },
+        {
+          "column_name": "q",
+          "column_type": "DOUBLE"
+        },
+        {
+          "column_name": "r",
+          "column_type": "DOUBLE"
+        },
+        {
+          "column_name": "created_at",
+          "column_type": "TIMESTAMP"
+        }
+      ],
+      "sample_mcdavid": [
+        {
+          "model_name": "sae_apm_v1_k12_a1",
+          "season": "20202021",
+          "window_size": 10,
+          "window_end_game_id": "2020020285",
+          "window_end_time_utc": "2021-02-21T03:00:00Z",
+          "player_id": 8478402,
+          "dim_idx": 7,
+          "horizon_games": 3,
+          "forecast_mean": -0.029824134116332373,
+          "forecast_var": 0.10055967744072089,
+          "filtered_mean": -0.029824134116332373,
+          "filtered_var": 0.04181139659078551,
+          "n_obs": 9,
+          "q": 0.019582760283311795,
+          "r": 0.13055173522207864,
+          "created_at": "2026-01-15 15:13:48.641956"
+        },
+        {
+          "model_name": "sae_apm_v1_k12_a1",
+          "season": "20202021",
+          "window_size": 10,
+          "window_end_game_id": "2020020285",
+          "window_end_time_utc": "2021-02-21T03:00:00Z",
+          "player_id": 8478402,
+          "dim_idx": 8,
+          "horizon_games": 3,
+          "forecast_mean": 0.0,
+          "forecast_var": 7.70266877492368e-05,
+          "filtered_mean": 0.0,
+          "filtered_var": 3.2026687749236794e-05,
+          "n_obs": 9,
+          "q": 1.5e-05,
+          "r": 0.0001,
+          "created_at": "2026-01-15 15:13:48.641956"
+        },
+        {
+          "model_name": "sae_apm_v1_k12_a1",
+          "season": "20202021",
+          "window_size": 10,
+          "window_end_game_id": "2020020285",
+          "window_end_time_utc": "2021-02-21T03:00:00Z",
+          "player_id": 8478402,
+          "dim_idx": 1,
+          "horizon_games": 3,
+          "forecast_mean": -0.1008791076108966,
+          "forecast_var": 0.3917266082093943,
+          "filtered_mean": -0.1008791076108966,
+          "filtered_var": 0.16287479224126702,
+          "n_obs": 9,
+          "q": 0.07628393865604244,
+          "r": 0.5085595910402829,
+          "created_at": "2026-01-15 15:13:48.641956"
+        },
+        {
+          "model_name": "sae_apm_v1_k12_a1",
+          "season": "20202021",
+          "window_size": 10,
+          "window_end_game_id": "2020020285",
+          "window_end_time_utc": "2021-02-21T03:00:00Z",
+          "player_id": 8478402,
+          "dim_idx": 6,
+          "horizon_games": 5,
+          "forecast_mean": -0.6978284127124882,
+          "forecast_var": 25.063986499104693,
+          "filtered_mean": -0.6978284127124882,
+          "filtered_var": 7.500152403470384,
+          "n_obs": 9,
+          "q": 3.512766819126862,
+          "r": 23.418445460845746,
+          "created_at": "2026-01-15 15:13:48.641956"
+        },
+        {
+          "model_name": "sae_apm_v1_k12_a1",
+          "season": "20202021",
+          "window_size": 10,
+          "window_end_game_id": "2020020285",
+          "window_end_time_utc": "2021-02-21T03:00:00Z",
+          "player_id": 8478402,
+          "dim_idx": 3,
+          "horizon_games": 3,
+          "forecast_mean": -0.6745104894745421,
+          "forecast_var": 1.5307559030173095,
+          "filtered_mean": -0.6745104894745421,
+          "filtered_var": 0.6364682522223881,
+          "n_obs": 9,
+          "q": 0.29809588359830713,
+          "r": 1.987305890655381,
+          "created_at": "2026-01-15 15:13:48.641956"
+        }
+      ]
+    }
+  },
+  "3_seasons": {
+    "list": [
+      "20202021",
+      "20212022",
+      "20222023",
+      "20232024",
+      "20242025",
+      "20252026"
+    ],
+    "count": 6
+  },
+  "4_database_structure": {
+    "file": "nhl_canonical.duckdb",
+    "tables": {
+      "apm_results": 71312,
+      "dlm_forecasts": 19920,
+      "events": 100494,
+      "games": 317,
+      "latent_dim_meta": 12,
+      "latent_models": 2,
+      "latent_skills": 54096,
+      "players": 1200,
+      "rolling_latent_skills": 137424,
+      "shifts": 243216,
+      "teams": 34,
+      "validation_log": 405
+    }
+  }
+}

@@ -1,0 +1,10 @@
+============================================================
+SIMILARITY REPORT
+============================================================
+
+
+
+Similarity score statistics:
+  Mean top-1 similarity: nan
+  Min top-1 similarity: nan
+  Max top-1 similarity: nan

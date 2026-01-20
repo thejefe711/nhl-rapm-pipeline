@@ -1,0 +1,18 @@
+# NHL Data Pipeline Dependencies
+requests>=2.31.0
+pandas>=2.0.0
+pyarrow>=14.0.0
+duckdb>=0.9.0
+
+# RAPM / Ridge regression (Corsi APM)
+scikit-learn>=1.3.0
+scipy>=1.10.0
+
+# API (optional)
+fastapi>=0.110.0
+uvicorn>=0.27.0
+
+# For Railway Postgres deployment (optional, for cloud)
+psycopg2-binary>=2.9.9
+sqlalchemy>=2.0.0
+pykalman>=0.9.7
