@@ -54,15 +54,18 @@ def compute_category_scores(df: pd.DataFrame) -> pd.DataFrame:
                         z = -z
                     
                     result.loc[mask, f"{col}_z"] = z
+                else:
+                    # If std is 0, all values are the same (likely 0)
+                    result.loc[mask, f"{col}_z"] = 0
         
         # Now compute category scores as average of z-scores
         for category, metrics in METRIC_CATEGORIES.items():
             z_cols = [f"{m}_{suffix}_z" for m in metrics if f"{m}_{suffix}_z" in result.columns]
             
             if z_cols:
-                result[f"{category}_{suffix}_score"] = result[z_cols].mean(axis=1)
+                result[f"{category}_{suffix}_score"] = result[z_cols].mean(axis=1).fillna(0)
             else:
-                result[f"{category}_{suffix}_score"] = np.nan
+                result[f"{category}_{suffix}_score"] = 0
     
     return result
 
@@ -93,7 +96,8 @@ def compute_percentiles(df: pd.DataFrame) -> pd.DataFrame:
                 
                 # Rank-based percentile
                 percentiles = values.rank(pct=True, na_option="keep") * 100
-                result.loc[mask, pct_col] = percentiles
+                # Fill NaNs with 50 (neutral/average)
+                result.loc[mask, pct_col] = percentiles.fillna(50)
     
     return result
 
@@ -141,6 +145,25 @@ def compute_trends(df: pd.DataFrame) -> pd.DataFrame:
     
     trend_df = pd.DataFrame(trend_records)
     result = result.merge(trend_df, on=["player_id", "season"], how="left")
+    
+    # Add qualification flags
+    # MIN_GAMES = 82, MIN_TOI = 1000 (minutes)
+    # For current season, we use a lower threshold
+    from profile_pipeline.config import CURRENT_SEASON
+    
+    result["is_qualified"] = False
+    
+    # Career/Historical qualification
+    hist_mask = (result["season"].astype(int) < CURRENT_SEASON) & \
+                (result["games_count"] >= 40) & \
+                (result["toi_total"] >= 500 * 60)
+    
+    # Current season qualification (provisional)
+    curr_mask = (result["season"].astype(int) == CURRENT_SEASON) & \
+                (result["games_count"] >= 10)
+    
+    result.loc[hist_mask | curr_mask, "is_qualified"] = True
+    
     return result
 
 

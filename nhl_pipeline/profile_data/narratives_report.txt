@@ -2,39 +2,39 @@
 NARRATIVES REPORT
 ============================================================
 
-Total narratives: 462
+Total narratives: 200
 Method: Template-based (no API cost)
 
 
 SAMPLE NARRATIVES:
 ----------------------------------------
 
+Evgeni Malkin (F):
+  Evgeni Malkin is an offensively-inclined forward with strengths in offensive production, special teams contributions, and discipline. His playing style is comparable to Auston Matthews and Anthony Mantha. Offense is declining significantly while defense is trending downward.
+
 Sidney Crosby (F):
-  Sidney Crosby is an elite offensive forward excelling in offensive production and discipline. His playing style is comparable to Anthony Beauvillier and Casey Mittelstadt. Offense is improving significantly while defense is declining significantly.
-
-Anze Kopitar (F):
-  Anze Kopitar is an elite offensive forward with excellent offensive production. His playing style is comparable to Alex Laferriere and Andrei Kuzmenko. Offense is trending upward while defense is improving significantly.
-
-Trevor Lewis (F):
-  Trevor Lewis is an elite two-way forward excelling in offensive production and defensive impact. His playing style is comparable to Philip Tomasino and Evan Rodrigues. Offense is improving significantly while defense is improving significantly.
+  Sidney Crosby is an offensively-inclined forward excelling in offensive production and discipline. His playing style is comparable to Nazem Kadri and Wyatt Johnston. Breakout candidate: offense trending up (+0.52); young player with positive trajectory.
 
 Claude Giroux (F):
-  Claude Giroux is an elite offensive forward with strengths in offensive production, defensive impact, and discipline. His playing style is comparable to Drake Batherson and Connor McMichael. Offense is trending upward while defense is trending upward.
+  Claude Giroux is a well-rounded forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Cole Koepke and Jonatan Berggren. Breakout candidate: young player with positive trajectory.
+
+Jordan Staal (F):
+  Jordan Staal is an elite defensive forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Jonathan Marchessault and Matt Rempe. Breakout candidate: defense trending up (+0.77); young player with positive trajectory.
+
+Alex Killorn (F):
+  Alex Killorn is an elite offensive forward with strengths in offensive production, transition play, and discipline. His playing style is comparable to Martin Necas and Ross Colton. Breakout candidate: offense trending up (+0.44); young player with positive trajectory.
 
 James van Riemsdyk (F):
-  James van Riemsdyk is an elite two-way forward with strengths in offensive production, defensive impact, and finishing ability. His playing style is comparable to Brandon Duhaime and Mikael Backlund. Offense is improving significantly while defense is trending upward.
+  James van Riemsdyk is an elite offensive forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Pavel Buchnevich and Shane Wright. Regression candidate: elite finishing with limited track record.
 
-Mikael Backlund (F):
-  Mikael Backlund is an elite two-way forward with strengths in offensive production, defensive impact, and discipline. His playing style is comparable to Nic Dowd and James van Riemsdyk. Defensive metrics are improving significantly.
+David Perron (F):
+  David Perron is an offensively-inclined forward excelling in offensive production and discipline. His playing style is comparable to Isac LundestrÃ¶m and Tyson Jost. Breakout candidate: offense trending up (+0.34); young player with positive trajectory.
 
-Max Pacioretty (F):
-  Max Pacioretty is an elite offensive forward with strengths in offensive production, transition play, and finishing ability. His playing style is comparable to Justin Brazeau and Alexandre Texier.
-
-Lars Eller (F):
-  Lars Eller is an elite offensive forward with strengths in offensive production, discipline, and finishing ability. His playing style is comparable to Cole Sillinger and Sean Monahan. Offense is improving significantly while defense is declining significantly.
-
-Kyle Palmieri (F):
-  Kyle Palmieri is an offensively-inclined forward excelling in offensive production and transition play. His playing style is comparable to Brock Nelson and Maxim Tsyplakov. Offense is trending downward while defense is declining significantly.
+Marcus Johansson (F):
+  Marcus Johansson is an elite defensive forward with strengths in offensive production, defensive impact, and discipline. His playing style is comparable to Josh Doan and Matty Beniers. Breakout candidate: offense trending up (+0.56); defense trending up (+2.09); young player with positive trajectory.
 
 Ryan O'Reilly (F):
-  Ryan O'Reilly is an elite two-way forward with strengths in offensive production, defensive impact, and transition play. His playing style is comparable to Lucas Condotta and Philip Tomasino. Defensive metrics are trending upward.
+  Ryan O'Reilly is an elite two-way forward with strengths in offensive production, defensive impact, and discipline. His playing style is comparable to Jesperi Kotkaniemi and Jordan Martinook. Breakout candidate: young player with positive trajectory.
+
+Evander Kane (F):
+  Evander Kane is an elite offensive forward with strengths in offensive production, discipline, and finishing ability. His playing style is comparable to Nathan MacKinnon and Mavrik Bourque. Regression candidate: elite finishing with limited track record.

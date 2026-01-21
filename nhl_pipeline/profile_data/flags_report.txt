@@ -1,17 +1,177 @@
 ============================================================
-REGRESSION/BREAKOUT FLAGS REPORT
+REGRESSION/BREAKOUT FLAGS REPORT (SIGNAL FOCUS)
 ============================================================
 
-REGRESSION CANDIDATES (0):
+REGRESSION CANDIDATES (51):
 ----------------------------------------
 
+  Brandon Carlo (D):
+    finishing_residual: +0.267
+    Reason: elite finishing with limited track record
 
-BREAKOUT CANDIDATES (0):
+  Bobby McMann (F):
+    finishing_residual: +0.251
+    Reason: elite finishing with limited track record
+
+  John Tavares (F):
+    finishing_residual: +0.222
+    Reason: elite finishing with limited track record
+
+  Trent Frederic (F):
+    finishing_residual: +0.160
+    Reason: elite finishing with limited track record
+
+  Dakota Joshua (F):
+    finishing_residual: +0.159
+    Reason: elite finishing with limited track record
+
+  Troy Stecher (D):
+    finishing_residual: +0.138
+    Reason: elite finishing with limited track record
+
+  Matias Maccelli (F):
+    finishing_residual: +0.136
+    Reason: elite finishing with limited track record
+
+  Juraj SlafkovskÃ½ (F):
+    finishing_residual: +0.132
+    Reason: elite finishing with limited track record
+
+  Ty Emberson (D):
+    finishing_residual: +0.123
+    Reason: elite finishing with limited track record
+
+  Andrew Copp (F):
+    finishing_residual: +0.104
+    Reason: elite finishing with limited track record
+
+  Sam Carrick (F):
+    finishing_residual: +0.104
+    Reason: elite finishing with limited track record
+
+  Barrett Hayton (F):
+    finishing_residual: +0.103
+    Reason: elite finishing with limited track record
+
+  Clayton Keller (F):
+    finishing_residual: +0.102
+    Reason: elite finishing with limited track record
+
+  Nick Schmaltz (F):
+    finishing_residual: +0.102
+    Reason: elite finishing with limited track record
+
+  Oliver Kapanen (F):
+    finishing_residual: +0.101
+    Reason: elite finishing with limited track record
+
+  Nicholas Robertson (F):
+    finishing_residual: +0.088
+    Reason: elite finishing with limited track record
+
+  Bowen Byram (D):
+    finishing_residual: +0.076
+    Reason: elite finishing with limited track record
+
+  Josh Doan (F):
+    finishing_residual: +0.075
+    Reason: elite finishing with limited track record
+
+  Jonny Brodzinski (F):
+    finishing_residual: +0.075
+    Reason: elite finishing with limited track record
+
+  Blake Lizotte (F):
+    finishing_residual: +0.072
+    Reason: elite finishing with limited track record
+
+
+BREAKOUT CANDIDATES (274):
 ----------------------------------------
+
+  Sidney Crosby (F):
+    finishing_residual: -0.031
+    Reason: offense trending up (+0.52); young player with positive trajectory
+
+  Ryan Reaves (F):
+    finishing_residual: -0.072
+    Reason: defense trending up (+0.37); young player with positive trajectory
+
+  Claude Giroux (F):
+    finishing_residual: -0.034
+    Reason: young player with positive trajectory
+
+  Jordan Staal (F):
+    finishing_residual: +0.034
+    Reason: defense trending up (+0.77); young player with positive trajectory
+
+  Alex Killorn (F):
+    finishing_residual: -0.001
+    Reason: offense trending up (+0.44); young player with positive trajectory
+
+  James van Riemsdyk (F):
+    finishing_residual: -0.001
+    Reason: offense trending up (+1.19); young player with positive trajectory
+
+  David Perron (F):
+    finishing_residual: -0.070
+    Reason: offense trending up (+0.34); young player with positive trajectory
+
+  Mikael Backlund (F):
+    finishing_residual: -0.001
+    Reason: defense trending up (+1.10); young player with positive trajectory
+
+  Marcus Johansson (F):
+    finishing_residual: +0.035
+    Reason: offense trending up (+0.56); defense trending up (+2.09); young player with positive trajectory
+
+  Ryan O'Reilly (F):
+    finishing_residual: -0.037
+    Reason: young player with positive trajectory
+
+  John Tavares (F):
+    finishing_residual: +0.222
+    Reason: defense trending up (+0.41); young player with positive trajectory
+
+  Evander Kane (F):
+    finishing_residual: +0.068
+    Reason: defense trending up (+2.42); young player with positive trajectory
+
+  Brayden Schenn (F):
+    finishing_residual: +0.034
+    Reason: offense trending up (+1.69); young player with positive trajectory
+
+  Reilly Smith (F):
+    finishing_residual: -0.071
+    Reason: young player with positive trajectory
+
+  Calle Jarnkrok (F):
+    finishing_residual: -0.034
+    Reason: defense trending up (+1.19); young player with positive trajectory
+
+  Brock Nelson (F):
+    finishing_residual: -0.001
+    Reason: offense trending up (+1.64); defense trending up (+0.31); young player with positive trajectory
+
+  Nick Bjugstad (F):
+    finishing_residual: -0.035
+    Reason: defense trending up (+0.48); young player with positive trajectory
+
+  Vladimir Tarasenko (F):
+    finishing_residual: -0.000
+    Reason: offense trending up (+0.43); young player with positive trajectory
+
+  Jaden Schwartz (F):
+    finishing_residual: -0.066
+    Reason: offense trending up (+0.54); young player with positive trajectory
+
+  Zach Hyman (F):
+    finishing_residual: +0.001
+    Reason: offense trending up (+1.35); defense trending up (+0.61); young player with positive trajectory
 
 
 SUMMARY:
-  Total players: 0
-  Regression flags: 0
-  Breakout flags: 0
-  Both flags: 0
+  Total players: 561
+  Regression flags: 51
+  Breakout flags: 274
+  Both flags: 32

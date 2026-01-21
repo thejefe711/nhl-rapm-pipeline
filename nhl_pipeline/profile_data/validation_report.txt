@@ -2,8 +2,8 @@
 VALIDATION REPORT
 ============================================================
 
-Total profiles: 1219
-Overall validation: FAILED
+Total profiles: 561
+Overall validation: PASSED
 
 CHECKS:
 
@@ -13,8 +13,7 @@ CHECKS:
 
   known_players: ✓ PASS
 
-  elite_players: ✗ FAIL
-    - Nathan MacKinnon offense percentile = 71 (expected >80)
+  elite_players: ✓ PASS
 
   similarity_valid: ✓ PASS
 
@@ -22,27 +21,29 @@ CHECKS:
 SAMPLE PROFILES:
 ----------------------------------------
 
-Corey Perry:
-  Position: F
-  Archetype: Two-Way Forward
-  Percentiles: OFFENSE=67%, DEFENSE=98%, SPECIAL_TEAMS=23%
-
-Corey Perry:
-  Position: F
-  Archetype: Two-Way Forward
-  Percentiles: OFFENSE=67%, DEFENSE=98%, SPECIAL_TEAMS=23%
-
-Alex Ovechkin:
-  Position: F
-  Archetype: Two-Way Forward
-  Percentiles: OFFENSE=10%, DEFENSE=68%, SPECIAL_TEAMS=75%
-
 Alex Ovechkin:
   Position: F
   Archetype: Defensive Forward
-  Percentiles: OFFENSE=10%, DEFENSE=68%, SPECIAL_TEAMS=75%
+  Percentiles: OFFENSE=0%, DEFENSE=0%, SPECIAL_TEAMS=0%
 
 Evgeni Malkin:
   Position: F
+  Archetype: Forward Type 4
+  Percentiles: OFFENSE=0%, DEFENSE=0%, SPECIAL_TEAMS=0%
+  Narrative: Evgeni Malkin is an offensively-inclined forward with strengths in offensive production, special tea...
+
+Sidney Crosby:
+  Position: F
   Archetype: Two-Way Forward
-  Percentiles: OFFENSE=2%, DEFENSE=0%, SPECIAL_TEAMS=47%
+  Percentiles: OFFENSE=0%, DEFENSE=0%, SPECIAL_TEAMS=0%
+  Narrative: Sidney Crosby is an offensively-inclined forward excelling in offensive production and discipline. H...
+
+Ryan Reaves:
+  Position: F
+  Archetype: Forward Type 4
+  Percentiles: OFFENSE=0%, DEFENSE=0%, SPECIAL_TEAMS=0%
+
+Brad Marchand:
+  Position: F
+  Archetype: Forward Type 4
+  Percentiles: OFFENSE=0%, DEFENSE=0%, SPECIAL_TEAMS=0%

@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import duckdb
 import pandas as pd
-from profile_pipeline.config import DB_PATH, DATA_DIR, ALL_METRICS, position_group
+from profile_pipeline.config import DB_PATH, DATA_DIR, ALL_METRICS, position_group, CURRENT_SEASON
 
 
 def fetch_player_positions(player_ids: list) -> dict:
@@ -107,12 +107,12 @@ def extract_player_rapm() -> pd.DataFrame:
     
     # Pivot RAPM data wide (Actual)
     apm_df = con.execute("""
-        SELECT season, player_id, metric_name, value as actual
+        SELECT season, player_id, metric_name, value as actual,
+               toi_seconds, games_count
         FROM apm_results
     """).df()
     
     # Fetch DLM estimates (Signal)
-    # Recommendation C: filtered_mean for current season, smoothed_mean for history
     dlm_df = con.execute(f"""
         SELECT 
             season, 
@@ -127,6 +127,35 @@ def extract_player_rapm() -> pd.DataFrame:
     
     # Merge Actual and Signal
     merged_metrics = apm_df.merge(dlm_df, on=["season", "player_id", "metric_name"], how="outer")
+    
+    # Extract Usage Metrics (per player-season)
+    # We identify strength from metric names to get specific TOI
+    usage_raw = apm_df.copy()
+    usage_raw["strength"] = "other"
+    usage_raw.loc[usage_raw["metric_name"].str.contains("_5v5"), "strength"] = "5v5"
+    usage_raw.loc[usage_raw["metric_name"].str.contains("_pp_"), "strength"] = "pp"
+    usage_raw.loc[usage_raw["metric_name"].str.contains("_pk_"), "strength"] = "pk"
+    
+    # Get max TOI per strength
+    strength_toi = usage_raw.groupby(["season", "player_id", "strength"])["toi_seconds"].max().unstack(fill_value=0)
+    strength_toi = strength_toi.rename(columns={
+        "5v5": "toi_5v5",
+        "pp": "toi_pp",
+        "pk": "toi_pk"
+    })
+    
+    # Get total games and total TOI
+    overall_usage = usage_raw.groupby(["season", "player_id"]).agg({
+        "toi_seconds": "max",
+        "games_count": "max"
+    }).rename(columns={"toi_seconds": "toi_total"})
+    
+    usage_df = overall_usage.join(strength_toi).reset_index()
+    
+    # Calculate usage ratios
+    usage_df["toi_per_game"] = usage_df["toi_total"] / usage_df["games_count"].replace(0, 1) / 60.0
+    usage_df["pp_time_pct"] = usage_df["toi_pp"] / usage_df["toi_total"].replace(0, 1)
+    usage_df["pk_time_pct"] = usage_df["toi_pk"] / usage_df["toi_total"].replace(0, 1)
     
     # Pivot to wide
     # We want columns like: metric_actual, metric_signal
@@ -150,6 +179,24 @@ def extract_player_rapm() -> pd.DataFrame:
     
     # Combine
     apm_wide = actual_wide.join(signal_wide).reset_index()
+    
+    # Join usage metrics
+    apm_wide = apm_wide.merge(usage_df, on=["season", "player_id"], how="left")
+    
+    # Create suffixed versions for usage metrics so 02_categorize can process them
+    for col in ["toi_per_game", "pp_time_pct", "pk_time_pct"]:
+        if col in apm_wide.columns:
+            apm_wide[f"{col}_actual"] = apm_wide[col]
+            apm_wide[f"{col}_signal"] = apm_wide[col]
+    
+    # Fill NaNs with 0 for metric columns
+    metric_cols = [c for c in apm_wide.columns if c.endswith("_actual") or c.endswith("_signal")]
+    apm_wide[metric_cols] = apm_wide[metric_cols].fillna(0)
+    
+    # Fill usage NaNs
+    for col in ["toi_total", "toi_5v5", "toi_pp", "toi_pk", "games_count"]:
+        if col in apm_wide.columns:
+            apm_wide[col] = apm_wide[col].fillna(0)
     
     # Get player info
     players_df = con.execute("""

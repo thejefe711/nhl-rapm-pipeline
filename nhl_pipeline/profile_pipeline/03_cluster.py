@@ -20,7 +20,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from profile_pipeline.config import (
-    DATA_DIR, METRIC_CATEGORIES, CLUSTERS_FORWARD, CLUSTERS_DEFENSE
+    DATA_DIR, METRIC_CATEGORIES, CLUSTERS_FORWARD, CLUSTERS_DEFENSE, CURRENT_SEASON
 )
 
 
@@ -51,12 +51,16 @@ def cluster_players(df: pd.DataFrame, position_group: str, n_clusters: int) -> p
     
     Uses category scores as features.
     """
-    # Filter to position group
-    mask = df["position_group"] == position_group
+    # Filter to position group and qualified players
+    mask = (df["position_group"] == position_group) & (df["is_qualified"] == True)
     subset = df[mask].copy()
     
-    if len(subset) < n_clusters * 5:
-        print(f"WARNING: Not enough {position_group} players for {n_clusters} clusters")
+    if len(subset) < n_clusters * 3:
+        print(f"WARNING: Not enough qualified {position_group} players for {n_clusters} clusters. Falling back to all players.")
+        mask = df["position_group"] == position_group
+        subset = df[mask].copy()
+        
+    if len(subset) < n_clusters:
         subset["cluster"] = 0
         subset["archetype"] = f"Unknown {position_group}"
         return subset

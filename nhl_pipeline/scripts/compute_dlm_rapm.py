@@ -76,7 +76,6 @@ def main():
     raw_df = conn.execute("""
         SELECT player_id, season, metric_name, value
         FROM apm_results
-        WHERE season != '20252026'
         ORDER BY player_id, season
     """).fetchdf()
     

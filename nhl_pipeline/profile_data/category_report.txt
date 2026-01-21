@@ -1,51 +1,74 @@
 ============================================================
-CATEGORIZATION REPORT
+CATEGORIZATION REPORT (SIGNAL FOCUS)
 ============================================================
 
-Total rows: 3,075
+Total rows: 3,086
 
-Category score statistics (2024-2025 season):
+Category score statistics (Signal, 2024-2025 season):
 
   OFFENSE:
-    Mean: nan
-    Std: nan
-    Min: nan
-    Max: nan
+    Mean: 0.022
+    Std: 1.140
+    Min: -4.129
+    Max: 4.884
 
   DEFENSE:
-    Mean: nan
-    Std: nan
-    Min: nan
-    Max: nan
+    Mean: -0.017
+    Std: 1.118
+    Min: -4.778
+    Max: 3.419
 
   TRANSITION:
-    Mean: nan
-    Std: nan
-    Min: nan
-    Max: nan
+    Mean: 0.000
+    Std: 0.396
+    Min: -2.401
+    Max: 2.190
 
   SPECIAL_TEAMS:
-    Mean: nan
-    Std: nan
-    Min: nan
-    Max: nan
+    Mean: -0.011
+    Std: 0.693
+    Min: -3.137
+    Max: 3.765
 
   DISCIPLINE:
-    Mean: nan
-    Std: nan
-    Min: nan
-    Max: nan
+    Mean: -0.002
+    Std: 1.251
+    Min: -7.856
+    Max: 6.896
 
   FINISHING:
-    Mean: nan
-    Std: nan
-    Min: nan
-    Max: nan
+    Mean: 0.018
+    Std: 0.653
+    Min: -2.625
+    Max: 4.277
+
+  USAGE:
+    Mean: -0.048
+    Std: 0.733
+    Min: -0.782
+    Max: 3.852
 
 
-Top 5 players by OFFENSE_percentile (2024-2025):
+Top 5 players by OFFENSE_signal_percentile (2024-2025):
+  Connor McDavid: 100.0%
+  Ross Colton: 99.9%
+  Adam Fox: 99.9%
+  Jason Robertson: 99.8%
+  Andrei Svechnikov: 99.7%
 
-Top 5 players by DEFENSE_percentile (2024-2025):
+Top 5 players by DEFENSE_signal_percentile (2024-2025):
+  Alexis Lafrenière: 100.0%
+  Josh Doan: 99.9%
+  Mattias Ekholm: 99.9%
+  Sam Lafferty: 99.9%
+  Bowen Byram: 99.8%
 
 
-McDavid profile (2024-2025):
+McDavid profile (Signal, 2024-2025):
+  OFFENSE: 100.0% (trend: +1.65)
+  DEFENSE: 96.9% (trend: +1.14)
+  TRANSITION: 99.6% (trend: +0.28)
+  SPECIAL_TEAMS: 99.0% (trend: -0.66)
+  DISCIPLINE: 98.7% (trend: +2.08)
+  FINISHING: 13.1% (trend: -0.41)
+  USAGE: 96.5% (trend: -0.20)

@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from profile_pipeline.config import DATA_DIR, METRIC_CATEGORIES
+from profile_pipeline.config import DATA_DIR, METRIC_CATEGORIES, CURRENT_SEASON
 
 
 def compute_similarity(df: pd.DataFrame, top_n: int = 5) -> pd.DataFrame:
@@ -47,35 +47,63 @@ def compute_similarity(df: pd.DataFrame, top_n: int = 5) -> pd.DataFrame:
     
     print(f"Computing similarity for {len(current)} unique players in season {current_season_str}")
     
-    # Features for similarity - Use Signal for more stable comparisons
-    feature_cols = [f"{cat}_signal_score" for cat in METRIC_CATEGORIES.keys()]
-    feature_cols = [c for c in feature_cols if c in current.columns]
+    # Features for similarity - prefer Signal scores
+    signal_cols = [f"{cat}_signal_score" for cat in METRIC_CATEGORIES.keys()]
+    signal_cols = [c for c in signal_cols if c in current.columns]
+    
+    # Define weights for categories
+    # High weight for Offense, Defense, and Usage context
+    category_weights = {
+        "OFFENSE": 2.0,
+        "DEFENSE": 2.0,
+        "USAGE": 2.0,
+        "TRANSITION": 1.0,
+        "SPECIAL_TEAMS": 1.0,
+        "DISCIPLINE": 0.5,
+        "FINISHING": 0.5,
+    }
+    
+    weights = np.array([category_weights.get(cat, 1.0) for cat in METRIC_CATEGORIES.keys()])
     
     similarity_records = []
     
     for pos_group in ["F", "D"]:
-        pos_data = current[current["position_group"] == pos_group].copy().reset_index(drop=True)
+        # Only compare to qualified players
+        pos_data = current[(current["position_group"] == pos_group) & (current["is_qualified"] == True)].copy().reset_index(drop=True)
+        
+        # If the target player is NOT qualified, we still want to find similarities for them, 
+        # but only compare them TO qualified players.
+        targets = current[current["position_group"] == pos_group].copy().reset_index(drop=True)
         
         if len(pos_data) < 2:
             continue
         
-        print(f"  {pos_group}: {len(pos_data)} players")
+        print(f"  {pos_group}: {len(targets)} targets, {len(pos_data)} qualified peers")
         
         # Prepare features
-        X = pos_data[feature_cols].fillna(0).values
+        X_peers = pos_data[signal_cols].fillna(0).values
+        X_targets = targets[signal_cols].fillna(0).values
         
-        # Compute cosine similarity matrix
-        sim_matrix = cosine_similarity(X)
+        # Apply weights to features
+        X_peers_weighted = X_peers * weights
+        X_targets_weighted = X_targets * weights
         
-        # For each player, find top N similar (excluding self)
-        player_ids = pos_data["player_id"].values
-        player_names = pos_data["full_name"].values
+        # Compute cosine similarity matrix (targets vs peers)
+        sim_matrix = cosine_similarity(X_targets_weighted, X_peers_weighted)
         
-        for i, (pid, name) in enumerate(zip(player_ids, player_names)):
+        # For each target player, find top N similar (excluding self)
+        target_ids = targets["player_id"].values
+        target_names = targets["full_name"].values
+        peer_ids = pos_data["player_id"].values
+        peer_names = pos_data["full_name"].values
+        
+        for i, (pid, name) in enumerate(zip(target_ids, target_names)):
             similarities = sim_matrix[i].copy()
             
-            # Set self-similarity to -1 to exclude from top N
-            similarities[i] = -1
+            # Find index of self in peers if it exists
+            self_idx = np.where(peer_ids == pid)[0]
+            if len(self_idx) > 0:
+                similarities[self_idx[0]] = -1
             
             # Sort by similarity descending
             sorted_indices = np.argsort(similarities)[::-1]
@@ -84,9 +112,9 @@ def compute_similarity(df: pd.DataFrame, top_n: int = 5) -> pd.DataFrame:
             similar_scores = []
             
             for j in sorted_indices[:top_n]:
-                if similarities[j] < 0:  # Skip self
+                if similarities[j] < 0:
                     continue
-                similar_players.append(player_names[j])
+                similar_players.append(peer_names[j])
                 similar_scores.append(float(similarities[j]))
             
             similarity_records.append({

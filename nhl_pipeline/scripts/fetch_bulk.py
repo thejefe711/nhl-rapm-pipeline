@@ -92,7 +92,12 @@ def get_season_schedule(season: str) -> List[Dict]:
     # Try fetching from multiple teams to get complete schedule
     all_games = {}
     
-    teams = ["TOR", "EDM", "NYR"]  # Sample teams to get schedule
+    teams = [
+        "ANA", "ARI", "BOS", "BUF", "CGY", "CAR", "CHI", "COL",
+        "CBJ", "DAL", "DET", "EDM", "FLA", "LAK", "MIN", "MTL",
+        "NSH", "NJD", "NYI", "NYR", "OTT", "PHI", "PIT", "SJS",
+        "SEA", "STL", "TBL", "TOR", "UTA", "VAN", "VGK", "WPG", "WSH"
+    ]
     
     for team in teams:
         url = f"{WEB_API}/club-schedule-season/{team}/{season}"

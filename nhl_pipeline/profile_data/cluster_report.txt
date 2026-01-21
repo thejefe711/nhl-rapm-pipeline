@@ -1,10 +1,100 @@
 ============================================================
-CLUSTERING REPORT
+CLUSTERING REPORT (SIGNAL FOCUS)
 ============================================================
 
 
-FORWARDS:
+FORWARDS (20252026):
 ----------------------------------------
 
-DEFENSEMEN:
+  Defensive Forward (n=61):
+    Avg OFFENSE: 83.7%
+    Avg DEFENSE: 72.6%
+    Avg TRANSITION: 72.8%
+    Avg SPECIAL_TEAMS: 42.2%
+    Avg DISCIPLINE: 51.6%
+    Avg FINISHING: 54.5%
+    Avg USAGE: 49.2%
+    Examples: Ross Colton, Jason Robertson, Andrei Svechnikov
+
+  Forward Type 4 (n=193):
+    Avg OFFENSE: 36.5%
+    Avg DEFENSE: 49.5%
+    Avg TRANSITION: 44.6%
+    Avg SPECIAL_TEAMS: 50.4%
+    Avg DISCIPLINE: 51.6%
+    Avg FINISHING: 45.5%
+    Avg USAGE: 31.6%
+    Examples: Jack Quinn, Keegan Kolesar, Mark Scheifele
+
+  Playmaker (n=11):
+    Avg OFFENSE: 92.3%
+    Avg DEFENSE: 65.9%
+    Avg TRANSITION: 96.8%
+    Avg SPECIAL_TEAMS: 89.4%
+    Avg DISCIPLINE: 63.7%
+    Avg FINISHING: 20.5%
+    Avg USAGE: 87.8%
+    Examples: Connor McDavid, Zach Hyman, Leon Draisaitl
+
+  Special Teams Forward (n=43):
+    Avg OFFENSE: 56.5%
+    Avg DEFENSE: 16.8%
+    Avg TRANSITION: 40.7%
+    Avg SPECIAL_TEAMS: 77.9%
+    Avg DISCIPLINE: 60.8%
+    Avg FINISHING: 78.4%
+    Avg USAGE: 63.5%
+    Examples: Kirill Kaprizov, Dmitri Voronkov, Blake Lizotte
+
+  Two-Way Forward (n=56):
+    Avg OFFENSE: 42.5%
+    Avg DEFENSE: 46.1%
+    Avg TRANSITION: 42.8%
+    Avg SPECIAL_TEAMS: 26.3%
+    Avg DISCIPLINE: 38.3%
+    Avg FINISHING: 43.7%
+    Avg USAGE: 78.6%
+    Examples: Juraj SlafkovskÃ½, Nicholas Robertson, Cole Caufield
+
+DEFENSEMEN (20252026):
 ----------------------------------------
+
+  Defenseman Type 5 (n=28):
+    Avg OFFENSE: 37.1%
+    Avg DEFENSE: 7.1%
+    Avg TRANSITION: 22.9%
+    Avg SPECIAL_TEAMS: 38.5%
+    Avg DISCIPLINE: 46.7%
+    Avg FINISHING: 59.1%
+    Avg USAGE: 55.7%
+    Examples: Dante Fabbro, Ty Emberson, Darnell Nurse
+
+  Offensive Defenseman (n=10):
+    Avg OFFENSE: 65.2%
+    Avg DEFENSE: 76.0%
+    Avg TRANSITION: 76.3%
+    Avg SPECIAL_TEAMS: 95.2%
+    Avg DISCIPLINE: 47.4%
+    Avg FINISHING: 43.8%
+    Avg USAGE: 87.1%
+    Examples: Adam Fox, John Carlson, Will Borgen
+
+  Shutdown Defenseman (n=24):
+    Avg OFFENSE: 58.7%
+    Avg DEFENSE: 73.7%
+    Avg TRANSITION: 68.8%
+    Avg SPECIAL_TEAMS: 10.1%
+    Avg DISCIPLINE: 61.4%
+    Avg FINISHING: 48.1%
+    Avg USAGE: 78.7%
+    Examples: Mattias Ekholm, Brock Faber, Bowen Byram
+
+  Two-Way Defenseman (n=135):
+    Avg OFFENSE: 53.9%
+    Avg DEFENSE: 53.0%
+    Avg TRANSITION: 50.2%
+    Avg SPECIAL_TEAMS: 56.0%
+    Avg DISCIPLINE: 49.6%
+    Avg FINISHING: 48.9%
+    Avg USAGE: 37.9%
+    Examples: Mike Reilly, Noah Dobson, Sam Malinski

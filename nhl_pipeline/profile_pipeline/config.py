@@ -61,6 +61,11 @@ METRIC_CATEGORIES = {
         "primary_assist_rapm_5v5",
         "secondary_assist_rapm_5v5",
     ],
+    "USAGE": [
+        "toi_per_game",
+        "pp_time_pct",
+        "pk_time_pct",
+    ],
 }
 
 # Recommendation A: Key metrics for the "Signal" feature
