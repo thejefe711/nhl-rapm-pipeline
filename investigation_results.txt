@@ -1,0 +1,16 @@
+Comparison of player_1 (Shooter) vs player_2 (Blocker) for BLOCKED_SHOT:
+        player  p1_count  p2_count
+Connor McDavid        98        47
+ Jaccob Slavin       108       121
+   Adam Pelech        68       112
+
+Checking Takeaways and Giveaways (Regular Season):
+        player event_type  count
+Connor McDavid   TAKEAWAY     68
+Connor McDavid   GIVEAWAY     84
+       player event_type  count
+Jaccob Slavin   TAKEAWAY     71
+Jaccob Slavin   GIVEAWAY     32
+     player event_type  count
+Adam Pelech   GIVEAWAY     31
+Adam Pelech   TAKEAWAY     14

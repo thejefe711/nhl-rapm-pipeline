@@ -1,0 +1,190 @@
+
+
+======================================================================
+RAPM VALIDATION SUITE - Season 20212022
+======================================================================
+======================================================================
+RAPM INPUT AUDIT (vs Evolving-Hockey Methodology)
+======================================================================
+
+======================================================================
+EVOLVING-HOCKEY METHODOLOGY CHECKLIST
+======================================================================
+
+Manual verification needed:
+  [ ] Target variable is per-60 rate
+      → Check y calculation
+  [ ] Weights are stint duration in seconds
+      → Check w = duration_s
+  [ ] 2 rows per stint (off/def split)
+      → Check obs_df length = 2 × stints
+  [ ] Offense cols: +1 for offensive skaters
+      → Check design matrix
+  [ ] Defense cols: +1 for defensive skaters
+      → Check design matrix
+  [ ] Ridge regression with regularization
+      → Check alpha value
+  [ ] Coefficients interpreted as per-60
+      → No post-hoc × 3600 if y is per-60
+
+--- Additional Controls (Evolving-Hockey) ---
+  [ ] Score state (trailing/tied/leading)
+  [ ] Zone starts (OZ/NZ/DZ faceoffs)
+  [ ] Back-to-back games
+  Note: These improve accuracy but aren't required for basic RAPM
+
+======================================================================
+DESIGN MATRIX CHECK
+======================================================================
+
+Players in model: 550
+Expected design matrix columns: 1100 (off + def per player)
+✓ Same players in offensive and defensive RAPM
+
+======================================================================
+COEFFICIENT RANGE CHECK
+======================================================================
+
+Metric                                   N      Min       P5      Med     Mean      P95      Max   P5-P95
+-------------------------------------------------------------------------------------------------------------------
+blocked_shot_to_xg_swing_rapm_5v5_w10    550    -0.14    -0.06    -0.00    -0.00     0.06     0.26        ✓
+corsi_def_rapm_5v5                     550    -1.37    -0.33    -0.01    -0.00     0.36     1.02        ✓
+corsi_off_rapm_5v5                     550    -1.44    -0.33    -0.01     0.00     0.36     1.46        ✓
+corsi_pk_def_rapm                      290    -8.03    -3.99    -0.00     0.00     2.75    10.68        ✓
+corsi_pp_off_rapm                      290    -5.35    -2.71    -0.04     0.00     3.05    10.21        ✓
+corsi_rapm_5v5                         550    -2.70    -0.58    -0.02    -0.00     0.58     2.15        ✓
+faceoff_loss_to_xg_swing_rapm_5v5_w10    550    -0.17    -0.06    -0.00     0.00     0.06     0.15        ✓
+finishing_residual_rapm_5v5            550    -0.81    -0.20    -0.00    -0.00     0.22     0.84        ✓
+giveaway_to_xg_swing_rapm_5v5_w10      550    -0.24    -0.05     0.00     0.00     0.05     0.12        ✓
+goals_rapm_5v5                         550    -0.29    -0.08     0.00     0.00     0.10     0.24        ✓
+hd_xg_def_rapm_5v5_ge020               550    -0.52    -0.14     0.01    -0.00     0.11     0.32        ✓
+hd_xg_off_rapm_5v5_ge020               550    -0.48    -0.16    -0.00     0.00     0.16     0.67        ✓
+hd_xg_rapm_5v5_ge020                   550    -0.76    -0.21    -0.00     0.00     0.20     0.90        ✓
+penalties_drawn_rapm_5v5               550    -0.00    -0.00    -0.00     0.00    -0.00    -0.00        ✓
+penalties_taken_rapm_5v5               550     0.00     0.00     0.00     0.00     0.00     0.00        ✓
+primary_assist_rapm_5v5                550    -0.26    -0.08     0.00     0.00     0.08     0.21        ✓
+secondary_assist_rapm_5v5              550    -0.26    -0.07    -0.00    -0.00     0.07     0.24        ✓
+takeaway_to_xg_swing_rapm_5v5_w10      550    -0.09    -0.05     0.00    -0.00     0.05     0.18        ✓
+turnover_to_xg_swing_rapm_5v5_w10      550    -0.26    -0.08     0.00     0.00     0.08     0.25        ✓
+xg_def_rapm_5v5                        550    -0.52    -0.13     0.01     0.00     0.12     0.32        ✓
+xg_off_rapm_5v5                        550    -0.49    -0.15    -0.00    -0.00     0.15     0.67        ✓
+xg_pk_def_rapm                         290    -5.35    -1.80    -0.00     0.00     1.58     3.79        ✗
+xg_pp_off_rapm                         290    -1.87    -1.25     0.00    -0.00     1.63     4.30        ✗
+xg_primary_assist_on_goals_rapm_5v5    550    -0.17    -0.06     0.00     0.00     0.05     0.15        ✓
+xg_rapm_5v5                            550    -0.81    -0.23    -0.00     0.00     0.21     0.90        ✓
+xg_secondary_assist_on_goals_rapm_5v5    550    -0.17    -0.04     0.00    -0.00     0.05     0.13        ✓
+
+======================================================================
+DISTRIBUTION CHECK
+======================================================================
+
+Offensive xG RAPM:
+  N:      550
+  Mean:   -0.0000 (should be ~0)
+  Median: -0.0043
+  Std:    0.1127
+  Skew:   0.5015 (should be ~0)
+
+Defensive xG RAPM:
+  N:      550
+  Mean:   0.0000 (should be ~0)
+  Median: 0.0071
+  Std:    0.0843
+  Skew:   -0.9720 (should be ~0)
+
+--- Validation ---
+  Off mean ~0: ✓ PASS (value: -0.0000)
+  Def mean ~0: ✓ PASS (value: 0.0000)
+  Off skew reasonable: ✓ PASS (value: 0.5015)
+  Def skew reasonable: ✓ PASS (value: -0.9720)
+
+======================================================================
+CORRELATION CHECK
+======================================================================
+
+Correlation Matrix:
+
+                         si_def_rapm_5v5si_off_rapm_5v5 goals_rapm_5v5xg_def_rapm_5v5xg_off_rapm_5v5
+       corsi_def_rapm_5v5          1.000          0.488          0.133          0.757          0.423
+       corsi_off_rapm_5v5          0.488          1.000          0.106          0.312          0.853
+           goals_rapm_5v5          0.133          0.106          1.000          0.173          0.217
+          xg_def_rapm_5v5          0.757          0.312          0.173          1.000          0.273
+          xg_off_rapm_5v5          0.423          0.853          0.217          0.273          1.000
+
+--- Expected Correlations ---
+  xG_off vs Corsi_off: 0.5 to 0.8 (should be related)
+  xG_off vs xG_def: -0.3 to 0.3 (weak correlation)
+  xG_off vs Goals: 0.3 to 0.6 (xG predicts goals)
+
+======================================================================
+KNOWN PLAYERS SPOT CHECK
+======================================================================
+
+Player                        Off     Def   Total    Off%    Def%    Tot%    TOI
+-----------------------------------------------------------------------------------------------
+Connor McDavid               0.46   -0.15    0.31    100%     97%     97%    284
+Nathan MacKinnon          NOT FOUND
+Nikita Kucherov           NOT FOUND
+Auston Matthews              0.45    0.27    0.71    100%      0%    100%    280
+Leon Draisaitl              -0.17   -0.26   -0.44      4%     99%      1%    283
+Cale Makar                NOT FOUND
+Quinn Hughes                 0.04   -0.04    0.00     71%     75%     52%     55
+Adam Fox                    -0.09    0.04   -0.05     11%     31%     29%    321
+
+--- Validation ---
+  Elite players should be >80th percentile in total RAPM
+
+======================================================================
+FINAL VALIDATION (min 200 min TOI)
+======================================================================
+
+Players included: 38
+
+--- Coefficient Ranges ---
+xG Off: -0.49 to 0.67
+xG Def: -0.52 to 0.32
+Total:  -0.89 to 0.99
+
+--- Top 10 Total xG RAPM ---
+Rasmus Sandin             Off:   0.67  Def:   0.32  Total:   0.99  TOI:   277
+Auston Matthews           Off:   0.45  Def:   0.27  Total:   0.71  TOI:   280
+Michael Bunting           Off:   0.32  Def:   0.20  Total:   0.53  TOI:   252
+Nick Ritchie              Off:   0.39  Def:   0.09  Total:   0.47  TOI:   222
+Travis Dermott            Off:   0.27  Def:   0.20  Total:   0.46  TOI:   210
+Evan Bouchard             Off:   0.34  Def:   0.10  Total:   0.44  TOI:   288
+Darnell Nurse             Off:   0.41  Def:   0.01  Total:   0.42  TOI:   326
+Mitchell Marner           Off:   0.31  Def:   0.11  Total:   0.42  TOI:   302
+Zach Hyman                Off:   0.44  Def:  -0.06  Total:   0.38  TOI:   230
+William Nylander          Off:   0.22  Def:   0.10  Total:   0.32  TOI:   293
+
+--- Bottom 10 Total xG RAPM ---
+Ondrej Kase               Off:  -0.13  Def:  -0.23  Total:  -0.35  TOI:   230
+Cody Ceci                 Off:  -0.30  Def:  -0.08  Total:  -0.38  TOI:   284
+Ryan Nugent-Hopkins       Off:  -0.28  Def:  -0.10  Total:  -0.39  TOI:   239
+Leon Draisaitl            Off:  -0.17  Def:  -0.26  Total:  -0.44  TOI:   283
+K'Andre Miller            Off:  -0.43  Def:  -0.06  Total:  -0.48  TOI:   302
+Barclay Goodrow           Off:  -0.37  Def:  -0.20  Total:  -0.57  TOI:   243
+Mika Zibanejad            Off:  -0.25  Def:  -0.36  Total:  -0.60  TOI:   245
+Jacob Trouba              Off:  -0.35  Def:  -0.28  Total:  -0.64  TOI:   326
+Tyson Barrie              Off:  -0.16  Def:  -0.52  Total:  -0.68  TOI:   252
+Patrik Nemeth             Off:  -0.49  Def:  -0.40  Total:  -0.89  TOI:   267
+
+--- Distribution ---
+Mean Off:  0.0188
+Mean Def:  -0.0400
+Std Off:   0.3014
+Std Def:   0.1914
+
+Off/Def correlation: 0.551 (expected: -0.3 to +0.3)
+
+--- Validation Summary ---
+  Coefficient range OK: ✓ PASS
+  Mean centered near 0: ✓ PASS
+  Off/Def correlation reasonable: ✗ FAIL
+
+
+======================================================================
+VALIDATION COMPLETE
+======================================================================
+
+✗ Some validation checks failed - review output above

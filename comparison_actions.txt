@@ -1,0 +1,14 @@
+Player Info:
+   player_id       full_name
+0    8476958   Jaccob Slavin
+1    8478402  Connor McDavid
+2    8476917     Adam Pelech
+
+Defensive Action Comparison (Higher is Better):
+Name            | Season     | Blocks   | Takeaways | Turnovers | Penalties
+---------------------------------------------------------------------------
+Connor McDavid  | 20232024   |   0.1716 |    0.0086 |    0.0118 |    0.0008
+Connor McDavid  | 20242025   |   0.0245 |    0.0084 |    0.1200 |   -0.0300
+Jaccob Slavin   | 20232024   |  -0.0014 |    0.0131 |    0.0108 |   -0.0004
+Jaccob Slavin   | 20242025   |  -0.0215 |    0.0031 |    0.0085 |   -0.0003
+Adam Pelech     | 20232024   |   0.0057 |   -0.0036 |    0.0359 |   -0.0002

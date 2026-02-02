@@ -1,0 +1,91 @@
+{
+  "timestamp": "2026-01-23T15:12:45.181509",
+  "season": 2023,
+  "failures": [],
+  "results": {
+    "source_validation": {
+      "passed": true,
+      "timestamp": "2026-01-23T15:12:45.244186",
+      "results": [
+        {
+          "check": "schema_table_exists_events",
+          "passed": true,
+          "details": "Table events exists",
+          "severity": "ERROR",
+          "timestamp": "2026-01-23T15:12:45.214624"
+        },
+        {
+          "check": "schema_table_exists_shifts",
+          "passed": true,
+          "details": "Table shifts exists",
+          "severity": "ERROR",
+          "timestamp": "2026-01-23T15:12:45.214632"
+        },
+        {
+          "check": "schema_table_exists_games",
+          "passed": true,
+          "details": "Table games exists",
+          "severity": "ERROR",
+          "timestamp": "2026-01-23T15:12:45.214634"
+        },
+        {
+          "check": "schema_table_exists_players",
+          "passed": true,
+          "details": "Table players exists",
+          "severity": "ERROR",
+          "timestamp": "2026-01-23T15:12:45.214636"
+        },
+        {
+          "check": "schema_table_exists_teams",
+          "passed": true,
+          "details": "Table teams exists",
+          "severity": "ERROR",
+          "timestamp": "2026-01-23T15:12:45.214637"
+        },
+        {
+          "check": "referential_integrity_orphan_players",
+          "passed": true,
+          "details": "Found 0 orphan player IDs in events",
+          "severity": "PASS",
+          "timestamp": "2026-01-23T15:12:45.226433"
+        },
+        {
+          "check": "referential_integrity_orphan_games_shifts",
+          "passed": true,
+          "details": "Found 0 orphan game IDs in shifts",
+          "severity": "PASS",
+          "timestamp": "2026-01-23T15:12:45.234689"
+        },
+        {
+          "check": "completeness_game_count",
+          "passed": true,
+          "details": "Found 53 games for season 2023",
+          "severity": "WARNING",
+          "timestamp": "2026-01-23T15:12:45.235962"
+        },
+        {
+          "check": "duplicates_events",
+          "passed": true,
+          "details": "Found 0 duplicate (game_id, event_id) pairs",
+          "severity": "PASS",
+          "timestamp": "2026-01-23T15:12:45.241553"
+        },
+        {
+          "check": "temporal_consistency_period_seconds",
+          "passed": true,
+          "details": "Found 0 events with invalid period_seconds",
+          "severity": "PASS",
+          "timestamp": "2026-01-23T15:12:45.242589"
+        },
+        {
+          "check": "business_rules_valid_periods",
+          "passed": true,
+          "details": "Found 0 events with invalid period",
+          "severity": "PASS",
+          "timestamp": "2026-01-23T15:12:45.244164"
+        }
+      ],
+      "failures": []
+    }
+  }
+}

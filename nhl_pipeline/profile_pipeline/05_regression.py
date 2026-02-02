@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pandas as pd
 import numpy as np
-from profile_pipeline.config import DATA_DIR, SEASON_ORDER
+from profile_pipeline.config import DATA_DIR, SEASON_ORDER, CURRENT_SEASON
 
 
 def compute_regression_flags(df: pd.DataFrame) -> pd.DataFrame:

@@ -1,0 +1,21 @@
+          full_name  block_xg_swing  toi_minutes
+     Connor McDavid        0.171605   254.883333
+Ryan Nugent-Hopkins        0.128865   240.550000
+     Leon Draisaitl        0.123226   285.800000
+     Tyler Bertuzzi        0.105487   245.833333
+         Zach Hyman        0.101723   266.900000
+          Cody Ceci        0.094625   289.600000
+     Mattias Ekholm        0.079893   275.483333
+       John Tavares        0.079776   243.650000
+          TJ Brodie        0.065357   316.816667
+      Evan Bouchard        0.056443   293.983333
+      Morgan Rielly        0.048897   348.050000
+      Ryan Lindgren        0.044664   265.466667
+   William Nylander        0.031234   245.033333
+    Erik Gustafsson        0.026517   282.150000
+      Darnell Nurse        0.026206   311.200000
+  Alexis Lafrenière        0.007491   260.250000
+   Vincent Trocheck        0.006813   252.550000
+     Artemi Panarin       -0.010195   271.650000
+   Braden Schneider       -0.014891   247.516667
+     K'Andre Miller       -0.017845   331.300000

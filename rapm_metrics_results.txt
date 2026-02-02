@@ -1,0 +1,43 @@
+All available RAPM metrics:
+- blocked_shot_to_xg_swing_rapm_5v5_w10
+- corsi_def_rapm_5v5
+- corsi_off_rapm_5v5
+- corsi_pk_def_rapm
+- corsi_pp_off_rapm
+- corsi_rapm_5v5
+- faceoff_loss_to_xg_swing_rapm_5v5_w10
+- finishing_residual_rapm_5v5
+- giveaway_to_xg_swing_rapm_5v5_w10
+- goals_rapm_5v5
+- hd_xg_def_rapm_5v5_ge020
+- hd_xg_off_rapm_5v5_ge020
+- hd_xg_rapm_5v5_ge020
+- penalties_drawn_rapm_5v5
+- penalties_taken_rapm_5v5
+- primary_assist_rapm_5v5
+- secondary_assist_rapm_5v5
+- takeaway_to_xg_swing_rapm_5v5_w10
+- turnover_to_xg_swing_rapm_5v5_w10
+- xg_def_rapm_5v5
+- xg_off_rapm_5v5
+- xg_pk_def_rapm
+- xg_pp_off_rapm
+- xg_primary_assist_on_goals_rapm_5v5
+- xg_rapm_5v5
+- xg_secondary_assist_on_goals_rapm_5v5
+
+Block/Shot RAPM for McDavid, Slavin, Pelech:
+  season  player_id                           metric_name     value
+20202021    8476917 blocked_shot_to_xg_swing_rapm_5v5_w10 -0.020636
+20202021    8478402 blocked_shot_to_xg_swing_rapm_5v5_w10  0.097049
+20212022    8476958 blocked_shot_to_xg_swing_rapm_5v5_w10 -0.050332
+20212022    8478402 blocked_shot_to_xg_swing_rapm_5v5_w10 -0.044715
+20222023    8476917 blocked_shot_to_xg_swing_rapm_5v5_w10 -0.060735
+20222023    8476958 blocked_shot_to_xg_swing_rapm_5v5_w10 -0.006305
+20222023    8478402 blocked_shot_to_xg_swing_rapm_5v5_w10  0.031829
+20232024    8476917 blocked_shot_to_xg_swing_rapm_5v5_w10  0.005745
+20232024    8476958 blocked_shot_to_xg_swing_rapm_5v5_w10 -0.001425
+20232024    8478402 blocked_shot_to_xg_swing_rapm_5v5_w10  0.171605
+20242025    8476958 blocked_shot_to_xg_swing_rapm_5v5_w10 -0.021476
+20242025    8478402 blocked_shot_to_xg_swing_rapm_5v5_w10  0.024520
+20252026    8478402 blocked_shot_to_xg_swing_rapm_5v5_w10  0.167786

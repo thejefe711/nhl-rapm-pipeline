@@ -1,0 +1,64 @@
+DEBUG: Executing query: SELECT DISTINCT game_id FROM shifts WHERE CAST(game_id AS VARCHAR) LIKE '2024%' LIMIT 3
+
+=== SHIFT FRAGMENTATION CHECK (Game 2024020007) ===
+Total shifts: 759
+Fragmented shifts (gap < 2s): 25
+Fragmentation rate: 3.3%
+
+Sample fragmented shifts:
+    player_id  start_seconds  end_seconds  duration_seconds   gap
+0     8471215             36           80                44   NaN
+7     8471215             46           66                20 -34.0
+15    8471215            102          169                67  36.0
+1     8471215            185          223                38  16.0
+8     8471215            187          240                53 -36.0
+9     8471215            274          326                52  34.0
+16    8471215            350          409                59  24.0
+2     8471215            392          448                56 -17.0
+10    8471215            420          447                27 -28.0
+11    8471215            498          579                81  51.0
+
+Unique boundary times: 290
+  If this is >300, shifts are over-fragmented
+
+=== SHIFT FRAGMENTATION CHECK (Game 2024020040) ===
+Total shifts: 739
+Fragmented shifts (gap < 2s): 19
+Fragmentation rate: 2.6%
+
+Sample fragmented shifts:
+    player_id  start_seconds  end_seconds  duration_seconds   gap
+11    8474150              0           48                48   NaN
+18    8474150              0           47                47 -48.0
+26    8474150             63          108                45  16.0
+27    8474150            154          223                69  46.0
+19    8474150            167          223                56 -56.0
+12    8474150            193          253                60 -30.0
+28    8474150            256          271                15   3.0
+20    8474150            337          385                48  66.0
+13    8474150            413          495                82  28.0
+29    8474150            426          459                33 -69.0
+
+Unique boundary times: 365
+  If this is >300, shifts are over-fragmented
+
+=== SHIFT FRAGMENTATION CHECK (Game 2024020045) ===
+Total shifts: 734
+Fragmented shifts (gap < 2s): 14
+Fragmentation rate: 1.9%
+
+Sample fragmented shifts:
+    player_id  start_seconds  end_seconds  duration_seconds   gap
+22    8475184             31           65                34   NaN
+37    8475184             39          110                71 -26.0
+30    8475184             60          143                83 -50.0
+23    8475184            232          293                61  89.0
+31    8475184            263          289                26 -30.0
+38    8475184            289          329                40   0.0
+32    8475184            326          427               101  -3.0
+24    8475184            381          416                35 -46.0
+25    8475184            436          507                71  20.0
+39    8475184            467          487                20 -40.0
+
+Unique boundary times: 337
+  If this is >300, shifts are over-fragmented

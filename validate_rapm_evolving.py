@@ -167,6 +167,25 @@ def range_check(conn, season: str):
         "corsi_off_rapm_5v5": (-15, 15),
         "corsi_def_rapm_5v5": (-15, 15),
         "primary_assist_rapm_5v5": (-0.5, 0.5),
+        "secondary_assist_rapm_5v5": (-0.3, 0.3),
+        "hd_xg_off_rapm_5v5": (-2.0, 2.0),
+        "hd_xg_def_rapm_5v5": (-2.0, 2.0),
+        "hd_xg_rapm_5v5": (-3.0, 3.0),
+        "xg_rapm_5v5": (-5.0, 5.0),
+        "xg_pp_off_rapm": (-0.5, 0.5),
+        "xg_pk_def_rapm": (-0.5, 0.5),
+        "corsi_pp_off_rapm": (-10.0, 10.0),
+        "corsi_pk_def_rapm": (-10.0, 10.0),
+        "penalties_drawn_rapm_5v5": (-0.05, 0.05),
+        "penalties_taken_rapm_5v5": (-0.05, 0.05),
+        "takeaway_to_xg_swing_rapm_5v5": (-0.1, 0.1),
+        "giveaway_to_xg_swing_rapm_5v5": (-0.2, 0.2),
+        "turnover_to_xg_swing_rapm_5v5": (-0.2, 0.2),
+        "blocked_shot_to_xg_swing_rapm_5v5": (-0.2, 0.2),
+        "faceoff_loss_to_xg_swing_rapm_5v5": (-0.2, 0.2),
+        "finishing_residual_rapm_5v5": (-3.0, 3.0),
+        "xg_primary_assist_on_goals_rapm_5v5": (-0.2, 0.2),
+        "xg_secondary_assist_on_goals_rapm_5v5": (-0.2, 0.2),
     }
     
     print(f"\n{'Metric':<35} {'N':>6} {'Min':>8} {'P5':>8} {'Med':>8} {'Mean':>8} {'P95':>8} {'Max':>8} {'P5-P95':>8}")
@@ -174,7 +193,13 @@ def range_check(conn, season: str):
     
     for _, row in results.iterrows():
         metric = row["metric_name"]
-        expected = expected_ranges.get(metric)
+        
+        # Find matching expected range (handle suffixes like _ge020 or _w10)
+        expected = None
+        for key, val in expected_ranges.items():
+            if metric.startswith(key):
+                expected = val
+                break
         
         # Check if P5-P95 is in expected range (more robust than min/max)
         if expected:

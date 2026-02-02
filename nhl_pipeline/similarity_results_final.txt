@@ -1,0 +1,22 @@
+=== Career Similarity Results ===
+
+Career Similarity for Logan Stankoven (ID: 8482702, Pos: F):
+  1. Sonny Milano (0.979)
+  2. Robert Thomas (0.972)
+  3. Jordan Martinook (0.964)
+  4. Jesperi Kotkaniemi (0.958)
+  5. Jack Hughes (0.955)
+
+Career Similarity for Sebastian Aho (ID: 8478427, Pos: F):
+  1. Blake Lizotte (0.900)
+  2. Matthew Knies (0.854)
+  3. Fabian Zetterlund (0.832)
+  4. Jared McCann (0.815)
+  5. Jack Quinn (0.799)
+
+Career Similarity for Sebastian Aho (ID: 8480222, Pos: D):
+  1. Nils Lundkvist (0.948)
+  2. Travis Hamonic (0.805)
+  3. Jamie Drysdale (0.799)
+  4. Rasmus Sandin (0.771)
+  5. Zach Werenski (0.752)

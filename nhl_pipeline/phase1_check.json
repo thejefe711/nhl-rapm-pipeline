@@ -1,0 +1,110 @@
+{
+  "xg_metrics_count": 15,
+  "xg_total_players": 40921,
+  "hughes_makar": [
+    {
+      "name": "Cale Makar",
+      "value": 5.33,
+      "season": "20222023"
+    },
+    {
+      "name": "Cale Makar",
+      "value": 2.47,
+      "season": "20242025"
+    },
+    {
+      "name": "Cale Makar",
+      "value": 0.308,
+      "season": "20252026"
+    },
+    {
+      "name": "Quinn Hughes",
+      "value": 0.603,
+      "season": "20202021"
+    },
+    {
+      "name": "Quinn Hughes",
+      "value": -0.045,
+      "season": "20212022"
+    },
+    {
+      "name": "Quinn Hughes",
+      "value": -1.44,
+      "season": "20222023"
+    },
+    {
+      "name": "Quinn Hughes",
+      "value": -0.717,
+      "season": "20232024"
+    },
+    {
+      "name": "Quinn Hughes",
+      "value": 2.478,
+      "season": "20242025"
+    },
+    {
+      "name": "Quinn Hughes",
+      "value": 1.328,
+      "season": "20252026"
+    }
+  ],
+  "dlm_forecasts": 19920,
+  "dlm_rapm_estimates": 58178,
+  "top10_corsi_2425": [
+    {
+      "name": "Adam Fox",
+      "value": 10.597
+    },
+    {
+      "name": "Vasily Podkolzin",
+      "value": 9.375
+    },
+    {
+      "name": "Mattias Ekholm",
+      "value": 9.243
+    },
+    {
+      "name": "Evan Bouchard",
+      "value": 9.016
+    },
+    {
+      "name": "Connor McDavid",
+      "value": 7.853
+    },
+    {
+      "name": "Alexis Lafreni\u00e8re",
+      "value": 7.547
+    },
+    {
+      "name": "Ryan O'Reilly",
+      "value": 7.107
+    },
+    {
+      "name": "Thomas Chabot",
+      "value": 6.988
+    },
+    {
+      "name": "Moritz Seider",
+      "value": 6.704
+    },
+    {
+      "name": "Tim St\u00fctzle",
+      "value": 6.51
+    }
+  ],
+  "tables": [
+    "apm_results",
+    "dlm_forecasts",
+    "dlm_rapm_estimates",
+    "events",
+    "games",
+    "latent_dim_meta",
+    "latent_models",
+    "latent_skills",
+    "players",
+    "rolling_latent_skills",
+    "shifts",
+    "teams",
+    "validation_log"
+  ]
+}

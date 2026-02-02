@@ -1,0 +1,15 @@
+Player Info:
+   player_id       full_name
+0    8476958   Jaccob Slavin
+1    8478402  Connor McDavid
+2    8476917     Adam Pelech
+
+Defensive Comparison (Higher is Better):
+Name            | Season     | xG Def   | Corsi Def
+--------------------------------------------------
+Connor McDavid  | 20232024   |   0.1589 |   1.6834
+Connor McDavid  | 20242025   |   0.1716 |   3.2980
+Jaccob Slavin   | 20232024   |   0.0437 |   1.8166
+Jaccob Slavin   | 20242025   |   0.0679 |   1.9323
+Adam Pelech     | 20232024   |   0.0499 |   0.8933
+Adam Pelech     | 20242025   |   0.2795 |   1.9925

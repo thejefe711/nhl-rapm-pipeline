@@ -1,0 +1,44 @@
+DEBUG: Executing query: SELECT DISTINCT game_id FROM shifts WHERE season = '20242025' LIMIT 3
+python : Traceback (most recent 
+call last):
+At line:1 char:1
++ python nhl_pipeline/scripts/dia
+gnose_shifts.py > 
+diagnose_shifts.log  ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo          : No 
+   tSpecified: (Traceback (most  
+   recent call last)::String)    
+ [], RemoteException
+    + FullyQualifiedErrorId : Na 
+   tiveCommandError
+ 
+  File "C:\Users\akork\APM to 
+LLM Web App\nhl_pipeline\scripts\
+diagnose_shifts.py", line 60, in 
+<module>
+    main()
+    ~~~~^^
+  File "C:\Users\akork\APM to 
+LLM Web App\nhl_pipeline\scripts\
+diagnose_shifts.py", line 47, in 
+main
+    games = 
+conn.execute(query).fetchdf()
+            ~~~~~~~~~~~~^^^^^^^
+_duckdb.BinderException: Binder 
+Error: Referenced column 
+"season" not found in FROM 
+clause!
+Candidate bindings: 
+"start_seconds", "period", 
+"duration_seconds", "team_id", 
+"first_name"
+
+LINE 1: SELECT DISTINCT game_id 
+FROM shifts WHERE season = 
+'20242025' LIMIT 3
+                                 
+                 ^
