@@ -1,10 +1,17 @@
 # Data directories (don't commit raw data)
 raw/
 staging/
+canonical/
 
 # Database files
 *.duckdb
 *.duckdb.wal
+
+# Debug and temp files
+debug_*.txt
+*_utf8.txt
+*_utf8.log
+*.log
 
 # Python
 __pycache__/

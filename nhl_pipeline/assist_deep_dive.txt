@@ -1,0 +1,35 @@
+PRIMARY ASSIST RAPM - DEEP DIVE ANALYSIS
+============================================================
+
+1. TOP 15 BY RAPM VALUE (with events count):
+  Brandon Carlo: val=0.2644, events=159, TOI=133m, events/60=71.5
+  Bobby McMann: val=0.2491, events=159, TOI=205m, events/60=46.6
+  David Tomasek: val=0.2317, events=159, TOI=84m, events/60=113.1
+  John Tavares: val=0.2209, events=159, TOI=234m, events/60=40.7
+  Trent Frederic: val=0.1855, events=159, TOI=200m, events/60=47.6
+  Troy Stecher: val=0.1666, events=159, TOI=166m, events/60=57.4
+  Dakota Joshua: val=0.1572, events=159, TOI=181m, events/60=52.8
+  Ty Emberson: val=0.1461, events=159, TOI=214m, events/60=44.5
+  Matias Maccelli: val=0.1347, events=159, TOI=94m, events/60=101.6
+  Andrew Mangiapane: val=0.1191, events=159, TOI=220m, events/60=43.3
+  Alec Regula: val=0.1127, events=159, TOI=200m, events/60=47.8
+  Andrew Copp: val=0.1068, events=159, TOI=47m, events/60=203.2
+  Oliver Kapanen: val=0.1050, events=159, TOI=55m, events/60=175.0
+  Barrett Hayton: val=0.1037, events=159, TOI=14m, events/60=682.2
+  Nick Schmaltz: val=0.1036, events=159, TOI=15m, events/60=629.7
+
+2. ELITE PLAYERS:
+  Connor McDavid: val=0.0208, events=159, TOI=306m, events/60=31.2
+  Leon Draisaitl: val=-0.0050, events=159, TOI=294m, events/60=32.5
+  Nikita Kucherov: val=0.0008, events=159, TOI=20m, events/60=475.8
+  Nathan MacKinnon: val=0.0320, events=159, TOI=19m, events/60=498.6
+
+3. EVENTS COMPARISON (corsi vs primary_assist for McDavid):
+  corsi_rapm_5v5: events=42225, TOI=628m
+  primary_assist_rapm_5v5: events=159, TOI=306m
+
+4. AVERAGE EVENTS BY METRIC (2024-25):
+  corsi_rapm_5v5: avg=42225, max=42225
+  xg_rapm_5v5: avg=16092, max=16092
+  primary_assist_rapm_5v5: avg=159, max=159
+  goals_rapm_5v5: avg=169, max=169

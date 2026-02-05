@@ -1,0 +1,36 @@
+GAMES COUNT CHECK
+==================================================
+Season     | Games Used | Players
+----------------------------------------
+20252026 |        459 | 824
+20242025 |       1250 | 901
+20232024 |       1310 | 909
+20222023 |       1309 | 940
+20212022 |       1310 | 984
+20202021 |        867 | 902
+
+EVENTS COUNT FOR 2025-26
+==================================================
+blocked_shot_to_xg_swing_rapm_5v5_w10: 16092 events, 52 games
+corsi_def_rapm_5v5: 4246 events, 52 games
+corsi_off_rapm_5v5: 4246 events, 52 games
+corsi_pk_def_rapm: 742 events, 52 games
+corsi_pp_off_rapm: 742 events, 52 games
+corsi_rapm_5v5: 42225 events, 459 games
+faceoff_loss_to_xg_swing_rapm_5v5_w10: 16092 events, 52 games
+finishing_residual_rapm_5v5: 16092 events, 52 games
+giveaway_to_xg_swing_rapm_5v5_w10: 16092 events, 52 games
+goals_rapm_5v5: 169 events, 52 games
+penalties_drawn_rapm_5v5: 16 events, 52 games
+penalties_taken_rapm_5v5: 16 events, 52 games
+primary_assist_rapm_5v5: 159 events, 52 games
+secondary_assist_rapm_5v5: 127 events, 52 games
+takeaway_to_xg_swing_rapm_5v5_w10: 16092 events, 52 games
+turnover_to_xg_swing_rapm_5v5_w10: 16092 events, 52 games
+xg_def_rapm_5v5: 16092 events, 52 games
+xg_off_rapm_5v5: 16092 events, 52 games
+xg_pk_def_rapm: 1601 events, 52 games
+xg_pp_off_rapm: 1601 events, 52 games
+xg_primary_assist_on_goals_rapm_5v5: 16092 events, 52 games
+xg_rapm_5v5: 16092 events, 52 games
+xg_secondary_assist_on_goals_rapm_5v5: 16092 events, 52 games

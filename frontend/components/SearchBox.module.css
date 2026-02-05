@@ -1,0 +1,236 @@
+.searchContainer {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.searchIcon {
+    position: absolute;
+    left: var(--space-4);
+    width: 20px;
+    height: 20px;
+    color: var(--color-text-tertiary);
+    pointer-events: none;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.searchInput {
+    width: 100%;
+    padding: var(--space-4) var(--space-12);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--color-text-primary);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-surface-border);
+    border-radius: var(--radius-xl);
+    transition: all var(--duration-normal) var(--ease-out);
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: var(--color-accent-primary);
+    box-shadow:
+        0 0 0 4px var(--color-accent-glow),
+        var(--shadow-md);
+}
+
+.searchInput:focus+.searchIcon,
+.inputWrapper:focus-within .searchIcon {
+    color: var(--color-accent-primary);
+}
+
+.searchInput::placeholder {
+    color: var(--color-text-tertiary);
+}
+
+.loadingSpinner {
+    position: absolute;
+    right: var(--space-4);
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-bg-elevated);
+    border-top-color: var(--color-accent-primary);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.clearButton {
+    position: absolute;
+    right: var(--space-4);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    background: var(--color-bg-elevated);
+    border: none;
+    border-radius: var(--radius-full);
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.clearButton svg {
+    width: 14px;
+    height: 14px;
+}
+
+.clearButton:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text-primary);
+}
+
+/* Dropdown */
+.dropdown {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: 0;
+    right: 0;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-surface-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    z-index: 100;
+    animation: slideDown 0.2s var(--ease-out);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdownHeader {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-surface-border);
+}
+
+.resultCount {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+    font-weight: 500;
+}
+
+.results {
+    list-style: none;
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.results::-webkit-scrollbar {
+    width: 6px;
+}
+
+.results::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.results::-webkit-scrollbar-thumb {
+    background: var(--color-surface-border);
+    border-radius: 3px;
+}
+
+.resultItem {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+    transition: background var(--duration-fast) var(--ease-out);
+}
+
+.resultItem:hover,
+.resultItem.selected {
+    background: var(--color-accent-glow);
+}
+
+.playerAvatar {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-elevated);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    color: var(--color-accent-primary);
+    font-size: var(--text-sm);
+}
+
+.playerInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.playerName {
+    font-weight: 500;
+    color: var(--color-text-primary);
+}
+
+.playerId {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+    font-family: var(--font-mono);
+}
+
+.arrowIcon {
+    width: 16px;
+    height: 16px;
+    color: var(--color-text-tertiary);
+    opacity: 0;
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.resultItem:hover .arrowIcon,
+.resultItem.selected .arrowIcon {
+    opacity: 1;
+    color: var(--color-accent-primary);
+}
+
+/* No Results */
+.noResults {
+    padding: var(--space-8);
+    text-align: center;
+}
+
+.noResultsIcon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: var(--space-3);
+    opacity: 0.5;
+}
+
+.noResults p {
+    font-size: var(--text-sm);
+    color: var(--color-text-tertiary);
+}

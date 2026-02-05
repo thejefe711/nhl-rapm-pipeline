@@ -15,6 +15,7 @@ from typing import Any, Optional
 
 import duckdb
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 
 
 ROOT = Path(__file__).parent
@@ -114,6 +115,15 @@ def _cached_name_map() -> dict[int, str]:
 
 
 app = FastAPI(title="NHL Pipeline API", version="0.1.0")
+
+# Add CORS middleware for frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/api/health")
@@ -413,24 +423,49 @@ def player_detail(player_id: int) -> dict[str, Any]:
     """
     con = _connect()
     try:
+        player_data: dict[str, Any] = {"player_id": int(player_id)}
+        
+        # Get basic player info from players table
         if _players_table_exists(con):
             df = con.execute(
-                "SELECT player_id, first_name, last_name, full_name, first_seen_game_id, last_seen_game_id, games_count "
+                "SELECT player_id, first_name, last_name, full_name, first_seen_game_id, last_seen_game_id "
                 "FROM players WHERE player_id = ?",
                 [int(player_id)],
             ).df()
             if not df.empty:
-                return {"player": df.iloc[0].to_dict()}
+                player_data = df.iloc[0].to_dict()
+        
+        # Fallback: get name from cached map
+        if "full_name" not in player_data or not player_data.get("full_name"):
+            nm = _cached_name_map()
+            full = nm.get(int(player_id))
+            if full:
+                player_data["full_name"] = full
+        
+        if "full_name" not in player_data:
+            raise HTTPException(status_code=404, detail="player_id not found")
+        
+        # Calculate seasons_count from apm_results (reliable)
+        # Note: games_count in database is unreliable, so we show seasons instead
+        try:
+            seasons_df = con.execute(
+                """
+                SELECT COUNT(DISTINCT season) as seasons_count
+                FROM apm_results
+                WHERE player_id = ? AND metric_name = 'corsi_rapm_5v5'
+                """,
+                [int(player_id)],
+            ).df()
+            if not seasons_df.empty and seasons_df.iloc[0]["seasons_count"] > 0:
+                player_data["seasons_count"] = int(seasons_df.iloc[0]["seasons_count"])
+        except Exception:
+            pass
 
-        # Fallback: cached name map only
-        nm = _cached_name_map()
-        full = nm.get(int(player_id))
-        if full:
-            return {"player": {"player_id": int(player_id), "full_name": full}}
-
-        raise HTTPException(status_code=404, detail="player_id not found")
+        
+        return {"player": player_data}
     finally:
         con.close()
+
 
 
 @app.get("/api/leaderboards/corsi-rapm")
@@ -508,12 +543,12 @@ def leaderboard(
     try:
         if season is None:
             df = con.execute(
-                "SELECT season, player_id, value FROM apm_results WHERE metric_name = ?",
+                "SELECT season, player_id, value, games_count, events_count FROM apm_results WHERE metric_name = ?",
                 [metric],
             ).df()
         else:
             df = con.execute(
-                "SELECT season, player_id, value FROM apm_results WHERE metric_name = ? AND season = ?",
+                "SELECT season, player_id, value, games_count, events_count FROM apm_results WHERE metric_name = ? AND season = ?",
                 [metric, season],
             ).df()
 

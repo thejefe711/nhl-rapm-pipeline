@@ -1,0 +1,204 @@
+GAMES COUNT CONSISTENCY CHECK - ALL SEASONS
+======================================================================
+
+
+======================================================================
+SEASON: 20252026
+======================================================================
+  [WARNING] INCONSISTENT GAMES COUNT: [459, 52]
+
+  Metric                                             | Events | Games
+  ---------------------------------------------------+--------+------
+  corsi_rapm_5v5                                     |  42225 |  459
+  blocked_shot_to_xg_swing_rapm_5v5_w10              |  16092 |   52
+  corsi_def_rapm_5v5                                 |   4246 |   52
+  corsi_off_rapm_5v5                                 |   4246 |   52
+  corsi_pk_def_rapm                                  |    742 |   52
+  corsi_pp_off_rapm                                  |    742 |   52
+  faceoff_loss_to_xg_swing_rapm_5v5_w10              |  16092 |   52
+  finishing_residual_rapm_5v5                        |  16092 |   52
+  giveaway_to_xg_swing_rapm_5v5_w10                  |  16092 |   52
+  goals_rapm_5v5                                     |    169 |   52
+  penalties_drawn_rapm_5v5                           |     16 |   52
+  penalties_taken_rapm_5v5                           |     16 |   52
+  primary_assist_rapm_5v5                            |    159 |   52
+  secondary_assist_rapm_5v5                          |    127 |   52
+  takeaway_to_xg_swing_rapm_5v5_w10                  |  16092 |   52
+  turnover_to_xg_swing_rapm_5v5_w10                  |  16092 |   52
+  xg_def_rapm_5v5                                    |  16092 |   52
+  xg_off_rapm_5v5                                    |  16092 |   52
+  xg_pk_def_rapm                                     |   1601 |   52
+  xg_pp_off_rapm                                     |   1601 |   52
+  xg_primary_assist_on_goals_rapm_5v5                |  16092 |   52
+  xg_rapm_5v5                                        |  16092 |   52
+  xg_secondary_assist_on_goals_rapm_5v5              |  16092 |   52
+
+======================================================================
+SEASON: 20242025
+======================================================================
+  [WARNING] INCONSISTENT GAMES COUNT: [1250, 665, 53]
+
+  Metric                                             | Events | Games
+  ---------------------------------------------------+--------+------
+  corsi_rapm_5v5                                     | 119354 | 1250
+  corsi_def_rapm_5v5                                 | 428998 |  665
+  corsi_off_rapm_5v5                                 | 428998 |  665
+  xg_def_rapm_5v5                                    | 1537798 |  665
+  xg_off_rapm_5v5                                    | 1537798 |  665
+  xg_rapm_5v5                                        |  74417 |  665
+  blocked_shot_to_xg_swing_rapm_5v5_w10              |  15378 |   53
+  corsi_pk_def_rapm                                  |    579 |   53
+  corsi_pp_off_rapm                                  |    579 |   53
+  faceoff_loss_to_xg_swing_rapm_5v5_w10              |  15378 |   53
+  finishing_residual_rapm_5v5                        |  15378 |   53
+  giveaway_to_xg_swing_rapm_5v5_w10                  |  15378 |   53
+  goals_rapm_5v5                                     |    162 |   53
+  hd_xg_def_rapm_5v5_ge020                           |  15378 |   53
+  hd_xg_off_rapm_5v5_ge020                           |  15378 |   53
+  hd_xg_rapm_5v5_ge020                               |  15378 |   53
+  penalties_drawn_rapm_5v5                           |     17 |   53
+  penalties_taken_rapm_5v5                           |     17 |   53
+  primary_assist_rapm_5v5                            |    155 |   53
+  secondary_assist_rapm_5v5                          |    118 |   53
+  takeaway_to_xg_swing_rapm_5v5_w10                  |  15378 |   53
+  turnover_to_xg_swing_rapm_5v5_w10                  |  15378 |   53
+  xg_pk_def_rapm                                     |   1312 |   53
+  xg_pp_off_rapm                                     |   1312 |   53
+  xg_primary_assist_on_goals_rapm_5v5                |  15378 |   53
+  xg_secondary_assist_on_goals_rapm_5v5              |  15378 |   53
+
+======================================================================
+SEASON: 20232024
+======================================================================
+  [WARNING] INCONSISTENT GAMES COUNT: [1310, 53]
+
+  Metric                                             | Events | Games
+  ---------------------------------------------------+--------+------
+  corsi_rapm_5v5                                     | 125031 | 1310
+  blocked_shot_to_xg_swing_rapm_5v5_w10              |  14965 |   53
+  corsi_def_rapm_5v5                                 |   4357 |   53
+  corsi_off_rapm_5v5                                 |   4357 |   53
+  corsi_pk_def_rapm                                  |    827 |   53
+  corsi_pp_off_rapm                                  |    827 |   53
+  faceoff_loss_to_xg_swing_rapm_5v5_w10              |  14965 |   53
+  finishing_residual_rapm_5v5                        |  14965 |   53
+  giveaway_to_xg_swing_rapm_5v5_w10                  |  14965 |   53
+  goals_rapm_5v5                                     |    186 |   53
+  hd_xg_def_rapm_5v5_ge020                           |  14965 |   53
+  hd_xg_off_rapm_5v5_ge020                           |  14965 |   53
+  hd_xg_rapm_5v5_ge020                               |  14965 |   53
+  penalties_drawn_rapm_5v5                           |     31 |   53
+  penalties_taken_rapm_5v5                           |     31 |   53
+  primary_assist_rapm_5v5                            |    180 |   53
+  secondary_assist_rapm_5v5                          |    149 |   53
+  takeaway_to_xg_swing_rapm_5v5_w10                  |  14965 |   53
+  turnover_to_xg_swing_rapm_5v5_w10                  |  14965 |   53
+  xg_def_rapm_5v5                                    |  29930 |   53
+  xg_off_rapm_5v5                                    |  29930 |   53
+  xg_pk_def_rapm                                     |   1823 |   53
+  xg_pp_off_rapm                                     |   1823 |   53
+  xg_primary_assist_on_goals_rapm_5v5                |  14965 |   53
+  xg_rapm_5v5                                        |  14965 |   53
+  xg_secondary_assist_on_goals_rapm_5v5              |  14965 |   53
+
+======================================================================
+SEASON: 20222023
+======================================================================
+  [WARNING] INCONSISTENT GAMES COUNT: [1309, 53]
+
+  Metric                                             | Events | Games
+  ---------------------------------------------------+--------+------
+  corsi_rapm_5v5                                     | 119280 | 1309
+  blocked_shot_to_xg_swing_rapm_5v5_w10              |  15605 |   53
+  corsi_def_rapm_5v5                                 |   4231 |   53
+  corsi_off_rapm_5v5                                 |   4231 |   53
+  corsi_pk_def_rapm                                  |    682 |   53
+  corsi_pp_off_rapm                                  |    682 |   53
+  faceoff_loss_to_xg_swing_rapm_5v5_w10              |  15605 |   53
+  finishing_residual_rapm_5v5                        |  15605 |   53
+  giveaway_to_xg_swing_rapm_5v5_w10                  |  15605 |   53
+  goals_rapm_5v5                                     |    166 |   53
+  hd_xg_def_rapm_5v5_ge020                           |  15605 |   53
+  hd_xg_off_rapm_5v5_ge020                           |  15605 |   53
+  hd_xg_rapm_5v5_ge020                               |  15605 |   53
+  penalties_drawn_rapm_5v5                           |     11 |   53
+  penalties_taken_rapm_5v5                           |     11 |   53
+  primary_assist_rapm_5v5                            |    157 |   53
+  secondary_assist_rapm_5v5                          |    127 |   53
+  takeaway_to_xg_swing_rapm_5v5_w10                  |  15605 |   53
+  turnover_to_xg_swing_rapm_5v5_w10                  |  15605 |   53
+  xg_def_rapm_5v5                                    |  31210 |   53
+  xg_off_rapm_5v5                                    |  31210 |   53
+  xg_pk_def_rapm                                     |   1533 |   53
+  xg_pp_off_rapm                                     |   1533 |   53
+  xg_primary_assist_on_goals_rapm_5v5                |  15605 |   53
+  xg_rapm_5v5                                        |  15605 |   53
+  xg_secondary_assist_on_goals_rapm_5v5              |  15605 |   53
+
+======================================================================
+SEASON: 20212022
+======================================================================
+  [WARNING] INCONSISTENT GAMES COUNT: [1310, 53]
+
+  Metric                                             | Events | Games
+  ---------------------------------------------------+--------+------
+  corsi_rapm_5v5                                     | 117455 | 1310
+  blocked_shot_to_xg_swing_rapm_5v5_w10              |  11333 |   53
+  corsi_def_rapm_5v5                                 |   4360 |   53
+  corsi_off_rapm_5v5                                 |   4360 |   53
+  corsi_pk_def_rapm                                  |    597 |   53
+  corsi_pp_off_rapm                                  |    597 |   53
+  faceoff_loss_to_xg_swing_rapm_5v5_w10              |  11333 |   53
+  finishing_residual_rapm_5v5                        |  11333 |   53
+  giveaway_to_xg_swing_rapm_5v5_w10                  |  11333 |   53
+  goals_rapm_5v5                                     |    173 |   53
+  hd_xg_def_rapm_5v5_ge020                           |  11333 |   53
+  hd_xg_off_rapm_5v5_ge020                           |  11333 |   53
+  hd_xg_rapm_5v5_ge020                               |  11333 |   53
+  penalties_drawn_rapm_5v5                           |     14 |   53
+  penalties_taken_rapm_5v5                           |     14 |   53
+  primary_assist_rapm_5v5                            |    161 |   53
+  secondary_assist_rapm_5v5                          |    124 |   53
+  takeaway_to_xg_swing_rapm_5v5_w10                  |  11333 |   53
+  turnover_to_xg_swing_rapm_5v5_w10                  |  11333 |   53
+  xg_def_rapm_5v5                                    |  22666 |   53
+  xg_off_rapm_5v5                                    |  22666 |   53
+  xg_pk_def_rapm                                     |    969 |   53
+  xg_pp_off_rapm                                     |    969 |   53
+  xg_primary_assist_on_goals_rapm_5v5                |  11333 |   53
+  xg_rapm_5v5                                        |  11333 |   53
+  xg_secondary_assist_on_goals_rapm_5v5              |  11333 |   53
+
+======================================================================
+SEASON: 20202021
+======================================================================
+  [WARNING] INCONSISTENT GAMES COUNT: [867, 53]
+
+  Metric                                             | Events | Games
+  ---------------------------------------------------+--------+------
+  corsi_rapm_5v5                                     |  74413 |  867
+  blocked_shot_to_xg_swing_rapm_5v5_w10              |  11356 |   53
+  corsi_def_rapm_5v5                                 |   4135 |   53
+  corsi_off_rapm_5v5                                 |   4135 |   53
+  corsi_pk_def_rapm                                  |    875 |   53
+  corsi_pp_off_rapm                                  |    875 |   53
+  faceoff_loss_to_xg_swing_rapm_5v5_w10              |  11356 |   53
+  finishing_residual_rapm_5v5                        |  11356 |   53
+  giveaway_to_xg_swing_rapm_5v5_w10                  |  11356 |   53
+  goals_rapm_5v5                                     |    201 |   53
+  hd_xg_def_rapm_5v5_ge020                           |  11356 |   53
+  hd_xg_off_rapm_5v5_ge020                           |  11356 |   53
+  hd_xg_rapm_5v5_ge020                               |  11356 |   53
+  penalties_drawn_rapm_5v5                           |     28 |   53
+  penalties_taken_rapm_5v5                           |     28 |   53
+  primary_assist_rapm_5v5                            |    188 |   53
+  secondary_assist_rapm_5v5                          |    149 |   53
+  takeaway_to_xg_swing_rapm_5v5_w10                  |  11356 |   53
+  turnover_to_xg_swing_rapm_5v5_w10                  |  11356 |   53
+  xg_def_rapm_5v5                                    |  22712 |   53
+  xg_off_rapm_5v5                                    |  22712 |   53
+  xg_pk_def_rapm                                     |   1626 |   53
+  xg_pp_off_rapm                                     |   1626 |   53
+  xg_primary_assist_on_goals_rapm_5v5                |  11356 |   53
+  xg_rapm_5v5                                        |  11356 |   53
+  xg_secondary_assist_on_goals_rapm_5v5              |  11356 |   53
