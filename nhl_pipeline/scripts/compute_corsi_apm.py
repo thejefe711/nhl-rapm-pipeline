@@ -209,33 +209,71 @@ def _build_sparse_X_net(
     """
     Build sparse design matrix:
       +1 for home skaters on ice, -1 for away skaters on ice
+
+    Fully vectorized: uses numpy fancy indexing with a pre-built lookup array.
     """
-    row_idx: List[int] = []
-    col_idx: List[int] = []
-    data: List[float] = []
+    n_rows = len(df)
+    row_idx_list: List[np.ndarray] = []
+    col_idx_list: List[np.ndarray] = []
+    vals_list: List[np.ndarray] = []
 
-    for r, row in enumerate(df.itertuples(index=False)):
-        # itertuples doesn't allow dynamic access easily; use df.loc for the 12 fields
-        home_players = df.iloc[r][home_cols].dropna().astype(int).tolist()
-        away_players = df.iloc[r][away_cols].dropna().astype(int).tolist()
+    if not player_to_col:
+        return csr_matrix((n_rows, 0))
 
-        for pid in home_players:
-            c = player_to_col.get(pid)
-            if c is None:
-                continue
-            row_idx.append(r)
-            col_idx.append(c)
-            data.append(1.0)
+    # Build fast lookup array: player_id -> column index (or -1)
+    max_pid = max(player_to_col.keys()) + 1
+    pid_lookup = np.full(max_pid, -1, dtype=np.int32)
+    for pid, col in player_to_col.items():
+        pid_lookup[pid] = col
 
-        for pid in away_players:
-            c = player_to_col.get(pid)
-            if c is None:
-                continue
-            row_idx.append(r)
-            col_idx.append(c)
-            data.append(-1.0)
+    # Home skaters: +1
+    for col_name in home_cols:
+        if col_name not in df.columns:
+            continue
+        col_vals = df[col_name].values
+        valid_mask = pd.notna(col_vals)
+        if not valid_mask.any():
+            continue
+        valid_rows = np.where(valid_mask)[0]
+        valid_pids = col_vals[valid_mask].astype(np.int64)
+        in_range = valid_pids < max_pid
+        valid_rows = valid_rows[in_range]
+        valid_pids = valid_pids[in_range]
+        mapped = pid_lookup[valid_pids]
+        good = mapped >= 0
+        row_idx_list.append(valid_rows[good])
+        col_idx_list.append(mapped[good])
+        vals_list.append(np.ones(good.sum()))
 
-    return csr_matrix((data, (row_idx, col_idx)), shape=(len(df), len(player_to_col)))
+    # Away skaters: -1
+    for col_name in away_cols:
+        if col_name not in df.columns:
+            continue
+        col_vals = df[col_name].values
+        valid_mask = pd.notna(col_vals)
+        if not valid_mask.any():
+            continue
+        valid_rows = np.where(valid_mask)[0]
+        valid_pids = col_vals[valid_mask].astype(np.int64)
+        in_range = valid_pids < max_pid
+        valid_rows = valid_rows[in_range]
+        valid_pids = valid_pids[in_range]
+        mapped = pid_lookup[valid_pids]
+        good = mapped >= 0
+        row_idx_list.append(valid_rows[good])
+        col_idx_list.append(mapped[good])
+        vals_list.append(np.full(good.sum(), -1.0))
+
+    if row_idx_list:
+        all_rows = np.concatenate(row_idx_list)
+        all_cols = np.concatenate(col_idx_list)
+        all_vals = np.concatenate(vals_list)
+    else:
+        all_rows = np.array([], dtype=int)
+        all_cols = np.array([], dtype=int)
+        all_vals = np.array([], dtype=float)
+
+    return csr_matrix((all_vals, (all_rows, all_cols)), shape=(n_rows, len(player_to_col)))
 
 
 def _build_sparse_X_off_def(
@@ -247,50 +285,76 @@ def _build_sparse_X_off_def(
     """
     Build sparse design matrix with separate offense/defense coefficients per player.
 
-    Columns:
-      offense coef for player i at 2*i
-      defense coef for player i at 2*i+1
-
-    For each observation row:
-      +1 in offense columns for on-ice offense skaters
-      +1 in defense columns for on-ice defense skaters
+    Fully vectorized: uses numpy fancy indexing and a pre-built lookup array
+    to avoid any Python-level row iteration.
     """
-    row_idx: List[int] = []
-    col_idx: List[int] = []
-    data: List[float] = []
+    n_rows = len(df)
+    row_idx_list: List[np.ndarray] = []
+    col_idx_list: List[np.ndarray] = []
+    vals_list: List[np.ndarray] = []
 
-    for r in range(len(df)):
-        # Optional per-row scaling (useful for special teams where skater counts differ).
-        # If present, these should be small positive values (e.g., 1/off_count, 1/def_count).
-        try:
-            off_scale = float(df.iloc[r].get("off_scale", 1.0))
-        except Exception:
-            off_scale = 1.0
-        try:
-            def_scale = float(df.iloc[r].get("def_scale", 1.0))
-        except Exception:
-            def_scale = 1.0
+    # Precompute per-row scaling vectors
+    off_scales = df["off_scale"].fillna(1.0).values if "off_scale" in df.columns else np.ones(n_rows)
+    def_scales = df["def_scale"].fillna(1.0).values if "def_scale" in df.columns else np.ones(n_rows)
 
-        off_players = df.iloc[r][off_cols].dropna().astype(int).tolist()
-        def_players = df.iloc[r][def_cols].dropna().astype(int).tolist()
+    # Build a fast lookup array: player_id -> column index (or -1 if not found)
+    if player_to_col:
+        max_pid = max(player_to_col.keys()) + 1
+        pid_lookup = np.full(max_pid, -1, dtype=np.int32)
+        for pid, col in player_to_col.items():
+            pid_lookup[pid] = col
+    else:
+        return csr_matrix((n_rows, 0))
 
-        for pid in off_players:
-            base = player_to_col.get(pid)
-            if base is None:
-                continue
-            row_idx.append(r)
-            col_idx.append(2 * base)
-            data.append(off_scale)
+    # Process offense columns (fully vectorized per column)
+    for col_name in off_cols:
+        if col_name not in df.columns:
+            continue
+        col_vals = df[col_name].values
+        valid_mask = pd.notna(col_vals)
+        if not valid_mask.any():
+            continue
+        valid_rows = np.where(valid_mask)[0]
+        valid_pids = col_vals[valid_mask].astype(np.int64)
+        # Lookup columns, filtering out unknown players (pid >= max_pid or mapped to -1)
+        in_range = valid_pids < max_pid
+        valid_rows = valid_rows[in_range]
+        valid_pids = valid_pids[in_range]
+        mapped = pid_lookup[valid_pids]
+        good = mapped >= 0
+        row_idx_list.append(valid_rows[good])
+        col_idx_list.append(2 * mapped[good])
+        vals_list.append(off_scales[valid_rows[good]])
 
-        for pid in def_players:
-            base = player_to_col.get(pid)
-            if base is None:
-                continue
-            row_idx.append(r)
-            col_idx.append(2 * base + 1)
-            data.append(def_scale)
+    # Process defense columns (fully vectorized per column)
+    for col_name in def_cols:
+        if col_name not in df.columns:
+            continue
+        col_vals = df[col_name].values
+        valid_mask = pd.notna(col_vals)
+        if not valid_mask.any():
+            continue
+        valid_rows = np.where(valid_mask)[0]
+        valid_pids = col_vals[valid_mask].astype(np.int64)
+        in_range = valid_pids < max_pid
+        valid_rows = valid_rows[in_range]
+        valid_pids = valid_pids[in_range]
+        mapped = pid_lookup[valid_pids]
+        good = mapped >= 0
+        row_idx_list.append(valid_rows[good])
+        col_idx_list.append(2 * mapped[good] + 1)
+        vals_list.append(def_scales[valid_rows[good]])
 
-    return csr_matrix((data, (row_idx, col_idx)), shape=(len(df), 2 * len(player_to_col)))
+    if row_idx_list:
+        all_rows = np.concatenate(row_idx_list)
+        all_cols = np.concatenate(col_idx_list)
+        all_vals = np.concatenate(vals_list)
+    else:
+        all_rows = np.array([], dtype=int)
+        all_cols = np.array([], dtype=int)
+        all_vals = np.array([], dtype=float)
+
+    return csr_matrix((all_vals, (all_rows, all_cols)), shape=(n_rows, 2 * len(player_to_col)))
 
 
 def _collect_players_from_onice(df: pd.DataFrame, home_cols: List[str], away_cols: List[str]) -> List[int]:
@@ -302,21 +366,57 @@ def _ridge_fit(X: csr_matrix, y: np.ndarray, sample_weight: Optional[np.ndarray]
     if not alphas:
         alphas = [1000.0, 10000.0]
     
-    # Use RidgeCV if multiple alphas, else Ridge
+    # Use RidgeCV if multiple alphas (fallback to sklearn)
     if len(alphas) > 1:
-        # RidgeCV doesn't support 'lsqr' with multiple alphas efficiently in some versions, 
-        # but 'auto' usually works well.
         model = RidgeCV(alphas=alphas, fit_intercept=True, scoring=None)
         model.fit(X, y, sample_weight=sample_weight)
         best_alpha = float(model.alpha_)
         print(f"Optimal alpha: {best_alpha}")
         return model.coef_, best_alpha
-    else:
-        alpha = alphas[0]
-        model = Ridge(alpha=alpha, fit_intercept=True, solver="lsqr")
-        model.fit(X, y, sample_weight=sample_weight)
-        print(f"Optimal alpha: {model.alpha}")
-        return model.coef_, float(model.alpha)
+    
+    # Single alpha: solve via normal equations (much faster for sparse X)
+    # Solves: (X^T W X + αI) β = X^T W y  with intercept via centering
+    import time as _time
+    from scipy.linalg import cho_factor, cho_solve
+
+    t0 = _time.time()
+    alpha = alphas[0]
+    n, p = X.shape
+    w = sample_weight if sample_weight is not None else np.ones(n)
+    w_sum = w.sum()
+
+    # Weighted means for centering (handles intercept)
+    y_mean = np.dot(w, y) / w_sum
+    x_mean = np.asarray(X.T @ w).ravel() / w_sum  # p-vector
+
+    # Center y
+    y_c = y - y_mean
+
+    # Compute X^T W X efficiently: bake sqrt(w) into X, then Xw^T @ Xw
+    # This avoids creating an explicit n×n diagonal matrix
+    sqrt_w = np.sqrt(w)
+    Xw = X.multiply(sqrt_w[:, np.newaxis])  # scale each row by sqrt(w_i)
+    XtWX = (Xw.T @ Xw).toarray()  # p × p dense — single sparse multiply
+
+    # Apply centering correction
+    XtWX -= w_sum * np.outer(x_mean, x_mean)
+
+    # Add ridge penalty
+    XtWX += alpha * np.eye(p)
+
+    # Right-hand side: X^T @ (w * y_centered)
+    XtWy = np.asarray(X.T @ (w * y_c)).ravel()
+
+    # Solve via Cholesky (positive definite due to ridge penalty)
+    try:
+        c, low = cho_factor(XtWX)
+        beta = cho_solve((c, low), XtWy)
+    except np.linalg.LinAlgError:
+        beta = np.linalg.solve(XtWX, XtWy)
+
+    elapsed = _time.time() - t0
+    print(f"Optimal alpha: {alpha} (normal eq solve: {elapsed:.1f}s)")
+    return beta, alpha
 
 
 def debug_rapm_inputs(X, y, w, stints_df):
@@ -1197,12 +1297,15 @@ def main():
             print("  No players meet min TOI threshold; skipping season.")
             continue
 
-        # Drop rows where any on-ice player is outside the kept set? (keeps model stable)
-        def row_ok(r: pd.Series) -> bool:
-            players = pd.concat([r[home_cols], r[away_cols]]).dropna().astype(int).tolist()
-            return all(p in keep_players for p in players)
-
-        mask_ok = data.apply(row_ok, axis=1)
+        # Drop rows where any on-ice player is outside the kept set (fully vectorized with np.isin)
+        keep_arr = np.array(list(keep_players), dtype=np.float64)
+        mask_ok = np.ones(len(data), dtype=bool)
+        for col in home_cols + away_cols:
+            col_vals = data[col].values.astype(np.float64)
+            not_na = pd.notna(col_vals)
+            # For non-NaN values: True if in keep_players, NaN positions stay True
+            col_ok = np.where(not_na, np.isin(col_vals, keep_arr), True)
+            mask_ok &= col_ok
         data = data[mask_ok].reset_index(drop=True)
         if data.empty:
             print("  All rows removed by min TOI filter; skipping season.")
@@ -1305,35 +1408,26 @@ def main():
                         _write_apm_results(conn, season, "corsi_pp_off_rapm", off_map, toi_seconds, int(data["corsi_home"].sum() + data["corsi_away"].sum()), int(len(game_ids)))
                         _write_apm_results(conn, season, "corsi_pk_def_rapm", def_map, toi_seconds, int(data["corsi_home"].sum() + data["corsi_away"].sum()), int(len(game_ids)))
                 else:
-                    # Build two observations per stint: home offense and away offense
+                    # Build two observations per stint: home offense and away offense (vectorized)
                     off_cols = [f"off_skater_{i}" for i in range(1, 7)]
                     def_cols = [f"def_skater_{i}" for i in range(1, 7)]
-                    obs = []
-                    for _, s in data.iterrows():
-                        dur = float(s["duration_s"])
-                        if dur <= 0:
-                            continue
-                        home_players = [int(x) for x in s[home_cols].dropna().astype(int).tolist()]
-                        away_players = [int(x) for x in s[away_cols].dropna().astype(int).tolist()]
-                        # Home offense observation
-                        obs.append(
-                            {
-                                **{off_cols[i]: (home_players + [None] * 6)[i] for i in range(6)},
-                                **{def_cols[i]: (away_players + [None] * 6)[i] for i in range(6)},
-                                "y": float(s["corsi_home"]) / dur,
-                                "weight": dur,
-                            }
-                        )
-                        # Away offense observation
-                        obs.append(
-                            {
-                                **{off_cols[i]: (away_players + [None] * 6)[i] for i in range(6)},
-                                **{def_cols[i]: (home_players + [None] * 6)[i] for i in range(6)},
-                                "y": float(s["corsi_away"]) / dur,
-                                "weight": dur,
-                            }
-                        )
-                    obs_df = pd.DataFrame(obs)
+                    valid = data[data["duration_s"] > 0].copy()
+                    dur = valid["duration_s"].values
+                    # Home offense obs: off=home, def=away
+                    home_obs = pd.DataFrame()
+                    for i, (hc, ac) in enumerate(zip(home_cols, away_cols)):
+                        home_obs[off_cols[i]] = valid[hc].values
+                        home_obs[def_cols[i]] = valid[ac].values
+                    home_obs["y"] = valid["corsi_home"].values / dur
+                    home_obs["weight"] = dur
+                    # Away offense obs: off=away, def=home
+                    away_obs = pd.DataFrame()
+                    for i, (hc, ac) in enumerate(zip(home_cols, away_cols)):
+                        away_obs[off_cols[i]] = valid[ac].values
+                        away_obs[def_cols[i]] = valid[hc].values
+                    away_obs["y"] = valid["corsi_away"].values / dur
+                    away_obs["weight"] = dur
+                    obs_df = pd.concat([home_obs, away_obs], ignore_index=True)
                     # Drop rows missing any players (shouldn't happen, but safe)
                     obs_df = obs_df.dropna(subset=[off_cols[0], def_cols[0]])
 
@@ -1390,14 +1484,41 @@ def main():
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping penalties_rapm for non-5v5.")
                 else:
-                    y_taken = data["net_pen_taken"].astype(float) / data["duration_s"].astype(float)
-                    X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
-                    coefs, alpha_used = _ridge_fit(X, y_taken.values, data["weight"].values, alphas)
+                    # Off/def penalty regression — two INDEPENDENT metrics
+                    # Off coefficient: player impact on their own team taking penalties
+                    # Def coefficient (negated): player impact on opponents taking penalties (= drawing)
+                    off_cols = [f"off_skater_{i}" for i in range(1, 7)]
+                    def_cols = [f"def_skater_{i}" for i in range(1, 7)]
+                    dur = data["duration_s"].astype(float).values
+                    valid = data[dur > 0].copy()
+                    dur = valid["duration_s"].astype(float).values
+                    # Home offense obs: off=home, def=away, y=pen_taken_home/dur
+                    home_obs = pd.DataFrame()
+                    for i, (hc, ac) in enumerate(zip(home_cols, away_cols)):
+                        home_obs[off_cols[i]] = valid[hc].values
+                        home_obs[def_cols[i]] = valid[ac].values
+                    home_obs["y"] = valid["pen_taken_home"].values / dur
+                    home_obs["weight"] = dur
+                    # Away offense obs: off=away, def=home, y=pen_taken_away/dur
+                    away_obs = pd.DataFrame()
+                    for i, (hc, ac) in enumerate(zip(home_cols, away_cols)):
+                        away_obs[off_cols[i]] = valid[ac].values
+                        away_obs[def_cols[i]] = valid[hc].values
+                    away_obs["y"] = valid["pen_taken_away"].values / dur
+                    away_obs["weight"] = dur
+                    obs_df = pd.concat([home_obs, away_obs], ignore_index=True)
+                    obs_df = obs_df.dropna(subset=[off_cols[0], def_cols[0]])
+
+                    X = _build_sparse_X_off_def(obs_df, player_to_col, off_cols, def_cols)
+                    coefs, alpha_used = _ridge_fit(X, obs_df["y"].values.astype(float), obs_df["weight"].values.astype(float), alphas)
                     coefs = coefs * 3600.0
-                    taken_map = {pid: float(coefs[player_to_col[pid]]) for pid in players_sorted}
-                    drawn_map = {pid: float(-coefs[player_to_col[pid]]) for pid in players_sorted}  # net drawn = - net taken
-                    print(f"  Fit [penalties]: rows={len(data):,} players={len(players_sorted):,} alpha={alpha_used:g}")
-                    _write_apm_results(conn, season, "penalties_taken_rapm_5v5", taken_map, toi_seconds, int(data['pen_taken_home'].sum() + data['pen_taken_away'].sum()), int(len(game_ids)))
+                    # Off = penalties committed by player's team (higher = worse discipline)
+                    committed_map = {pid: float(coefs[2 * player_to_col[pid]]) for pid in players_sorted}
+                    # Def = penalties drawn from opponents (Positive coef = Opponent takes MORE penalties = Good)
+                    # Unlike Corsi/xG Defense where we want to suppress (negate positive coef), here we want to cause (keep positive coef).
+                    drawn_map = {pid: float(coefs[2 * player_to_col[pid] + 1]) for pid in players_sorted}
+                    print(f"  Fit [penalties_off/def]: rows={len(obs_df):,} players={len(players_sorted):,} alpha={alpha_used:g}")
+                    _write_apm_results(conn, season, "penalties_committed_rapm_5v5", committed_map, toi_seconds, int(data['pen_taken_home'].sum() + data['pen_taken_away'].sum()), int(len(game_ids)))
                     _write_apm_results(conn, season, "penalties_drawn_rapm_5v5", drawn_map, toi_seconds, int(data['pen_taken_home'].sum() + data['pen_taken_away'].sum()), int(len(game_ids)))
 
             if "xg" in metrics:
@@ -1426,33 +1547,24 @@ def main():
                         _write_apm_results(conn, season, "xg_pp_off_rapm", off_map, toi_seconds, int(len(data)), int(len(game_ids)))
                         _write_apm_results(conn, season, "xg_pk_def_rapm", def_map, toi_seconds, int(len(data)), int(len(game_ids)))
                 else:
-                    # Two observations per stint: home offense and away offense
+                    # Two observations per stint: home offense and away offense (vectorized)
                     off_cols = [f"off_skater_{i}" for i in range(1, 7)]
                     def_cols = [f"def_skater_{i}" for i in range(1, 7)]
-                    obs = []
-                    for _, s in data.iterrows():
-                        dur = float(s["duration_s"])
-                        if dur <= 0:
-                            continue
-                        home_players = [int(x) for x in s[home_cols].dropna().astype(int).tolist()]
-                        away_players = [int(x) for x in s[away_cols].dropna().astype(int).tolist()]
-                        obs.append(
-                            {
-                                **{off_cols[i]: (home_players + [None] * 6)[i] for i in range(6)},
-                                **{def_cols[i]: (away_players + [None] * 6)[i] for i in range(6)},
-                                "y": float(s["xg_home"]) / dur,
-                                "weight": dur,
-                            }
-                        )
-                        obs.append(
-                            {
-                                **{off_cols[i]: (away_players + [None] * 6)[i] for i in range(6)},
-                                **{def_cols[i]: (home_players + [None] * 6)[i] for i in range(6)},
-                                "y": float(s["xg_away"]) / dur,
-                                "weight": dur,
-                            }
-                        )
-                    obs_df = pd.DataFrame(obs).dropna(subset=[off_cols[0], def_cols[0]])
+                    valid = data[data["duration_s"] > 0].copy()
+                    dur = valid["duration_s"].values
+                    home_obs = pd.DataFrame()
+                    for i, (hc, ac) in enumerate(zip(home_cols, away_cols)):
+                        home_obs[off_cols[i]] = valid[hc].values
+                        home_obs[def_cols[i]] = valid[ac].values
+                    home_obs["y"] = valid["xg_home"].values / dur
+                    home_obs["weight"] = dur
+                    away_obs = pd.DataFrame()
+                    for i, (hc, ac) in enumerate(zip(home_cols, away_cols)):
+                        away_obs[off_cols[i]] = valid[ac].values
+                        away_obs[def_cols[i]] = valid[hc].values
+                    away_obs["y"] = valid["xg_away"].values / dur
+                    away_obs["weight"] = dur
+                    obs_df = pd.concat([home_obs, away_obs], ignore_index=True).dropna(subset=[off_cols[0], def_cols[0]])
                     if not obs_df.empty:
                         X = _build_sparse_X_off_def(obs_df, player_to_col, off_cols, def_cols)
                         
@@ -1518,30 +1630,21 @@ def main():
                 else:
                     off_cols = [f"off_skater_{i}" for i in range(1, 7)]
                     def_cols = [f"def_skater_{i}" for i in range(1, 7)]
-                    obs = []
-                    for _, s in data.iterrows():
-                        dur = float(s["duration_s"])
-                        if dur <= 0:
-                            continue
-                        home_players = [int(x) for x in s[home_cols].dropna().astype(int).tolist()]
-                        away_players = [int(x) for x in s[away_cols].dropna().astype(int).tolist()]
-                        obs.append(
-                            {
-                                **{off_cols[i]: (home_players + [None] * 6)[i] for i in range(6)},
-                                **{def_cols[i]: (away_players + [None] * 6)[i] for i in range(6)},
-                                "y": 3600.0 * (float(s["hd_xg_home"]) / dur),
-                                "weight": dur,
-                            }
-                        )
-                        obs.append(
-                            {
-                                **{off_cols[i]: (away_players + [None] * 6)[i] for i in range(6)},
-                                **{def_cols[i]: (home_players + [None] * 6)[i] for i in range(6)},
-                                "y": 3600.0 * (float(s["hd_xg_away"]) / dur),
-                                "weight": dur,
-                            }
-                        )
-                    obs_df = pd.DataFrame(obs).dropna(subset=[off_cols[0], def_cols[0]])
+                    valid = data[data["duration_s"] > 0].copy()
+                    dur = valid["duration_s"].values
+                    home_obs = pd.DataFrame()
+                    for i, (hc, ac) in enumerate(zip(home_cols, away_cols)):
+                        home_obs[off_cols[i]] = valid[hc].values
+                        home_obs[def_cols[i]] = valid[ac].values
+                    home_obs["y"] = 3600.0 * (valid["hd_xg_home"].values / dur)
+                    home_obs["weight"] = dur
+                    away_obs = pd.DataFrame()
+                    for i, (hc, ac) in enumerate(zip(home_cols, away_cols)):
+                        away_obs[off_cols[i]] = valid[ac].values
+                        away_obs[def_cols[i]] = valid[hc].values
+                    away_obs["y"] = 3600.0 * (valid["hd_xg_away"].values / dur)
+                    away_obs["weight"] = dur
+                    obs_df = pd.concat([home_obs, away_obs], ignore_index=True).dropna(subset=[off_cols[0], def_cols[0]])
                     if not obs_df.empty:
                         X = _build_sparse_X_off_def(obs_df, player_to_col, off_cols, def_cols)
                         coefs, alpha_used = _ridge_fit(X, obs_df["y"].values.astype(float), obs_df["weight"].values.astype(float), alphas)

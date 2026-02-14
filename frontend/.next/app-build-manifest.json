@@ -12,12 +12,6 @@
       "static/css/css-app_globals_css-components_Navbar_module_css.css",
       "static/chunks/app/layout.js"
     ],
-    "/players/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/css-app_players_page_module_css-components_SearchBox_module_css.css",
-      "static/chunks/app/players/page.js"
-    ],
     "/leaderboards/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",

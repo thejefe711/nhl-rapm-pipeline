@@ -1,48 +1,36 @@
 COMPREHENSIVE RAPM QUALITY ANALYSIS REPORT
 ================================================================================
 
-Total tests: 56
-Passed: 7
-Failed: 49
+Total tests: 40
+Passed: 8
+Failed: 32
 
 DETAILED RESULTS
 --------------------------------------------------------------------------------
 
 [FAIL] [ERROR   ] games_consistency_20252026
-    Inconsistent: 52-459 games. 22 metrics have <50% of max games
-    Details: {"low_games_metrics": ["primary_assist_rapm_5v5", "turnover_to_xg_swing_rapm_5v5_w10", "xg_primary_assist_on_goals_rapm_5v5", "blocked_shot_to_xg_swing_rapm_5v5_w10", "corsi_pk_def_rapm"]}
+    Inconsistent: 52-459 games. 7 metrics have <50% of max games
+    Details: {"low_games_metrics": ["corsi_pk_def_rapm", "blocked_shot_to_xg_swing_rapm_5v5_w10", "finishing_residual_rapm_5v5", "corsi_pp_off_rapm", "faceoff_loss_to_xg_swing_rapm_5v5_w10"]}
 
 [FAIL] [ERROR   ] games_consistency_20242025
     Inconsistent: 53-1250 games. 20 metrics have <50% of max games
-    Details: {"low_games_metrics": ["xg_primary_assist_on_goals_rapm_5v5", "xg_pp_off_rapm", "goals_rapm_5v5", "takeaway_to_xg_swing_rapm_5v5_w10", "faceoff_loss_to_xg_swing_rapm_5v5_w10"]}
+    Details: {"low_games_metrics": ["xg_secondary_assist_on_goals_rapm_5v5", "finishing_residual_rapm_5v5", "hd_xg_off_rapm_5v5_ge020", "xg_primary_assist_on_goals_rapm_5v5", "blocked_shot_to_xg_swing_rapm_5v5_w10"]}
 
 [FAIL] [ERROR   ] games_consistency_20232024
     Inconsistent: 53-1310 games. 25 metrics have <50% of max games
-    Details: {"low_games_metrics": ["xg_primary_assist_on_goals_rapm_5v5", "corsi_def_rapm_5v5", "hd_xg_off_rapm_5v5_ge020", "xg_off_rapm_5v5", "hd_xg_rapm_5v5_ge020"]}
+    Details: {"low_games_metrics": ["penalties_drawn_rapm_5v5", "giveaway_to_xg_swing_rapm_5v5_w10", "xg_pp_off_rapm", "xg_off_rapm_5v5", "hd_xg_rapm_5v5_ge020"]}
 
 [FAIL] [ERROR   ] games_consistency_20222023
     Inconsistent: 53-1309 games. 25 metrics have <50% of max games
-    Details: {"low_games_metrics": ["xg_primary_assist_on_goals_rapm_5v5", "giveaway_to_xg_swing_rapm_5v5_w10", "corsi_pk_def_rapm", "penalties_taken_rapm_5v5", "finishing_residual_rapm_5v5"]}
+    Details: {"low_games_metrics": ["xg_primary_assist_on_goals_rapm_5v5", "hd_xg_rapm_5v5_ge020", "corsi_pk_def_rapm", "corsi_def_rapm_5v5", "secondary_assist_rapm_5v5"]}
 
 [FAIL] [ERROR   ] games_consistency_20212022
     Inconsistent: 53-1310 games. 25 metrics have <50% of max games
-    Details: {"low_games_metrics": ["corsi_off_rapm_5v5", "primary_assist_rapm_5v5", "faceoff_loss_to_xg_swing_rapm_5v5_w10", "xg_pk_def_rapm", "xg_secondary_assist_on_goals_rapm_5v5"]}
+    Details: {"low_games_metrics": ["penalties_drawn_rapm_5v5", "goals_rapm_5v5", "xg_pp_off_rapm", "xg_off_rapm_5v5", "hd_xg_rapm_5v5_ge020"]}
 
 [FAIL] [ERROR   ] games_consistency_20202021
     Inconsistent: 53-867 games. 25 metrics have <50% of max games
-    Details: {"low_games_metrics": ["xg_primary_assist_on_goals_rapm_5v5", "primary_assist_rapm_5v5", "corsi_pk_def_rapm", "penalties_taken_rapm_5v5", "finishing_residual_rapm_5v5"]}
-
-[FAIL] [ERROR   ] dist_std_giveaway_to_xg_swing_rapm_5v5_w10
-    Std too narrow: 0.000000 (no player differentiation)
-
-[FAIL] [ERROR   ] dist_range_giveaway_to_xg_swing_rapm_5v5_w10
-    Range too narrow: 0.000000
-
-[FAIL] [ERROR   ] dist_std_turnover_to_xg_swing_rapm_5v5_w10
-    Std too narrow: 0.000000 (no player differentiation)
-
-[FAIL] [ERROR   ] dist_range_turnover_to_xg_swing_rapm_5v5_w10
-    Range too narrow: 0.000000
+    Details: {"low_games_metrics": ["primary_assist_rapm_5v5", "hd_xg_off_rapm_5v5_ge020", "hd_xg_def_rapm_5v5_ge020", "corsi_pk_def_rapm", "xg_def_rapm_5v5"]}
 
 [FAIL] [WARNING ] outlier_blocked_shot_to_xg_swing_rapm_5v5_w10
     Extreme value: Player #8478550 = 0.2684 (z=5.9)
@@ -55,9 +43,6 @@ DETAILED RESULTS
 
 [FAIL] [INFO    ] outlier_blocked_shot_to_xg_swing_rapm_5v5_w10
     Extreme value: David Pastrnak = -0.1971 (z=-4.3)
-
-[FAIL] [INFO    ] outlier_corsi_off_rapm_5v5
-    Extreme value: Player #8477369 = -7.8072 (z=-4.8)
 
 [FAIL] [WARNING ] outlier_corsi_pk_def_rapm
     Extreme value: Player #8476454 = -13.2486 (z=-5.6)
@@ -110,74 +95,41 @@ DETAILED RESULTS
 [FAIL] [INFO    ] outlier_finishing_residual_rapm_5v5
     Extreme value: Player #8475166 = 0.2225 (z=4.2)
 
-[FAIL] [WARNING ] outlier_goals_rapm_5v5
-    Extreme value: Player #8477939 = -0.3010 (z=-5.6)
+[FAIL] [INFO    ] outlier_giveaway_to_xg_swing_rapm_5v5_w10
+    Extreme value: Player #8476331 = 0.3787 (z=4.0)
 
-[FAIL] [INFO    ] outlier_goals_rapm_5v5
-    Extreme value: Player #8478443 = 0.2675 (z=5.0)
+[FAIL] [INFO    ] outlier_hd_xg_def_rapm_5v5_ge020
+    Extreme value: Player #8475279 = -0.9862 (z=-4.1)
 
-[FAIL] [INFO    ] outlier_goals_rapm_5v5
-    Extreme value: Player #8482259 = 0.2509 (z=4.7)
-
-[FAIL] [INFO    ] outlier_goals_rapm_5v5
-    Extreme value: Player #8485493 = 0.2368 (z=4.4)
-
-[FAIL] [INFO    ] outlier_goals_rapm_5v5
-    Extreme value: Player #8475166 = 0.2225 (z=4.2)
-
-[FAIL] [WARNING ] outlier_penalties_drawn_rapm_5v5
-    Extreme value: Player #8481540 = -0.0586 (z=-5.7)
-
-[FAIL] [WARNING ] outlier_penalties_drawn_rapm_5v5
-    Extreme value: Player #8480018 = -0.0578 (z=-5.6)
-
-[FAIL] [WARNING ] outlier_penalties_drawn_rapm_5v5
-    Extreme value: Leon Draisaitl = 0.0518 (z=5.0)
-
-[FAIL] [INFO    ] outlier_penalties_drawn_rapm_5v5
-    Extreme value: Player #8475218 = 0.0476 (z=4.6)
-
-[FAIL] [INFO    ] outlier_penalties_drawn_rapm_5v5
-    Extreme value: Player #8480803 = 0.0476 (z=4.6)
-
-[FAIL] [WARNING ] outlier_penalties_taken_rapm_5v5
-    Extreme value: Player #8481540 = 0.0586 (z=5.7)
-
-[FAIL] [WARNING ] outlier_penalties_taken_rapm_5v5
-    Extreme value: Player #8480018 = 0.0578 (z=5.6)
-
-[FAIL] [WARNING ] outlier_penalties_taken_rapm_5v5
-    Extreme value: Leon Draisaitl = -0.0518 (z=-5.0)
-
-[FAIL] [INFO    ] outlier_penalties_taken_rapm_5v5
-    Extreme value: Player #8475218 = -0.0476 (z=-4.6)
-
-[FAIL] [INFO    ] outlier_penalties_taken_rapm_5v5
-    Extreme value: Player #8480803 = -0.0476 (z=-4.6)
+[FAIL] [INFO    ] outlier_hd_xg_off_rapm_5v5_ge020
+    Extreme value: Connor McDavid = 1.4062 (z=4.9)
 
 [PASS] [INFO    ] elite_corsi_rapm_5v5
     3/4 elite forwards in top 100: Nathan MacKinnon:#9, Connor McDavid:#29, Nikita Kucherov:#75, Leon Draisaitl:#187
 
 [PASS] [INFO    ] elite_xg_rapm_5v5
-    3/4 elite forwards in top 100: Connor McDavid:#2, Leon Draisaitl:#5, Nathan MacKinnon:#74, Nikita Kucherov:#216
+    4/4 elite forwards in top 100: Connor McDavid:#1, Nathan MacKinnon:#10, Nikita Kucherov:#30, Leon Draisaitl:#64
 
 [PASS] [INFO    ] elite_xg_off_rapm_5v5
-    2/4 elite forwards in top 50: Connor McDavid:#28, Leon Draisaitl:#37, Nathan MacKinnon:#148, Nikita Kucherov:#221
+    4/4 elite forwards in top 50: Connor McDavid:#1, Nathan MacKinnon:#2, Nikita Kucherov:#13, Leon Draisaitl:#25
 
-[FAIL] [WARNING ] elite_primary_assist_rapm_5v5
-    Only 1/4 elite forwards in top 150: Nathan MacKinnon:#147, Connor McDavid:#163, Nikita Kucherov:#248, Leon Draisaitl:#368
+[PASS] [INFO    ] elite_primary_assist_rapm_5v5
+    3/4 elite forwards in top 150: Nathan MacKinnon:#1, Connor McDavid:#39, Nikita Kucherov:#106, Leon Draisaitl:#198
 
 [PASS] [INFO    ] corr_corsi_rapm_5v5_vs_xg_rapm_5v5
-    Correlation: 0.347 (expected >= 0.3)
+    Correlation: 0.789 (expected >= 0.3)
 
 [PASS] [INFO    ] corr_corsi_off_rapm_5v5_vs_xg_off_rapm_5v5
-    Correlation: 0.684 (expected >= 0.4)
+    Correlation: 0.861 (expected >= 0.4)
 
 [PASS] [INFO    ] corr_corsi_def_rapm_5v5_vs_xg_def_rapm_5v5
-    Correlation: 0.720 (expected >= 0.4)
+    Correlation: 0.830 (expected >= 0.4)
 
 [FAIL] [WARNING ] range_corsi_rapm_5v5_bounds
     Values [-11.330, 12.870] exceed 2x expected range
+
+[FAIL] [WARNING ] range_xg_rapm_5v5_bounds
+    Values [-1.362, 1.377] exceed 2x expected range
 
 [PASS] [INFO    ] toi_range
     TOI range reasonable: 10 - 745 min (avg 331)

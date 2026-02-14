@@ -1,0 +1,10 @@
+﻿python :   File "<string>", line 16
+At line:1 char:1
++ python -c "
++ ~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (  File "<string>", line 16:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    header = f'{" Metric\:<45s}'
+                ^
+SyntaxError: unterminated string literal (detected at line 16)

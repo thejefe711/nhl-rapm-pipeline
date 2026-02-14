@@ -1,0 +1,31 @@
+======================================================================
+COMPARING WORKING VS BROKEN xG SWING METRICS
+======================================================================
+
+Metric                                             | Games | Std      | Range
+------------------------------------------------------------------------------------------
+blocked_shot_to_xg_swing_rapm_5v5_w10              |    52 | 0.045399 | -0.2106 to 0.2684 [OK]
+faceoff_loss_to_xg_swing_rapm_5v5_w10              |    52 | 0.044453 | -0.1389 to 0.2478 [OK]
+takeaway_to_xg_swing_rapm_5v5_w10                  |    52 | 0.027520 | -0.1330 to 0.1116 [OK]
+giveaway_to_xg_swing_rapm_5v5_w10                  |    52 | 0.000000 | 0.0000 to 0.0000 [BROKEN]
+turnover_to_xg_swing_rapm_5v5_w10                  |    52 | 0.000000 | 0.0000 to 0.0000 [BROKEN]
+
+======================================================================
+SAMPLE VALUES FROM BROKEN METRICS
+======================================================================
+
+giveaway_to_xg_swing_rapm_5v5_w10 (top 5):
+  Player 8474574: 0.0
+  Player 8474590: 0.0
+  Player 8475184: 0.0
+  Player 8475287: 0.0
+  Player 8475784: 0.0
+  Distinct values: 1
+
+turnover_to_xg_swing_rapm_5v5_w10 (top 5):
+  Player 8476372: 0.0
+  Player 8476873: 0.0
+  Player 8476891: 0.0
+  Player 8477380: 0.0
+  Player 8477404: 0.0
+  Distinct values: 1
