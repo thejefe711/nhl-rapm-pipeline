@@ -15,7 +15,6 @@ const RAPM_METRICS = [
     // Offensive
     { value: 'corsi_off_rapm_5v5', label: 'Offensive Corsi', category: 'Offensive' },
     { value: 'xg_off_rapm_5v5', label: 'Offensive xG', category: 'Offensive' },
-    { value: 'finishing_residual_rapm_5v5', label: 'Finishing (Above xG)', category: 'Offensive' },
     // Defensive
     { value: 'corsi_def_rapm_5v5', label: 'Defensive Corsi', category: 'Defensive' },
     { value: 'xg_def_rapm_5v5', label: 'Defensive xG', category: 'Defensive' },
@@ -27,16 +26,9 @@ const RAPM_METRICS = [
     { value: 'turnover_to_xg_swing_rapm_5v5_w10', label: 'Turnover xG Swing', category: 'Transitions' },
     { value: 'takeaway_to_xg_swing_rapm_5v5_w10', label: 'Takeaway xG Swing', category: 'Transitions' },
     { value: 'giveaway_to_xg_swing_rapm_5v5_w10', label: 'Giveaway xG Swing', category: 'Transitions' },
-    { value: 'faceoff_loss_to_xg_swing_rapm_5v5_w10', label: 'Faceoff Loss xG Swing', category: 'Transitions' },
-    { value: 'blocked_shot_to_xg_swing_rapm_5v5_w10', label: 'Blocked Shot xG Swing', category: 'Transitions' },
-    // Special Teams
-    { value: 'corsi_pp_off_rapm', label: 'Power Play Corsi', category: 'Special Teams' },
-    { value: 'xg_pp_off_rapm', label: 'Power Play xG', category: 'Special Teams' },
-    { value: 'corsi_pk_def_rapm', label: 'Penalty Kill Corsi', category: 'Special Teams' },
-    { value: 'xg_pk_def_rapm', label: 'Penalty Kill xG', category: 'Special Teams' },
     // Penalties
     { value: 'penalties_drawn_rapm_5v5', label: 'Penalties Drawn', category: 'Discipline' },
-    { value: 'penalties_taken_rapm_5v5', label: 'Penalties Taken', category: 'Discipline' },
+    { value: 'penalties_committed_rapm_5v5', label: 'Penalties Taken', category: 'Discipline' },
     // Playmaking
     { value: 'primary_assist_rapm_5v5', label: 'Primary Assists', category: 'Playmaking' },
     { value: 'secondary_assist_rapm_5v5', label: 'Secondary Assists', category: 'Playmaking' },

@@ -8,25 +8,25 @@ Production-grade NHL stats ingestion with validation, schema tracking, and quali
 pip install -r requirements.txt
 
 # PHASE 1: Fetch and validate raw data
-python scripts/fetch_game.py           # 5 test games (one per season)
-python scripts/parse_shifts.py
-python scripts/parse_pbp.py
-python scripts/validate_game.py
-python scripts/quality_report.py       # Check pass rate > 95%
+python scripts/core/fetch_game.py           # 5 test games (one per season)
+python scripts/core/parse_shifts.py
+python scripts/core/parse_pbp.py
+python scripts/core/validate_game.py
+python scripts/core/quality_report.py       # Check pass rate > 95%
 
 # PHASE 2: Scale up
-python scripts/fetch_bulk.py --games 20  # 20 games per season (100 total)
-python scripts/parse_shifts.py
-python scripts/parse_pbp.py
-python scripts/validate_game.py
-python scripts/quality_report.py       # Verify still passing
+python scripts/core/fetch_bulk.py --games 20  # 20 games per season (100 total)
+python scripts/core/parse_shifts.py
+python scripts/core/parse_pbp.py
+python scripts/core/validate_game.py
+python scripts/core/quality_report.py       # Verify still passing
 
 # PHASE 3: Build on-ice assignments (required for APM)
-python scripts/build_on_ice.py
-python scripts/validate_on_ice.py      # CRITICAL: verify +/- matches NHL
+python scripts/core/build_on_ice.py
+python scripts/core/validate_on_ice.py      # CRITICAL: verify +/- matches NHL
 
 # PHASE 4: Load to database
-python scripts/load_to_db.py
+python scripts/core/load_to_db.py
 ```
 
 ## Architecture
@@ -68,24 +68,13 @@ nhl_pipeline/
 ├── staging/                # Parsed Parquet files
 ├── canonical/              # On-ice assignments
 ├── data/                   # Tracking data
-│   ├── schema_registry.parquet
-│   ├── validation_history.parquet
-│   ├── fetch_progress.json
-│   └── on_ice_validation.json
 ├── nhl_canonical.duckdb
 └── scripts/
-    ├── fetch_game.py       # Single game fetcher
-    ├── fetch_bulk.py       # Bulk fetcher with resume
-    ├── parse_shifts.py     # Shift parser
-    ├── parse_pbp.py        # Play-by-play parser
-    ├── validate_game.py    # Raw data validation
-    ├── build_on_ice.py     # On-ice state reconstruction
-    ├── validate_on_ice.py  # On-ice correctness check
-    ├── load_to_db.py       # Database loader
-    ├── schema_registry.py  # Schema tracking
-    ├── validation_history.py
-    ├── quality_report.py   # Quality dashboard
-    └── deploy_railway.py   # Cloud migration
+    ├── core/               # Main pipeline scripts (fetch, parse, build, load)
+    ├── diagnostic/         # Validation and quality reports
+    ├── research/           # Player-specific analysis and research
+    ├── utils/              # Helper utilities and schema tracking
+    └── archive/            # Legacy and one-time debug scripts
 ```
 
 ## Why This Order Matters
@@ -128,10 +117,10 @@ Install:
 pip install -r requirements.txt
 ```
 
-Run (from `nhl_pipeline/`):
+Run (from repository root):
 
 ```bash
-python -m uvicorn api_server:app --reload --port 8000
+python -m uvicorn nhl_pipeline.scripts.core.api_server:app --reload --port 8000
 ```
 
 Endpoints:
@@ -143,3 +132,16 @@ Endpoints:
 - `GET /api/leaderboards/corsi-rapm?season=20252026&top=20`
 - `GET /api/leaderboards?metric=corsi_rapm_5v5&season=20252026&top=20`
 - `GET /api/player/{player_id}/rapm`
+- `GET /api/explanations/player/{player_id}`
+
+## Database Management (for GitHub)
+
+The DuckDB database is too large for GitHub (>100MB). Use the utility script to pack/unpack it:
+
+```bash
+# Before pushing to GitHub (creates a ~20MB zip)
+python scripts/utils/db_manager.py pack
+
+# After cloning or pulling updates (restores the .duckdb)
+python scripts/utils/db_manager.py unpack
+```

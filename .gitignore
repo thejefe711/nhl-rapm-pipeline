@@ -6,6 +6,7 @@ canonical/
 # Database files
 *.duckdb
 *.duckdb.wal
+!nhl_pipeline/nhl_canonical.duckdb.zip
 
 # Debug and temp files
 debug_*.txt

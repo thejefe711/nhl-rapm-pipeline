@@ -13,7 +13,6 @@ const METRICS = [
     // Offensive
     { value: 'corsi_off_rapm_5v5', label: 'Offensive Corsi', description: 'Offensive shot generation', category: 'Offensive' },
     { value: 'xg_off_rapm_5v5', label: 'Offensive xG', description: 'Offensive expected goals generation', category: 'Offensive' },
-    { value: 'finishing_residual_rapm_5v5', label: 'Finishing (Above xG)', description: 'Scoring above expected goals', category: 'Offensive' },
     // Defensive
     { value: 'corsi_def_rapm_5v5', label: 'Defensive Corsi', description: 'Defensive shot suppression', category: 'Defensive' },
     { value: 'xg_def_rapm_5v5', label: 'Defensive xG', description: 'Defensive expected goals suppression', category: 'Defensive' },
@@ -25,16 +24,9 @@ const METRICS = [
     { value: 'turnover_to_xg_swing_rapm_5v5_w10', label: 'Turnover xG Swing', description: 'xG impact from turnovers', category: 'Transitions' },
     { value: 'takeaway_to_xg_swing_rapm_5v5_w10', label: 'Takeaway xG Swing', description: 'xG gained from takeaways', category: 'Transitions' },
     { value: 'giveaway_to_xg_swing_rapm_5v5_w10', label: 'Giveaway xG Swing', description: 'xG lost from giveaways', category: 'Transitions' },
-    { value: 'faceoff_loss_to_xg_swing_rapm_5v5_w10', label: 'Faceoff Loss xG', description: 'xG impact from faceoff losses', category: 'Transitions' },
-    { value: 'blocked_shot_to_xg_swing_rapm_5v5_w10', label: 'Blocked Shot xG', description: 'xG saved via blocked shots', category: 'Transitions' },
-    // Special Teams
-    { value: 'corsi_pp_off_rapm', label: 'Power Play Corsi', description: 'Power play shot generation', category: 'Special Teams' },
-    { value: 'xg_pp_off_rapm', label: 'Power Play xG', description: 'Power play expected goals', category: 'Special Teams' },
-    { value: 'corsi_pk_def_rapm', label: 'Penalty Kill Corsi', description: 'Penalty kill shot suppression', category: 'Special Teams' },
-    { value: 'xg_pk_def_rapm', label: 'Penalty Kill xG', description: 'Penalty kill expected goals suppression', category: 'Special Teams' },
     // Penalties
     { value: 'penalties_drawn_rapm_5v5', label: 'Penalties Drawn', description: 'Ability to draw penalties', category: 'Discipline' },
-    { value: 'penalties_taken_rapm_5v5', label: 'Penalties Taken', description: 'Penalty avoidance (lower is better)', category: 'Discipline' },
+    { value: 'penalties_committed_rapm_5v5', label: 'Penalties Taken', description: 'Penalty avoidance (lower is better)', category: 'Discipline' },
     // Playmaking
     { value: 'primary_assist_rapm_5v5', label: 'Primary Assists', description: 'Primary assist generation', category: 'Playmaking' },
     { value: 'secondary_assist_rapm_5v5', label: 'Secondary Assists', description: 'Secondary assist generation', category: 'Playmaking' },
