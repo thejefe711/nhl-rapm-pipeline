@@ -59,6 +59,17 @@ DEF_TRIGGER_EVENT_TYPES = {"BLOCKED_SHOT", "FACEOFF"}
 DEFAULT_HD_XG_THRESHOLD = 0.20
 
 
+def _preflight_required_columns(df: pd.DataFrame, required_cols: List[str], metric_name: str) -> bool:
+    """
+    Fail fast when a metric depends on missing columns.
+    """
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        print(f"  FAIL: Skipping metric '{metric_name}' (missing required columns: {', '.join(sorted(missing))})")
+        return False
+    return True
+
+
 def _filter_by_strength(events: pd.DataFrame, strength: str) -> pd.DataFrame:
     """
     Filter events by manpower state using canonical on-ice labels when available.
@@ -762,6 +773,9 @@ def _stint_level_rows_from_events(
     stints_df["net_give_xg_swing"] = stints_df["give_xg_swing_home"] - stints_df["give_xg_swing_away"]
     stints_df["net_turnover_xg_swing"] = stints_df["turnover_xg_swing_home"] - stints_df["turnover_xg_swing_away"]
     stints_df["net_block_xg_swing"] = stints_df["block_xg_swing_home"] - stints_df["block_xg_swing_away"]
+    # Canonical name used downstream by faceoff-loss metric fit.
+    stints_df["net_faceoff_loss_xg_swing"] = stints_df["face_xg_swing_home"] - stints_df["face_xg_swing_away"]
+    # Backward-compatible alias retained for older exploratory scripts.
     stints_df["net_face_xg_swing"] = stints_df["face_xg_swing_home"] - stints_df["face_xg_swing_away"]
     
     # --- Add player columns for compatibility with existing code ---
@@ -1319,7 +1333,7 @@ def main():
             if "corsi" in metrics:
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping corsi_rapm for non-5v5.")
-                else:
+                elif _preflight_required_columns(data, ["net_corsi", "duration_s", "weight"], "corsi"):
                     y = data["net_corsi"].astype(float) / data["duration_s"].astype(float)
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
                     coefs, alpha_used = _ridge_fit(X, y.values, data["weight"].values, alphas)
@@ -1377,7 +1391,7 @@ def main():
             if "goals" in metrics:
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping goals_rapm for non-5v5.")
-                else:
+                elif _preflight_required_columns(data, ["net_goals", "duration_s", "weight"], "goals"):
                     y = data["net_goals"].astype(float) / data["duration_s"].astype(float)
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
                     coefs, alpha_used = _ridge_fit(X, y.values, data["weight"].values, alphas)
@@ -1390,7 +1404,7 @@ def main():
             if "a1" in metrics:
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping a1_rapm for non-5v5.")
-                else:
+                elif _preflight_required_columns(data, ["net_a1", "duration_s", "weight"], "a1"):
                     y = data["net_a1"].astype(float) / data["duration_s"].astype(float)
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
                     coefs, alpha_used = _ridge_fit(X, y.values, data["weight"].values, alphas)
@@ -1403,7 +1417,7 @@ def main():
             if "a2" in metrics:
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping a2_rapm for non-5v5.")
-                else:
+                elif _preflight_required_columns(data, ["net_a2", "duration_s", "weight"], "a2"):
                     y = data["net_a2"].astype(float) / data["duration_s"].astype(float)
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
                     coefs, alpha_used = _ridge_fit(X, y.values, data["weight"].values, alphas)
@@ -1457,7 +1471,7 @@ def main():
             if "xg" in metrics:
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping xg_rapm for non-5v5.")
-                else:
+                elif _preflight_required_columns(data, ["net_xg", "duration_s", "weight"], "xg"):
                     # Net xG RAPM
                     y = data["net_xg"].astype(float) / data["duration_s"].astype(float)
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
@@ -1538,7 +1552,7 @@ def main():
             if "hd_xg" in metrics:
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping hd_xg_rapm for non-5v5.")
-                else:
+                elif _preflight_required_columns(data, ["net_hd_xg", "duration_s", "weight"], "hd_xg"):
                     y = data["net_hd_xg"].astype(float) / data["duration_s"].astype(float)
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
                     coefs, alpha_used = _ridge_fit(X, y.values, data["weight"].values, alphas)
@@ -1589,7 +1603,7 @@ def main():
             if "xa" in metrics:
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping xa_rapm for non-5v5.")
-                else:
+                elif _preflight_required_columns(data, ["net_xg_a1", "net_xg_a2", "duration_s", "weight"], "xa"):
                     # Proxy xA = xG on assisted GOAL events only (public PBP limitation).
                     # This is intentionally labeled as "on_goals" to avoid over-claiming.
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
@@ -1611,7 +1625,11 @@ def main():
             if "turnover" in metrics:
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping turnover_xg_swing for non-5v5.")
-                else:
+                elif _preflight_required_columns(
+                    data,
+                    ["net_take_xg_swing", "net_give_xg_swing", "net_turnover_xg_swing", "duration_s", "weight"],
+                    "turnover",
+                ):
                     # Turnover-triggered xG swing (positive = creates more xG than allows after turnover)
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
 
@@ -1639,7 +1657,7 @@ def main():
             if "block" in metrics:
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping block_xg_swing for non-5v5.")
-                else:
+                elif _preflight_required_columns(data, ["net_block_xg_swing", "duration_s", "weight"], "block"):
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
                     y = 3600.0 * (data["net_block_xg_swing"].astype(float) / data["duration_s"].astype(float))
                     coefs, alpha_used = _ridge_fit(X, y.values, data["weight"].values, alphas)
@@ -1651,7 +1669,7 @@ def main():
             if "faceoff_loss" in metrics:
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping faceoff_loss_xg_swing for non-5v5.")
-                else:
+                elif _preflight_required_columns(data, ["net_faceoff_loss_xg_swing", "duration_s", "weight"], "faceoff_loss"):
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
                     y = 3600.0 * (data["net_faceoff_loss_xg_swing"].astype(float) / data["duration_s"].astype(float))
                     coefs, alpha_used = _ridge_fit(X, y.values, data["weight"].values, alphas)

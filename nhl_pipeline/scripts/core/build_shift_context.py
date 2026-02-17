@@ -139,7 +139,7 @@ def main():
     """)
 
     count = con.execute(f"SELECT COUNT(*) FROM {OUTPUT_TABLE}").fetchone()[0]
-    print(f"✅ Shift context table '{OUTPUT_TABLE}' successfully created with {count} rows.")
+    print(f"OK Shift context table '{OUTPUT_TABLE}' successfully created with {count} rows.")
     con.close()
 
 if __name__ == "__main__":

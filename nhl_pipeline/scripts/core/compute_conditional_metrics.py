@@ -104,7 +104,7 @@ def main():
         LEFT JOIN players p ON m.player_id = p.player_id
     """)
 
-    print(f"✅ Advanced metrics table '{OUTPUT_TABLE}' successfully created with {len(results_df)} player-seasons.")
+    print(f"OK Advanced metrics table '{OUTPUT_TABLE}' successfully created with {len(results_df)} player-seasons.")
     
     # Get latest season for leaderboards
     latest_season = con.execute(f"SELECT MAX(season) FROM {OUTPUT_TABLE}").fetchone()[0]

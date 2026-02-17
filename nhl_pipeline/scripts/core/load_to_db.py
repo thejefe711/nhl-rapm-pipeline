@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS players (
     first_name VARCHAR,
     last_name VARCHAR,
     full_name VARCHAR,
+    position VARCHAR,
     first_seen_game_id INTEGER,
     last_seen_game_id INTEGER,
     games_count INTEGER DEFAULT 0
@@ -133,6 +134,34 @@ CREATE INDEX IF NOT EXISTS idx_events_period_time ON events(game_id, period, per
 CREATE INDEX IF NOT EXISTS idx_apm_player_metric ON apm_results(player_id, metric_name);
 CREATE INDEX IF NOT EXISTS idx_apm_season_metric ON apm_results(season, metric_name);
 """
+
+
+def load_position_cache(root_dir: Path) -> Dict[int, str]:
+    """
+    Load cached player positions if available.
+
+    Returns player_id -> position code (F/D/L/C/R/G).
+    """
+    cache_path = root_dir / "profile_data" / "position_cache.json"
+    if not cache_path.exists():
+        return {}
+    try:
+        raw = json.loads(cache_path.read_text(encoding="utf-8"))
+        if not isinstance(raw, dict):
+            return {}
+        out: Dict[int, str] = {}
+        for k, v in raw.items():
+            try:
+                pid = int(k)
+            except (TypeError, ValueError):
+                continue
+            pos = str(v).strip().upper() if v is not None else ""
+            if pos:
+                out[pid] = pos
+        return out
+    except Exception as e:
+        print(f"  WARN: Failed to load position cache from {cache_path}: {e}")
+        return {}
 
 
 def load_game_metadata(boxscore_path: Path) -> Dict[str, Any]:
@@ -219,6 +248,11 @@ def load_to_duckdb(
         conn.execute("ALTER TABLE events ADD COLUMN xg_model_season VARCHAR")
     if "xg_scored_at" not in event_cols:
         conn.execute("ALTER TABLE events ADD COLUMN xg_scored_at TIMESTAMP")
+    # Migration safety for older DBs that predate player position.
+    player_cols = set(conn.execute("PRAGMA table_info(players)").df()["name"].tolist())
+    if "position" not in player_cols:
+        conn.execute("ALTER TABLE players ADD COLUMN position VARCHAR")
+    conn.execute("UPDATE players SET position = 'F' WHERE position IS NULL OR TRIM(position) = ''")
     
     for game_info in validated_games:
         season = game_info["season"]
@@ -299,19 +333,47 @@ def load_to_duckdb(
     # Update players table
     print("\nUpdating players table...")
     conn.execute("""
-        INSERT OR REPLACE INTO players (player_id, first_name, last_name, full_name, 
+        INSERT OR REPLACE INTO players (player_id, first_name, last_name, full_name, position,
                                          first_seen_game_id, last_seen_game_id, games_count)
         SELECT 
-            player_id,
-            MAX(first_name) as first_name,
-            MAX(last_name) as last_name,
-            MAX(first_name) || ' ' || MAX(last_name) as full_name,
-            MIN(game_id) as first_seen_game_id,
-            MAX(game_id) as last_seen_game_id,
-            COUNT(DISTINCT game_id) as games_count
-        FROM shifts
-        GROUP BY player_id
+            s.player_id,
+            s.first_name,
+            s.last_name,
+            s.full_name,
+            COALESCE(p.position, 'F') as position,
+            s.first_seen_game_id,
+            s.last_seen_game_id,
+            s.games_count
+        FROM (
+            SELECT
+                player_id,
+                MAX(first_name) as first_name,
+                MAX(last_name) as last_name,
+                MAX(first_name) || ' ' || MAX(last_name) as full_name,
+                MIN(game_id) as first_seen_game_id,
+                MAX(game_id) as last_seen_game_id,
+                COUNT(DISTINCT game_id) as games_count
+            FROM shifts
+            GROUP BY player_id
+        ) s
+        LEFT JOIN players p ON s.player_id = p.player_id
     """)
+    # Optional enrichment from cached NHL player positions.
+    position_map = load_position_cache(staging_dir.parent)
+    if position_map:
+        pos_df = pd.DataFrame(
+            [{"player_id": int(pid), "position": str(pos)} for pid, pos in position_map.items()]
+        )
+        conn.register("position_cache_df", pos_df)
+        conn.execute(
+            """
+            UPDATE players
+            SET position = COALESCE(NULLIF(position_cache_df.position, ''), players.position)
+            FROM position_cache_df
+            WHERE players.player_id = position_cache_df.player_id
+            """
+        )
+        print(f"  OK Applied cached positions for {len(pos_df)} players")
     
     # Update teams table
     print("Updating teams table...")
