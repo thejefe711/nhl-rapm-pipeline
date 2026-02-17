@@ -36,6 +36,13 @@ except ImportError:
 from scipy.sparse import csr_matrix
 from sklearn.linear_model import Ridge, RidgeCV
 from sklearn.linear_model import LogisticRegression
+try:
+    import joblib
+except ImportError:
+    joblib = None
+
+from xg_model_utils import predict_xg as shared_predict_xg
+from xg_model_utils import train_xg_model as shared_train_xg_model
 
 try:
     from nhl_pipeline.src.validation.rapm_statistical_validator import RAPMStatisticalValidator
@@ -98,90 +105,17 @@ def _filter_by_strength(events: pd.DataFrame, strength: str) -> pd.DataFrame:
     return events
 
 
-def _xg_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Build simple xG features from NHL play-by-play coordinates.
-
-    Uses the standard approximation of net location at x=+/-89 and ignores direction by using abs(x).
-    """
-    out = pd.DataFrame(index=df.index)
-    x = pd.to_numeric(df.get("x_coord"), errors="coerce").astype(float)
-    y = pd.to_numeric(df.get("y_coord"), errors="coerce").astype(float)
-
-    ax = x.abs()
-    ay = y.abs()
-    dx = (89.0 - ax).clip(lower=0.0)
-    dist = np.sqrt(dx * dx + ay * ay)
-    angle = np.arctan2(ay, dx.replace(0.0, np.nan)).fillna(np.pi / 2.0)
-
-    out["dist"] = dist
-    out["angle"] = angle
-    out["shot_type"] = df.get("shot_type").fillna("UNKNOWN").astype(str)
-    return out
-
-
 def _train_xg_model(events: pd.DataFrame) -> LogisticRegression:
     """
     Train a simple xG model: P(goal | location, shot_type) at 5v5.
 
     This is intentionally simple/robust for v0; we can upgrade later.
     """
-    # Filter to 5v5 shot attempts with coordinates
-    df = events.copy()
-    df = df[df["event_type"].isin(XG_EVENT_TYPES)].copy()
-    df = df[df.get("empty_net").fillna(False) == False].copy()
-    df = df[pd.notna(df.get("x_coord")) & pd.notna(df.get("y_coord"))].copy()
-
-    print(f"DEBUG: _train_xg_model input rows={len(df)}")
-    if len(df) == 0:
-        print("DEBUG: _train_xg_model training data is EMPTY!")
-        # Return a dummy model that always predicts 0.01
-        model = LogisticRegression()
-        model.coef_ = np.zeros((1, 2))
-        model.intercept_ = np.array([-4.6]) # approx 0.01
-        model._xg_columns = ["dist", "angle"]
-        return model
-
-    # Label: goal vs non-goal shot attempt
-    y = (df["event_type"] == "GOAL").astype(int).values
-    print(f"DEBUG: _train_xg_model goal count={sum(y)}")
-    
-    Xf = _xg_features(df)
-
-    # One-hot encode shot_type manually (small cardinality) and include numeric features
-    shot_dummies = pd.get_dummies(Xf["shot_type"], prefix="shot", dummy_na=False)
-    X = pd.concat([Xf[["dist", "angle"]], shot_dummies], axis=1).fillna(0.0)
-    print(f"DEBUG: _train_xg_model feature columns={list(X.columns)}")
-
-    model = LogisticRegression(
-        solver="lbfgs",
-        max_iter=1000,
-        class_weight="balanced",
-        C=0.5,
-        n_jobs=None,
-    )
-    model.fit(X.values, y)
-    print(f"DEBUG: _train_xg_model coefficients={model.coef_}")
-    print(f"DEBUG: _train_xg_model intercept={model.intercept_}")
-    
-    # stash columns for prediction alignment
-    model._xg_columns = list(X.columns)  # type: ignore[attr-defined]
-    return model
+    return shared_train_xg_model(events)
 
 
 def _predict_xg(model: LogisticRegression, events: pd.DataFrame) -> np.ndarray:
-    df = events.copy()
-    Xf = _xg_features(df)
-    shot_dummies = pd.get_dummies(Xf["shot_type"], prefix="shot", dummy_na=False)
-    X = pd.concat([Xf[["dist", "angle"]], shot_dummies], axis=1).fillna(0.0)
-
-    cols = getattr(model, "_xg_columns", None)
-    if cols:
-        for c in cols:
-            if c not in X.columns:
-                X[c] = 0.0
-        X = X[cols]
-    preds = model.predict_proba(X.values)[:, 1]
+    preds = shared_predict_xg(model, events)
     print(f"DEBUG: _predict_xg range: min={preds.min():.6f}, max={preds.max():.6f}, avg={preds.mean():.6f}")
     return preds
 
@@ -375,7 +309,7 @@ def _ridge_fit(X: csr_matrix, y: np.ndarray, sample_weight: Optional[np.ndarray]
         return model.coef_, best_alpha
     
     # Single alpha: solve via normal equations (much faster for sparse X)
-    # Solves: (X^T W X + αI) β = X^T W y  with intercept via centering
+    # Solves: (X^T W X + alpha*I) beta = X^T W y with intercept via centering
     import time as _time
     from scipy.linalg import cho_factor, cho_solve
 
@@ -393,10 +327,10 @@ def _ridge_fit(X: csr_matrix, y: np.ndarray, sample_weight: Optional[np.ndarray]
     y_c = y - y_mean
 
     # Compute X^T W X efficiently: bake sqrt(w) into X, then Xw^T @ Xw
-    # This avoids creating an explicit n×n diagonal matrix
+    # This avoids creating an explicit n x n diagonal matrix
     sqrt_w = np.sqrt(w)
     Xw = X.multiply(sqrt_w[:, np.newaxis])  # scale each row by sqrt(w_i)
-    XtWX = (Xw.T @ Xw).toarray()  # p × p dense — single sparse multiply
+    XtWX = (Xw.T @ Xw).toarray()  # p x p dense - single sparse multiply
 
     # Apply centering correction
     XtWX -= w_sum * np.outer(x_mean, x_mean)
@@ -1057,10 +991,11 @@ def main():
         default="corsi",
         help="Comma-separated metrics to compute in stint mode. Options: corsi,corsi_offdef,goals,a1,a2,penalties,xg,xg_offdef,hd_xg,hd_xg_offdef,xa,turnover,defense,suite",
     )
-    parser.add_argument("--turnover-window", type=int, default=10, help="Seconds lookahead for turnover→xG swing features (default: 10)")
+    parser.add_argument("--turnover-window", type=int, default=10, help="Seconds lookahead for turnover-to-xG swing features (default: 10)")
     parser.add_argument("--hd-xg-threshold", type=float, default=DEFAULT_HD_XG_THRESHOLD, help="High-danger xG threshold (default: 0.20)")
     parser.add_argument("--workers", type=int, default=1, help="Number of parallel workers for game processing (default: 1 = sequential)")
     parser.add_argument("--use-precomputed-xg", action="store_true", help="Load xG from precomputed cache (run precompute_xg.py first)")
+    parser.add_argument("--force-retrain-xg", action="store_true", help="Retrain pooled global xG model even if cache exists")
     parser.add_argument("--validate", action="store_true", help="Run statistical validation on RAPM results")
     parser.add_argument("--deep-validate", action="store_true", help="Run deep validation (stints, etc.)")
     parser.add_argument("--limit", type=int, default=None, help="Limit number of games for testing")
@@ -1137,6 +1072,50 @@ def main():
     for season, gid in games:
         season_groups.setdefault(season, []).append(gid)
 
+    needs_xg = args.mode == "stint" and any(
+        m in metrics for m in ["xg", "xg_offdef", "hd_xg", "hd_xg_offdef", "xa", "turnover", "block", "faceoff_loss"]
+    )
+    pooled_xg_model: Optional[LogisticRegression] = None
+    if needs_xg and not getattr(args, "use_precomputed_xg", False):
+        model_cache_dir = root / "models"
+        model_cache_dir.mkdir(exist_ok=True)
+        global_model_path = model_cache_dir / "xg_model_global.pkl"
+
+        if global_model_path.exists() and not getattr(args, "force_retrain_xg", False):
+            if joblib is None:
+                raise RuntimeError("joblib not installed. Run: pip install joblib")
+            pooled_xg_model = joblib.load(global_model_path)
+            print(f"Using cached pooled xG model: {global_model_path}")
+        else:
+            print("Training pooled global xG model from all eligible games...")
+            train_events = []
+            for season, game_id in sorted(games):
+                events_path = staging_dir / season / f"{game_id}_events.parquet"
+                on_ice_path = canonical_dir / season / f"{game_id}_event_on_ice.parquet"
+                if not events_path.exists() or not on_ice_path.exists():
+                    continue
+                ev = pd.read_parquet(events_path)
+                on = pd.read_parquet(
+                    on_ice_path, columns=["event_id", "is_5v5", "home_skater_count", "away_skater_count"]
+                )
+                ev = ev.merge(on, on="event_id", how="left")
+                ev = ev[(ev["is_5v5"] == True) & (ev["home_skater_count"] == 5) & (ev["away_skater_count"] == 5)].copy()
+                train_events.append(ev)
+
+            if train_events:
+                pooled_train = pd.concat(train_events, ignore_index=True)
+                pooled_xg_model = _train_xg_model(pooled_train)
+                print(
+                    f"  OK Trained pooled xG model: n={len(pooled_train):,} "
+                    f"shots={int(pooled_train['event_type'].isin(XG_EVENT_TYPES).sum()):,}"
+                )
+                if joblib is None:
+                    raise RuntimeError("joblib not installed. Run: pip install joblib")
+                joblib.dump(pooled_xg_model, global_model_path)
+                print(f"  OK Cached pooled model to {global_model_path}")
+            else:
+                print("  WARN No pooled xG training rows found; xG metrics may be zero/empty.")
+
     conn = duckdb.connect(str(db_path))
 
     for season, game_ids in sorted(season_groups.items(), reverse=True):
@@ -1146,61 +1125,15 @@ def main():
         toi_seconds: Dict[int, int] = {}
         total_events = 0
 
-        # Train one xG model per season using 5v5 shot attempts (stable baseline) regardless of target strength.
-        xg_model: Optional[LogisticRegression] = None
+        xg_model: Optional[LogisticRegression] = pooled_xg_model
         precomputed_xg_path: Optional[Path] = None  # For fast reruns
         
-        if args.mode == "stint" and (("xg" in metrics) or ("xg_offdef" in metrics) or ("hd_xg" in metrics) or ("hd_xg_offdef" in metrics) or ("xa" in metrics) or ("turnover" in metrics) or ("block" in metrics) or ("faceoff_loss" in metrics)):
+        if needs_xg:
             # Check for precomputed xG first (fastest path)
             precomputed_path = staging_dir / season / "shots_with_xg.parquet"
             if getattr(args, 'use_precomputed_xg', False) and precomputed_path.exists():
                 print(f"  OK Found precomputed xG at {precomputed_path}")
                 precomputed_xg_path = precomputed_path
-            else:
-                # Try to load cached xG model
-                model_cache_dir = root / "models"
-                model_cache_dir.mkdir(exist_ok=True)
-                model_cache_path = model_cache_dir / f"xg_model_{season}.pkl"
-                
-                if model_cache_path.exists() and not getattr(args, 'force_retrain_xg', False):
-                    try:
-                        import joblib
-                        xg_model = joblib.load(model_cache_path)
-                        print(f"  OK Loaded cached xG model from {model_cache_path}")
-                    except Exception as e:
-                        print(f"  WARN Failed to load cached xG model: {e}")
-                        xg_model = None
-                
-                # Train if not cached
-                if xg_model is None:
-                    # We'll collect training events across games, filtered by Gate 2 (same as stints).
-                    train_events = []
-                    for game_id in sorted(game_ids):
-                        events_path = staging_dir / season / f"{game_id}_events.parquet"
-                        on_ice_path = canonical_dir / season / f"{game_id}_event_on_ice.parquet"
-                        if not events_path.exists() or not on_ice_path.exists():
-                            continue
-                        ev = pd.read_parquet(events_path)
-                        on = pd.read_parquet(on_ice_path, columns=["event_id", "is_5v5", "home_skater_count", "away_skater_count"])
-                        ev = ev.merge(on, on="event_id", how="left")
-                        ev = ev[(ev["is_5v5"] == True) & (ev["home_skater_count"] == 5) & (ev["away_skater_count"] == 5)].copy()
-                        train_events.append(ev)
-                    if train_events:
-                        te = pd.concat(train_events, ignore_index=True)
-                        try:
-                            xg_model = _train_xg_model(te)
-                            print(f"  OK Trained xG v0 model: n={len(te):,} shots={int(te['event_type'].isin(XG_EVENT_TYPES).sum()):,}")
-                            
-                            # Cache the model for future runs
-                            try:
-                                import joblib
-                                joblib.dump(xg_model, model_cache_path)
-                                print(f"  OK Cached xG model to {model_cache_path}")
-                            except Exception as e:
-                                print(f"  WARN Failed to cache xG model: {e}")
-                        except Exception as e:
-                            print(f"  WARN Failed to train xG model for {season}: {e}")
-                            xg_model = None
 
         if args.workers > 1:
             print(f"  Processing {len(game_ids)} games with {args.workers} workers...")
@@ -1484,7 +1417,7 @@ def main():
                 if strength_suffix != "5v5":
                     print("  WARN: net RAPM targets are currently only supported for 5v5; skipping penalties_rapm for non-5v5.")
                 else:
-                    # Off/def penalty regression — two INDEPENDENT metrics
+                    # Off/def penalty regression - two INDEPENDENT metrics
                     # Off coefficient: player impact on their own team taking penalties
                     # Def coefficient (negated): player impact on opponents taking penalties (= drawing)
                     off_cols = [f"off_skater_{i}" for i in range(1, 7)]

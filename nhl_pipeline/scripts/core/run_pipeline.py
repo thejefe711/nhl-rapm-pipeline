@@ -66,17 +66,35 @@ def run_load():
     return load_main()
 
 
+def run_analyze():
+    """Run the analysis steps (Shift Context + Conditional Metrics)."""
+    print("\n" + "=" * 60)
+    print("STEP 5: ANALYZE (CONTEXT & ADVANCED METRICS)")
+    print("=" * 60)
+    
+    import build_shift_context
+    import compute_conditional_metrics
+    
+    print("\nBuilding Shift Context...")
+    build_shift_context.main()
+    
+    print("\nComputing Advanced Conditional Metrics...")
+    compute_conditional_metrics.main()
+    return True
+
+
 def main():
     parser = argparse.ArgumentParser(description="NHL Data Pipeline Runner")
     parser.add_argument("--fetch", action="store_true", help="Only run fetch step")
     parser.add_argument("--parse", action="store_true", help="Only run parse steps")
     parser.add_argument("--validate", action="store_true", help="Only run validation")
     parser.add_argument("--load", action="store_true", help="Only run database load")
+    parser.add_argument("--analyze", action="store_true", help="Only run analysis (Context + Advanced Metrics)")
     
     args = parser.parse_args()
     
-    # If no specific step requested, run all
-    run_all = not any([args.fetch, args.parse, args.validate, args.load])
+    # If no specific step requested, run all except analyze (optional)
+    run_all = not any([args.fetch, args.parse, args.validate, args.load, args.analyze])
     
     print("=" * 60)
     print("NHL DATA PIPELINE")
@@ -103,6 +121,9 @@ def main():
         
         if run_all or args.load:
             run_load()
+            
+        if run_all or args.analyze:
+            run_analyze()
         
         print("\n" + "=" * 60)
         print("PIPELINE COMPLETE")

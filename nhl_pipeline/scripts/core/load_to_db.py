@@ -11,12 +11,16 @@ from pathlib import Path
 from typing import List, Dict, Any
 import pandas as pd
 import argparse
+from datetime import datetime, timezone
 
 try:
     import duckdb
 except ImportError:
     print("DuckDB not installed. Run: pip install duckdb")
     exit(1)
+
+
+from xg_model_utils import SHOT_EVENT_TYPES, load_xg_model, predict_xg
 
 
 SCHEMA = """
@@ -68,6 +72,10 @@ CREATE TABLE IF NOT EXISTS events (
     shot_type VARCHAR,
     strength VARCHAR,
     empty_net BOOLEAN,
+    xg DOUBLE,
+    xg_model_version VARCHAR,
+    xg_model_season VARCHAR,
+    xg_scored_at TIMESTAMP,
     PRIMARY KEY (game_id, event_id)
 );
 
@@ -144,11 +152,46 @@ def load_game_metadata(boxscore_path: Path) -> Dict[str, Any]:
     }
 
 
+def add_xg_to_events(events_df: pd.DataFrame, season: str, models_dir: Path, allow_season_fallback: bool) -> pd.DataFrame:
+    """Calculate and add xG to events DataFrame."""
+    df = events_df.copy()
+    df["xg"] = pd.Series([None] * len(df), dtype="float64")
+    df["xg_model_version"] = None
+    df["xg_model_season"] = None
+    df["xg_scored_at"] = None
+
+    shot_mask = df["event_type"].isin(SHOT_EVENT_TYPES) & df["x_coord"].notna() & df["y_coord"].notna()
+    if not shot_mask.any():
+        return df
+
+    model, model_version, model_season = load_xg_model(
+        models_dir=models_dir,
+        season=season,
+        allow_season_fallback=allow_season_fallback,
+    )
+    if model is None:
+        print(f"  WARN: No xG model found for season={season} (global preferred). Leaving xg as NULL.")
+        return df
+
+    try:
+        scored_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        df.loc[shot_mask, "xg"] = predict_xg(model, df.loc[shot_mask])
+        df.loc[shot_mask, "xg_model_version"] = model_version
+        df.loc[shot_mask, "xg_model_season"] = model_season
+        df.loc[shot_mask, "xg_scored_at"] = scored_at
+    except Exception as e:
+        print(f"  WARN: Failed to calculate xG: {e}")
+    
+    return df
+
+
 def load_to_duckdb(
     db_path: Path,
     staging_dir: Path,
     raw_dir: Path,
-    validated_games: List[Dict[str, Any]]
+    models_dir: Path,
+    validated_games: List[Dict[str, Any]],
+    allow_season_fallback: bool
 ):
     """Load all validated games into DuckDB."""
     
@@ -166,6 +209,16 @@ def load_to_duckdb(
     # Create schema
     print("Creating schema...")
     conn.execute(SCHEMA)
+    # Migration safety for older DBs that predate xG columns on events.
+    event_cols = set(conn.execute("PRAGMA table_info(events)").df()["name"].tolist())
+    if "xg" not in event_cols:
+        conn.execute("ALTER TABLE events ADD COLUMN xg DOUBLE")
+    if "xg_model_version" not in event_cols:
+        conn.execute("ALTER TABLE events ADD COLUMN xg_model_version VARCHAR")
+    if "xg_model_season" not in event_cols:
+        conn.execute("ALTER TABLE events ADD COLUMN xg_model_season VARCHAR")
+    if "xg_scored_at" not in event_cols:
+        conn.execute("ALTER TABLE events ADD COLUMN xg_scored_at TIMESTAMP")
     
     for game_info in validated_games:
         season = game_info["season"]
@@ -214,11 +267,16 @@ def load_to_duckdb(
         
         # Load events
         events_df = pd.read_parquet(events_path)
+        
+        # Calculate xG on the fly
+        events_df = add_xg_to_events(events_df, season, models_dir, allow_season_fallback)
+        
         events_to_load = events_df[[
             "game_id", "event_id", "event_type", "period",
             "period_seconds", "game_seconds", "x_coord", "y_coord",
             "zone_code", "event_team_id", "player_1_id", "player_2_id",
-            "player_3_id", "goalie_id", "shot_type", "strength", "empty_net"
+            "player_3_id", "goalie_id", "shot_type", "strength", "empty_net", "xg",
+            "xg_model_version", "xg_model_season", "xg_scored_at"
         ]]
         
         conn.execute("DELETE FROM events WHERE game_id = ?", [int(game_id)])
@@ -289,6 +347,7 @@ def main():
     staging_dir = Path(__file__).parent.parent.parent / "staging"
     db_path = Path(__file__).parent.parent.parent / "nhl_canonical.duckdb"
     data_dir = Path(__file__).parent.parent.parent / "data"
+    models_dir = Path(__file__).parent.parent.parent / "models"
     
     print("=" * 60)
     print("NHL Data Pipeline - Load to DuckDB")
@@ -301,6 +360,11 @@ def main():
         choices=["gate1", "gate2"],
         default="gate2",
         help="Which validation gate to use for selecting games to load (default: gate2).",
+    )
+    parser.add_argument(
+        "--allow-season-fallback",
+        action="store_true",
+        help="If global xG model is unavailable, allow explicit fallback to season model.",
     )
     args = parser.parse_args()
 
@@ -369,7 +433,14 @@ def main():
             print(f"  {status} {validation.pass_count}/{len(validation.results)} tests passed")
 
     # Load selected games
-    load_to_duckdb(db_path, staging_dir, raw_dir, validated_games)
+    load_to_duckdb(
+        db_path=db_path,
+        staging_dir=staging_dir,
+        raw_dir=raw_dir,
+        models_dir=models_dir,
+        validated_games=validated_games,
+        allow_season_fallback=args.allow_season_fallback,
+    )
 
 
 if __name__ == "__main__":
