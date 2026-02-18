@@ -1,43 +1,95 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getLeaderboard, getSeasons, LeaderboardRow } from '@/lib/api';
 import styles from './page.module.css';
 
-const METRICS = [
-    // Core Metrics
-    { value: 'corsi_rapm_5v5', label: 'Corsi RAPM (5v5)', description: 'Overall shot differential impact', category: 'Core' },
-    { value: 'xg_rapm_5v5', label: 'Expected Goals (5v5)', description: 'Expected goals differential impact', category: 'Core' },
-    { value: 'goals_rapm_5v5', label: 'Goals RAPM (5v5)', description: 'Actual goals differential impact', category: 'Core' },
-    // Offensive
-    { value: 'corsi_off_rapm_5v5', label: 'Offensive Corsi', description: 'Offensive shot generation', category: 'Offensive' },
-    { value: 'xg_off_rapm_5v5', label: 'Offensive xG', description: 'Offensive expected goals generation', category: 'Offensive' },
-    // Defensive
-    { value: 'corsi_def_rapm_5v5', label: 'Defensive Corsi', description: 'Defensive shot suppression', category: 'Defensive' },
-    { value: 'xg_def_rapm_5v5', label: 'Defensive xG', description: 'Defensive expected goals suppression', category: 'Defensive' },
-    // High Danger
-    { value: 'hd_xg_rapm_5v5_ge020', label: 'High Danger xG', description: 'High danger chance impact', category: 'High Danger' },
-    { value: 'hd_xg_off_rapm_5v5_ge020', label: 'HD Offensive xG', description: 'High danger offensive generation', category: 'High Danger' },
-    { value: 'hd_xg_def_rapm_5v5_ge020', label: 'HD Defensive xG', description: 'High danger defensive suppression', category: 'High Danger' },
-    // Turnovers & Transitions
-    { value: 'turnover_to_xg_swing_rapm_5v5_w10', label: 'Turnover xG Swing', description: 'xG impact from turnovers', category: 'Transitions' },
-    { value: 'takeaway_to_xg_swing_rapm_5v5_w10', label: 'Takeaway xG Swing', description: 'xG gained from takeaways', category: 'Transitions' },
-    { value: 'giveaway_to_xg_swing_rapm_5v5_w10', label: 'Giveaway xG Swing', description: 'xG lost from giveaways', category: 'Transitions' },
-    // Penalties
-    { value: 'penalties_drawn_rapm_5v5', label: 'Penalties Drawn', description: 'Ability to draw penalties', category: 'Discipline' },
-    { value: 'penalties_committed_rapm_5v5', label: 'Penalties Taken', description: 'Penalty avoidance (lower is better)', category: 'Discipline' },
-    // Playmaking
-    { value: 'primary_assist_rapm_5v5', label: 'Primary Assists', description: 'Primary assist generation', category: 'Playmaking' },
-    { value: 'secondary_assist_rapm_5v5', label: 'Secondary Assists', description: 'Secondary assist generation', category: 'Playmaking' },
-    { value: 'xg_primary_assist_on_goals_rapm_5v5', label: 'Primary Assist xG', description: 'xG on primary assists', category: 'Playmaking' },
-    { value: 'xg_secondary_assist_on_goals_rapm_5v5', label: 'Secondary Assist xG', description: 'xG on secondary assists', category: 'Playmaking' },
+const METRIC_CATEGORIES = [
+    {
+        id: 'core',
+        label: 'Core',
+        metrics: [
+            { value: 'corsi_rapm_5v5', label: 'Corsi RAPM', description: 'Overall shot differential impact' },
+            { value: 'xg_rapm_5v5', label: 'xG RAPM', description: 'Expected goals differential impact' },
+            { value: 'goals_rapm_5v5', label: 'Goals RAPM', description: 'Actual goals differential impact' },
+        ],
+    },
+    {
+        id: 'offense',
+        label: 'Offense',
+        metrics: [
+            { value: 'corsi_off_rapm_5v5', label: 'Off Corsi', description: 'Offensive shot generation' },
+            { value: 'xg_off_rapm_5v5', label: 'Off xG', description: 'Offensive expected goals generation' },
+            { value: 'hd_xg_off_rapm_5v5_ge020', label: 'HD Off xG', description: 'High danger offensive generation' },
+        ],
+    },
+    {
+        id: 'defense',
+        label: 'Defense',
+        metrics: [
+            { value: 'corsi_def_rapm_5v5', label: 'Def Corsi', description: 'Defensive shot suppression' },
+            { value: 'xg_def_rapm_5v5', label: 'Def xG', description: 'Defensive expected goals suppression' },
+            { value: 'hd_xg_def_rapm_5v5_ge020', label: 'HD Def xG', description: 'High danger defensive suppression' },
+        ],
+    },
+    {
+        id: 'danger',
+        label: 'High Danger',
+        metrics: [
+            { value: 'hd_xg_rapm_5v5_ge020', label: 'HD xG Net', description: 'High danger chance impact' },
+            { value: 'hd_xg_off_rapm_5v5_ge020', label: 'HD Off xG', description: 'High danger offensive generation' },
+            { value: 'hd_xg_def_rapm_5v5_ge020', label: 'HD Def xG', description: 'High danger defensive suppression' },
+        ],
+    },
+    {
+        id: 'transitions',
+        label: 'Transitions',
+        metrics: [
+            { value: 'takeaway_to_xg_swing_rapm_5v5_w10', label: 'Takeaway Swing', description: 'xG gained from takeaways' },
+            { value: 'giveaway_to_xg_swing_rapm_5v5_w10', label: 'Giveaway Swing', description: 'xG lost from giveaways' },
+            { value: 'turnover_to_xg_swing_rapm_5v5_w10', label: 'Turnover Net', description: 'Net xG from turnovers' },
+        ],
+    },
+    {
+        id: 'playmaking',
+        label: 'Playmaking',
+        metrics: [
+            { value: 'primary_assist_rapm_5v5', label: 'Primary Assists', description: 'Primary assist generation' },
+            { value: 'secondary_assist_rapm_5v5', label: 'Secondary Assists', description: 'Secondary assist generation' },
+            { value: 'xg_primary_assist_on_goals_rapm_5v5', label: 'Assist xG', description: 'xG on primary assists' },
+        ],
+    },
+    {
+        id: 'discipline',
+        label: 'Discipline',
+        metrics: [
+            { value: 'penalties_drawn_rapm_5v5', label: 'Drawn', description: 'Ability to draw penalties' },
+            { value: 'penalties_committed_rapm_5v5', label: 'Taken', description: 'Penalty avoidance (lower better)' },
+        ],
+    },
 ];
 
 export default function LeaderboardsPage() {
+    return (
+        <Suspense fallback={<div className={styles.page}><div className="container"><div className={styles.loading}><div className="spinner" /></div></div></div>}>
+            <LeaderboardsContent />
+        </Suspense>
+    );
+}
+
+function LeaderboardsContent() {
+    const searchParams = useSearchParams();
+    const initialMetric = searchParams.get('metric') || 'corsi_rapm_5v5';
+
     const [seasons, setSeasons] = useState<string[]>([]);
     const [selectedSeason, setSelectedSeason] = useState<string>('');
-    const [selectedMetric, setSelectedMetric] = useState('corsi_rapm_5v5');
+    const [selectedMetric, setSelectedMetric] = useState(initialMetric);
+    const [activeCategory, setActiveCategory] = useState(() => {
+        const cat = METRIC_CATEGORIES.find(c => c.metrics.some(m => m.value === initialMetric));
+        return cat?.id || 'core';
+    });
     const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -59,7 +111,6 @@ export default function LeaderboardsPage() {
     useEffect(() => {
         async function loadLeaderboard() {
             if (!selectedSeason) return;
-
             setIsLoading(true);
             try {
                 const data = await getLeaderboard(selectedMetric, selectedSeason, 50);
@@ -74,7 +125,21 @@ export default function LeaderboardsPage() {
         loadLeaderboard();
     }, [selectedSeason, selectedMetric]);
 
-    const currentMetricInfo = METRICS.find(m => m.value === selectedMetric);
+    const handleCategoryChange = (catId: string) => {
+        setActiveCategory(catId);
+        const cat = METRIC_CATEGORIES.find(c => c.id === catId);
+        if (cat && cat.metrics.length > 0) {
+            setSelectedMetric(cat.metrics[0].value);
+        }
+    };
+
+    const currentCategory = METRIC_CATEGORIES.find(c => c.id === activeCategory);
+    const currentMetricInfo = currentCategory?.metrics.find(m => m.value === selectedMetric);
+
+    // Find max value for bar scaling
+    const maxAbsValue = leaderboard.length > 0
+        ? Math.max(...leaderboard.map(r => Math.abs(r.value)))
+        : 1;
 
     return (
         <div className={styles.page}>
@@ -85,49 +150,56 @@ export default function LeaderboardsPage() {
                     </div>
                     <h1>Leaderboards</h1>
                     <p className={styles.subtitle}>
-                        Top performers by advanced analytics metrics
+                        Top performers across 20+ advanced analytics metrics
                     </p>
                 </header>
 
+                {/* Category Tabs */}
+                <div className={styles.categoryTabs}>
+                    {METRIC_CATEGORIES.map(cat => (
+                        <button
+                            key={cat.id}
+                            className={`${styles.categoryTab} ${activeCategory === cat.id ? styles.activeTab : ''}`}
+                            onClick={() => handleCategoryChange(cat.id)}
+                        >
+                            {cat.label}
+                        </button>
+                    ))}
+                </div>
+
                 {/* Filters */}
                 <section className={styles.filters}>
-                    <div className={styles.filterCard}>
-                        <div className={styles.filterGroup}>
-                            <label htmlFor="season">Season</label>
-                            <select
-                                id="season"
-                                className="input select"
-                                value={selectedSeason}
-                                onChange={(e) => setSelectedSeason(e.target.value)}
-                            >
-                                {seasons.map((season) => (
-                                    <option key={season} value={season}>
-                                        {formatSeason(season)}
-                                    </option>
-                                ))}
-                            </select>
+                    <div className={styles.filterRow}>
+                        <div className={styles.metricTabs}>
+                            {currentCategory?.metrics.map(m => (
+                                <button
+                                    key={m.value}
+                                    className={`${styles.metricTab} ${selectedMetric === m.value ? styles.activeMetricTab : ''}`}
+                                    onClick={() => setSelectedMetric(m.value)}
+                                >
+                                    {m.label}
+                                </button>
+                            ))}
                         </div>
-
-                        <div className={styles.filterGroup}>
-                            <label htmlFor="metric">Metric</label>
-                            <select
-                                id="metric"
-                                className="input select"
-                                value={selectedMetric}
-                                onChange={(e) => setSelectedMetric(e.target.value)}
-                            >
-                                {METRICS.map((m) => (
-                                    <option key={m.value} value={m.value}>
-                                        {m.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        <select
+                            className={styles.seasonSelect}
+                            value={selectedSeason}
+                            onChange={(e) => setSelectedSeason(e.target.value)}
+                        >
+                            {seasons.map((season) => (
+                                <option key={season} value={season}>
+                                    {formatSeason(season)}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     {currentMetricInfo && (
                         <p className={styles.metricDescription}>
                             {currentMetricInfo.description}
+                            <Link href={`/glossary#${activeCategory}`} className={styles.glossaryLink}>
+                                Learn more
+                            </Link>
                         </p>
                     )}
                 </section>
@@ -144,16 +216,16 @@ export default function LeaderboardsPage() {
                         </div>
                     ) : (
                         <>
-                            {/* Data Quality Warning */}
                             {leaderboard[0]?.games_count && leaderboard[0].games_count < 100 && (
                                 <div className={styles.dataWarning}>
-                                    <span className={styles.warningIcon}>⚠️</span>
+                                    <span className={styles.warningIcon}>!</span>
                                     <div>
                                         <strong>Limited Sample Size</strong>
-                                        <p>This metric was computed using only {leaderboard[0].games_count} games. Results may be less reliable than metrics with full season data.</p>
+                                        <p>Computed from {leaderboard[0].games_count} games. Full-season data provides more reliable estimates.</p>
                                     </div>
                                 </div>
                             )}
+
                             {/* Top 3 Podium */}
                             <div className={styles.podium}>
                                 {leaderboard.slice(0, 3).map((row, index) => (
@@ -162,8 +234,8 @@ export default function LeaderboardsPage() {
                                         href={`/players/${row.player_id}`}
                                         className={`${styles.podiumCard} ${styles[`rank${index + 1}`]}`}
                                     >
-                                        <div className={styles.podiumMedal}>
-                                            {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                                        <div className={styles.podiumRank}>
+                                            {index === 0 ? '#1' : index === 1 ? '#2' : '#3'}
                                         </div>
                                         <div className={styles.podiumAvatar}>
                                             {(row.full_name || 'P').split(' ').map(n => n[0]).join('')}
@@ -172,41 +244,42 @@ export default function LeaderboardsPage() {
                                             {row.full_name || `Player #${row.player_id}`}
                                         </h3>
                                         <div className={`${styles.podiumValue} ${row.value >= 0 ? styles.positive : styles.negative}`}>
-                                            {row.value >= 0 ? '+' : ''}{row.value.toFixed(2)}
+                                            {row.value >= 0 ? '+' : ''}{row.value.toFixed(3)}
                                         </div>
                                     </Link>
                                 ))}
                             </div>
 
-                            {/* Rest of Leaderboard */}
+                            {/* Full Table */}
                             <div className={styles.tableContainer}>
-                                <table className="table">
-                                    <thead>
-                                        <tr>
-                                            <th style={{ width: '60px' }}>Rank</th>
-                                            <th>Player</th>
-                                            <th style={{ width: '120px', textAlign: 'right' }}>{currentMetricInfo?.label || 'Value'}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {leaderboard.slice(3).map((row, index) => (
-                                            <tr key={row.player_id}>
-                                                <td className={styles.rank}>{index + 4}</td>
-                                                <td>
-                                                    <Link href={`/players/${row.player_id}`} className={styles.playerLink}>
-                                                        <div className={styles.playerAvatar}>
-                                                            {(row.full_name || 'P')[0]}
-                                                        </div>
-                                                        <span>{row.full_name || `Player #${row.player_id}`}</span>
-                                                    </Link>
-                                                </td>
-                                                <td className={`${styles.value} ${row.value >= 0 ? styles.positive : styles.negative}`}>
-                                                    {row.value >= 0 ? '+' : ''}{row.value.toFixed(2)}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                {leaderboard.slice(3).map((row, index) => (
+                                    <Link
+                                        key={row.player_id}
+                                        href={`/players/${row.player_id}`}
+                                        className={styles.tableRow}
+                                    >
+                                        <span className={styles.rank}>{index + 4}</span>
+                                        <div className={styles.playerCell}>
+                                            <div className={styles.playerAvatar}>
+                                                {(row.full_name || 'P')[0]}
+                                            </div>
+                                            <span className={styles.playerName}>
+                                                {row.full_name || `Player #${row.player_id}`}
+                                            </span>
+                                        </div>
+                                        <div className={styles.valueCell}>
+                                            <div className={styles.valueBar}>
+                                                <div
+                                                    className={`${styles.valueBarFill} ${row.value >= 0 ? styles.barPositive : styles.barNegative}`}
+                                                    style={{ width: `${(Math.abs(row.value) / maxAbsValue) * 100}%` }}
+                                                />
+                                            </div>
+                                            <span className={`${styles.value} ${row.value >= 0 ? styles.positive : styles.negative}`}>
+                                                {row.value >= 0 ? '+' : ''}{row.value.toFixed(3)}
+                                            </span>
+                                        </div>
+                                    </Link>
+                                ))}
                             </div>
                         </>
                     )}

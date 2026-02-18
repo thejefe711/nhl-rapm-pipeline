@@ -82,7 +82,7 @@ export default function PlayersPage() {
                 {/* Info Section */}
                 <section className={styles.info}>
                     <div className={styles.infoCard}>
-                        <div className={styles.infoIcon}>📊</div>
+                        <div className={styles.infoIcon}>?</div>
                         <div className={styles.infoContent}>
                             <h3>What is RAPM?</h3>
                             <p>

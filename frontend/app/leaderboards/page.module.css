@@ -1,120 +1,155 @@
 .page {
-    padding-top: 100px;
-    padding-bottom: var(--space-20);
+    padding-top: 80px;
+    padding-bottom: var(--sp-20);
 }
 
-/* Header */
-.header {
-    text-align: center;
-    margin-bottom: var(--space-8);
-}
+.header { text-align: center; margin-bottom: var(--sp-6); }
 
 .headerBadge {
     display: inline-flex;
-    padding: var(--space-2) var(--space-4);
-    background: var(--color-accent-glow);
-    border: 1px solid rgba(56, 189, 248, 0.2);
+    padding: 4px 14px;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
     border-radius: var(--radius-full);
-    font-size: var(--text-xs);
-    font-weight: 600;
-    color: var(--color-accent-primary);
-    letter-spacing: 0.02em;
-    margin-bottom: var(--space-4);
-}
-
-.subtitle {
-    color: var(--color-text-secondary);
-    font-size: var(--text-lg);
-}
-
-/* Filters */
-.filters {
-    margin-bottom: var(--space-8);
-}
-
-.filterCard {
-    display: flex;
-    gap: var(--space-4);
-    justify-content: center;
-    padding: var(--space-5);
-    background: var(--color-surface-glass);
-    border: 1px solid var(--color-surface-border);
-    border-radius: var(--radius-xl);
-    margin-bottom: var(--space-3);
-}
-
-.filterGroup {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-}
-
-.filterGroup label {
-    font-size: var(--text-xs);
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-text-tertiary);
+    margin-bottom: var(--sp-4);
 }
 
-.filterGroup select {
-    min-width: 200px;
+.subtitle { color: var(--text-2); font-size: var(--text-base); }
+
+/* ── Category Tabs ── */
+.categoryTabs {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    margin-bottom: var(--sp-5);
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
+.categoryTabs::-webkit-scrollbar { display: none; }
+
+.categoryTab {
+    padding: 6px 16px;
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-3);
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease);
+    white-space: nowrap;
+}
+.categoryTab:hover { color: var(--text-1); background: var(--bg-2); }
+.categoryTab.activeTab { color: var(--accent); background: var(--accent-dim); }
+
+/* ── Filters ── */
+.filters { margin-bottom: var(--sp-6); }
+
+.filterRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--sp-2);
+    flex-wrap: wrap;
+}
+
+.metricTabs { display: flex; gap: 2px; overflow-x: auto; }
+
+.metricTab {
+    padding: 4px 12px;
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-3);
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--duration-fast) var(--ease);
+}
+.metricTab:hover { color: var(--text-1); background: var(--bg-2); }
+.metricTab.activeMetricTab { color: var(--text-0); background: var(--bg-3); }
+
+.seasonSelect {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--text-0);
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 5px 28px 5px 10px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%237e7e8a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    cursor: pointer;
+}
+.seasonSelect:focus { outline: none; border-color: var(--accent); }
+.seasonSelect option { background: var(--bg-1); color: var(--text-0); }
 
 .metricDescription {
     text-align: center;
-    font-size: var(--text-sm);
-    color: var(--color-text-tertiary);
+    font-size: var(--text-xs);
+    color: var(--text-3);
+}
+.glossaryLink {
+    margin-left: var(--sp-2);
+    font-weight: 600;
+    color: var(--accent);
+    font-size: var(--text-xs);
 }
 
-/* Loading & No Data */
-.loading,
-.noData {
+.loading, .noData {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: var(--space-16) 0;
+    padding: var(--sp-16) 0;
 }
+.noData p { color: var(--text-3); font-size: var(--text-sm); }
 
-.noData p {
-    color: var(--color-text-tertiary);
-}
-
-/* Data Quality Warning */
+/* ── Warning ── */
 .dataWarning {
     display: flex;
-    gap: var(--space-3);
+    gap: var(--sp-3);
     align-items: flex-start;
-    padding: var(--space-4);
-    background: rgba(251, 191, 36, 0.1);
-    border: 1px solid rgba(251, 191, 36, 0.3);
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-6);
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--warning-dim);
+    border: 1px solid rgba(217, 119, 6, 0.15);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--sp-5);
 }
-
-.dataWarning .warningIcon {
-    font-size: 1.25rem;
+.warningIcon {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(217, 119, 6, 0.1);
+    color: var(--warning);
+    font-weight: 700; font-size: 10px;
+    border-radius: var(--radius-sm);
     flex-shrink: 0;
 }
+.dataWarning strong { display: block; color: var(--warning); margin-bottom: 2px; font-size: var(--text-xs); }
+.dataWarning p { color: var(--text-2); font-size: 10px; margin: 0; }
 
-.dataWarning strong {
-    display: block;
-    color: rgb(251, 191, 36);
-    margin-bottom: var(--space-1);
-}
-
-.dataWarning p {
-    color: var(--color-text-secondary);
-    font-size: var(--text-sm);
-    margin: 0;
-}
-
-/* Podium */
+/* ── Podium ── */
 .podium {
     display: grid;
-    grid-template-columns: 1fr 1.2fr 1fr;
-    gap: var(--space-4);
-    margin-bottom: var(--space-8);
+    grid-template-columns: 1fr 1.15fr 1fr;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-5);
     align-items: end;
 }
 
@@ -122,143 +157,155 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: var(--space-6);
-    background: var(--color-surface-glass);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--color-surface-border);
+    padding: var(--sp-5);
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius-xl);
-    transition: all var(--duration-normal) var(--ease-out);
+    transition: border-color var(--duration-fast) var(--ease);
     text-decoration: none;
     color: inherit;
 }
-
-.podiumCard:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-glow);
-    border-color: var(--color-accent-primary);
-}
+.podiumCard:hover { border-color: var(--accent-border); }
 
 .podiumCard.rank1 {
-    padding: var(--space-8);
-    border-color: rgba(251, 191, 36, 0.3);
-    background: linear-gradient(180deg, rgba(251, 191, 36, 0.08) 0%, var(--color-surface-glass) 100%);
+    padding: var(--sp-6) var(--sp-5);
+    border-color: var(--accent-border);
+    background: linear-gradient(180deg, rgba(13, 148, 136, 0.08) 0%, var(--surface) 100%);
 }
+.podiumCard.rank2 { order: -1; }
 
-.podiumCard.rank2 {
-    order: -1;
+.podiumRank {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+    margin-bottom: var(--sp-3);
 }
-
-.podiumMedal {
-    font-size: 2rem;
-    margin-bottom: var(--space-3);
-}
+.rank1 .podiumRank { color: var(--accent); }
 
 .podiumAvatar {
-    width: 64px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--gradient-brand);
-    border-radius: var(--radius-lg);
-    font-weight: 700;
-    font-size: var(--text-lg);
-    color: white;
-    margin-bottom: var(--space-3);
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-dim);
+    border-radius: var(--radius-md);
+    font-weight: 700; font-size: var(--text-base);
+    color: var(--accent);
+    margin-bottom: var(--sp-3);
 }
-
 .rank1 .podiumAvatar {
-    width: 80px;
-    height: 80px;
-    font-size: var(--text-xl);
-    box-shadow: var(--shadow-glow);
+    width: 56px; height: 56px;
+    background: var(--accent);
+    color: var(--bg-0);
+    font-size: var(--text-lg);
 }
 
 .podiumName {
-    font-size: var(--text-base);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
     font-weight: 600;
     text-align: center;
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--sp-1);
+    letter-spacing: 0;
 }
 
 .podiumValue {
-    font-size: var(--text-2xl);
+    font-family: var(--font-mono);
+    font-size: var(--text-lg);
     font-weight: 700;
-    font-variant-numeric: tabular-nums;
 }
+.positive { color: var(--positive); }
+.negative { color: var(--negative); }
 
-.positive {
-    color: var(--color-success);
-}
-
-.negative {
-    color: var(--color-danger);
-}
-
-/* Table */
+/* ── Table ── */
 .tableContainer {
-    background: var(--color-surface-glass);
-    border: 1px solid var(--color-surface-border);
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius-xl);
     overflow: hidden;
 }
 
+.tableRow {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: 8px var(--sp-4);
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    transition: background var(--duration-fast) var(--ease);
+}
+.tableRow:last-child { border-bottom: none; }
+.tableRow:hover { background: var(--bg-2); }
+
 .rank {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
     font-weight: 500;
-    color: var(--color-text-tertiary);
+    color: var(--text-3);
+    min-width: 28px;
     text-align: center;
 }
 
-.playerLink {
+.playerCell {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
-    color: inherit;
-}
-
-.playerLink:hover {
-    color: var(--color-accent-primary);
+    gap: var(--sp-2);
+    flex: 1;
+    min-width: 0;
 }
 
 .playerAvatar {
-    width: 32px;
-    height: 32px;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-dim);
+    border-radius: var(--radius-sm);
+    font-weight: 700; font-size: var(--text-xs);
+    color: var(--accent);
+    flex-shrink: 0;
+}
+.playerName {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.valueCell {
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: var(--color-bg-elevated);
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: var(--text-sm);
-    color: var(--color-accent-primary);
+    gap: var(--sp-2);
+    min-width: 180px;
 }
+
+.valueBar {
+    flex: 1;
+    height: 2px;
+    background: var(--bg-3);
+    border-radius: 1px;
+    overflow: hidden;
+}
+.valueBarFill { height: 100%; border-radius: 1px; transition: width 0.4s var(--ease); }
+.barPositive { background: var(--positive); }
+.barNegative { background: var(--negative); }
 
 .value {
     font-family: var(--font-mono);
     font-weight: 600;
+    font-size: var(--text-xs);
     text-align: right;
+    min-width: 64px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
-    .filterCard {
-        flex-direction: column;
-    }
-
-    .filterGroup select {
-        min-width: 100%;
-    }
-
-    .podium {
-        grid-template-columns: 1fr;
-        gap: var(--space-3);
-    }
-
-    .podiumCard.rank2 {
-        order: 0;
-    }
-
-    .podiumCard.rank1 {
-        order: -1;
-    }
+    .podium { grid-template-columns: 1fr; gap: var(--sp-2); }
+    .podiumCard.rank2 { order: 0; }
+    .podiumCard.rank1 { order: -1; }
+    .filterRow { flex-direction: column; }
+    .metricTabs { width: 100%; }
+    .seasonSelect { width: 100%; }
+    .valueCell { min-width: 100px; }
+    .valueBar { display: none; }
 }

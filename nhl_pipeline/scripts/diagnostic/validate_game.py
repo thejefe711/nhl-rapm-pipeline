@@ -516,12 +516,12 @@ def main():
         history.add_run(run)
         
         for result in validation.results:
-            status = "✓" if result.passed else "✗"
+            status = "OK" if result.passed else "FAIL"
             print(f"  {status} {result.test_name}: {result.message}")
     
     # Save history
     history.save()
-    print(f"\n✓ Validation history saved to {history_path}")
+    print(f"\nOK Validation history saved to {history_path}")
     
     # Summary
     print("\n" + "=" * 60)
@@ -534,7 +534,7 @@ def main():
     print(f"Games fully validated: {total_passed}/{total_games}")
     
     for v in all_validations:
-        status = "✓" if v.all_passed else "✗"
+        status = "OK" if v.all_passed else "FAIL"
         print(f"  {status} {v.season}/{v.game_id}: {v.pass_count}/{len(v.results)} tests passed")
         
         # Show failures

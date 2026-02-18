@@ -192,7 +192,7 @@
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	!function() {
-/******/ 		__webpack_require__.h = function() { return "1e66d749188c3308"; }
+/******/ 		__webpack_require__.h = function() { return "d9ce99edce312b53"; }
 /******/ 	}();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -830,10 +830,10 @@
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = __webpack_require__.hmrS_jsonp = __webpack_require__.hmrS_jsonp || {
 /******/ 			"webpack": 0,
-/******/ 			"css-app_page_module_css": 0,
-/******/ 			"css-app_globals_css-components_Navbar_module_css": 0,
-/******/ 			"css-app_players_page_module_css-components_SearchBox_module_css": 0,
-/******/ 			"css-app_players_id_page_module_css": 0
+/******/ 			"css-app_page_module_css-app_players_page_module_css-components_SearchBox_module_css": 0,
+/******/ 			"css-app_globals_css-components_CommandPalette_module_css-components_Footer_module_css-compone-2589ea": 0,
+/******/ 			"css-app_players_id_page_module_css-components_RadarChart_module_css": 0,
+/******/ 			"css-app_leaderboards_page_module_css": 0
 /******/ 		};
 /******/ 		
 /******/ 		__webpack_require__.f.j = function(chunkId, promises) {
@@ -845,7 +845,7 @@
 /******/ 					if(installedChunkData) {
 /******/ 						promises.push(installedChunkData[2]);
 /******/ 					} else {
-/******/ 						if(/^(app(\/(p(layers\/(|\[id\]\/)page|age)|layout)|\-pages\-internals)|main\-app)$/.test(chunkId)) {
+/******/ 						if(/^(app(\/(p(layers\/(|\[id\]\/)page|age)|(_not\-found|leaderboards)\/page|layout)|\-pages\-internals)|main\-app)$/.test(chunkId)) {
 /******/ 							// setup Promise in chunk cache
 /******/ 							var promise = new Promise(function(resolve, reject) { installedChunkData = installedChunks[chunkId] = [resolve, reject]; });
 /******/ 							promises.push(installedChunkData[2] = promise);

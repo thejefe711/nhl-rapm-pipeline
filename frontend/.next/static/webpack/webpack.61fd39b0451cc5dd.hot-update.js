@@ -11,7 +11,7 @@ self["webpackHotUpdate_N_E"]("webpack",{},
 /******/ function(__webpack_require__) { // webpackRuntimeModules
 /******/ /* webpack/runtime/getFullHash */
 /******/ !function() {
-/******/ 	__webpack_require__.h = function() { return "916b41bb6f7115e3"; }
+/******/ 	__webpack_require__.h = function() { return "0992f7670358e193"; }
 /******/ }();
 /******/ 
 /******/ /* webpack/runtime/jsonp chunk loading */
@@ -23,9 +23,8 @@ self["webpackHotUpdate_N_E"]("webpack",{},
 /******/ 	// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 	var installedChunks = __webpack_require__.hmrS_jsonp = __webpack_require__.hmrS_jsonp || {
 /******/ 		"webpack": 0,
-/******/ 		"css-app_page_module_css": 0,
-/******/ 		"css-app_globals_css-components_Navbar_module_css": 0,
-/******/ 		"css-app_players_page_module_css-components_SearchBox_module_css": 0
+/******/ 		"css-app_page_module_css-app_players_page_module_css-components_SearchBox_module_css": 0,
+/******/ 		"css-app_globals_css-components_CommandPalette_module_css-components_Footer_module_css-compone-2589ea": 0
 /******/ 	};
 /******/ 	
 /******/ 	__webpack_require__.f.j = function(chunkId, promises) {
@@ -37,7 +36,7 @@ self["webpackHotUpdate_N_E"]("webpack",{},
 /******/ 				if(installedChunkData) {
 /******/ 					promises.push(installedChunkData[2]);
 /******/ 				} else {
-/******/ 					if(/^(app(\/((|players\/)page|layout)|\-pages\-internals)|main\-app)$/.test(chunkId)) {
+/******/ 					if(/^(app(\/((|_not\-found\/|players\/)page|layout)|\-pages\-internals)|main\-app)$/.test(chunkId)) {
 /******/ 						// setup Promise in chunk cache
 /******/ 						var promise = new Promise(function(resolve, reject) { installedChunkData = installedChunks[chunkId] = [resolve, reject]; });
 /******/ 						promises.push(installedChunkData[2] = promise);

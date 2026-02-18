@@ -19,6 +19,21 @@ Usage:
 import sys
 import argparse
 from pathlib import Path
+from contextlib import contextmanager
+
+
+@contextmanager
+def _isolated_argv(script_name: str):
+    """
+    Run nested script mains with isolated argv so parent CLI flags
+    do not leak into child argparse handlers.
+    """
+    original = sys.argv[:]
+    try:
+        sys.argv = [script_name]
+        yield
+    finally:
+        sys.argv = original
 
 
 def run_fetch():
@@ -27,7 +42,8 @@ def run_fetch():
     print("STEP 1: FETCH RAW DATA")
     print("=" * 60)
     from fetch_game import main as fetch_main
-    return fetch_main()
+    with _isolated_argv("fetch_game.py"):
+        return fetch_main()
 
 
 def run_parse_shifts():
@@ -36,7 +52,8 @@ def run_parse_shifts():
     print("STEP 2a: PARSE SHIFTS")
     print("=" * 60)
     from parse_shifts import main as parse_shifts_main
-    return parse_shifts_main()
+    with _isolated_argv("parse_shifts.py"):
+        return parse_shifts_main()
 
 
 def run_parse_pbp():
@@ -45,7 +62,8 @@ def run_parse_pbp():
     print("STEP 2b: PARSE PLAY-BY-PLAY")
     print("=" * 60)
     from parse_pbp import main as parse_pbp_main
-    return parse_pbp_main()
+    with _isolated_argv("parse_pbp.py"):
+        return parse_pbp_main()
 
 
 def run_validate():
@@ -54,7 +72,8 @@ def run_validate():
     print("STEP 3: VALIDATE")
     print("=" * 60)
     from validate_game import main as validate_main
-    return validate_main()
+    with _isolated_argv("validate_game.py"):
+        return validate_main()
 
 
 def run_load():
@@ -63,7 +82,8 @@ def run_load():
     print("STEP 4: LOAD TO DATABASE")
     print("=" * 60)
     from load_to_db import main as load_main
-    return load_main()
+    with _isolated_argv("load_to_db.py"):
+        return load_main()
 
 
 def run_analyze():

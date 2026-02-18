@@ -700,6 +700,165 @@ def explain_player(
     }
 
 
+@app.get("/api/player/{player_id}/profile")
+def player_profile(
+    player_id: int,
+    season: Optional[str] = Query(default=None, description="Season (if omitted, uses latest)"),
+) -> dict[str, Any]:
+    """
+    Full multi-metric profile for a player in a given season.
+    Returns all RAPM metrics, percentile ranks, position, and TOI.
+    """
+    con = _connect()
+    try:
+        # Resolve season
+        if season is None:
+            row = con.execute(
+                "SELECT MAX(season) FROM apm_results WHERE player_id = ?",
+                [int(player_id)],
+            ).fetchone()
+            if not row or not row[0]:
+                raise HTTPException(status_code=404, detail="No data for this player")
+            season = str(row[0])
+
+        # Get player info
+        player_data: dict[str, Any] = {"player_id": int(player_id)}
+        if _players_table_exists(con):
+            df = con.execute(
+                "SELECT player_id, first_name, last_name, full_name, position "
+                "FROM players WHERE player_id = ?",
+                [int(player_id)],
+            ).df()
+            if not df.empty:
+                player_data = df.iloc[0].to_dict()
+
+        if "full_name" not in player_data or not player_data.get("full_name"):
+            full = _get_player_name(con, player_id)
+            if full:
+                player_data["full_name"] = full
+
+        # Get all RAPM metrics for this player+season
+        metrics_df = con.execute(
+            """
+            SELECT metric_name, value, games_count, toi_seconds, events_count
+            FROM apm_results
+            WHERE player_id = ? AND season = ?
+            ORDER BY metric_name
+            """,
+            [int(player_id), season],
+        ).df()
+
+        metrics_list = metrics_df.to_dict(orient="records") if not metrics_df.empty else []
+
+        # Get percentile ranks: for each metric, what percentile is this player in?
+        percentiles: dict[str, Any] = {}
+        for m in metrics_list:
+            mn = m["metric_name"]
+            pct_row = con.execute(
+                """
+                SELECT
+                    COUNT(*) FILTER (WHERE value <= ?) * 100.0 / COUNT(*) AS percentile,
+                    COUNT(*) as total_players
+                FROM apm_results
+                WHERE metric_name = ? AND season = ?
+                """,
+                [m["value"], mn, season],
+            ).fetchone()
+            if pct_row:
+                percentiles[mn] = {
+                    "percentile": round(float(pct_row[0]), 1),
+                    "total_players": int(pct_row[1]),
+                }
+
+        # Get career history (all seasons for corsi_rapm_5v5)
+        career_df = con.execute(
+            """
+            SELECT season, metric_name, value
+            FROM apm_results
+            WHERE player_id = ? AND metric_name IN (
+                'corsi_rapm_5v5', 'xg_rapm_5v5', 'goals_rapm_5v5',
+                'corsi_off_rapm_5v5', 'corsi_def_rapm_5v5',
+                'xg_off_rapm_5v5', 'xg_def_rapm_5v5'
+            )
+            ORDER BY season, metric_name
+            """,
+            [int(player_id)],
+        ).df()
+        career = career_df.to_dict(orient="records") if not career_df.empty else []
+
+        return {
+            "player": player_data,
+            "season": season,
+            "metrics": metrics_list,
+            "percentiles": percentiles,
+            "career": career,
+        }
+    finally:
+        con.close()
+
+
+@app.get("/api/stats/overview")
+def stats_overview() -> dict[str, Any]:
+    """
+    Dashboard overview stats for the homepage.
+    """
+    con = _connect()
+    try:
+        tables = {r[0] for r in con.execute("SHOW TABLES").fetchall()}
+
+        seasons = []
+        total_players = 0
+        total_metrics = 0
+        total_games = 0
+        latest_season = None
+
+        if "apm_results" in tables:
+            row = con.execute("SELECT COUNT(DISTINCT season) FROM apm_results").fetchone()
+            seasons_count = int(row[0]) if row else 0
+
+            row = con.execute("SELECT COUNT(DISTINCT player_id) FROM apm_results").fetchone()
+            total_players = int(row[0]) if row else 0
+
+            row = con.execute("SELECT COUNT(DISTINCT metric_name) FROM apm_results").fetchone()
+            total_metrics = int(row[0]) if row else 0
+
+            rows = con.execute("SELECT DISTINCT season FROM apm_results ORDER BY season").fetchall()
+            seasons = [r[0] for r in rows]
+            latest_season = seasons[-1] if seasons else None
+
+        if "games" in tables:
+            row = con.execute("SELECT COUNT(*) FROM games").fetchone()
+            total_games = int(row[0]) if row else 0
+
+        # Top 5 players by latest season corsi_rapm_5v5
+        top_players = []
+        if latest_season and "apm_results" in tables:
+            df = con.execute(
+                """
+                SELECT a.player_id, a.value, p.full_name
+                FROM apm_results a
+                LEFT JOIN players p ON a.player_id = p.player_id
+                WHERE a.metric_name = 'corsi_rapm_5v5' AND a.season = ?
+                ORDER BY a.value DESC
+                LIMIT 5
+                """,
+                [latest_season],
+            ).df()
+            top_players = df.to_dict(orient="records") if not df.empty else []
+
+        return {
+            "seasons": seasons,
+            "seasons_count": len(seasons),
+            "total_players": total_players,
+            "total_metrics": total_metrics,
+            "total_games": total_games,
+            "latest_season": latest_season,
+            "top_players": top_players,
+        }
+    finally:
+        con.close()
+
+
 @app.get("/api/explanations/team/{team_id}")
 def explain_team(team_id: int) -> dict[str, Any]:
     """

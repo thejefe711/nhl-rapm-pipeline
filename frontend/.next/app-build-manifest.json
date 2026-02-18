@@ -3,26 +3,37 @@
     "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/css-app_page_module_css.css",
+      "static/css/css-app_page_module_css-app_players_page_module_css-components_SearchBox_module_css.css",
       "static/chunks/app/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/css-app_globals_css-components_Navbar_module_css.css",
+      "static/css/css-app_globals_css-components_CommandPalette_module_css-components_Footer_module_css-compone-2589ea.css",
       "static/chunks/app/layout.js"
     ],
     "/players/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/css-app_players_page_module_css-components_SearchBox_module_css.css",
+      "static/css/css-app_page_module_css-app_players_page_module_css-components_SearchBox_module_css.css",
       "static/chunks/app/players/page.js"
     ],
     "/players/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/css-app_players_id_page_module_css.css",
+      "static/css/css-app_players_id_page_module_css-components_RadarChart_module_css.css",
       "static/chunks/app/players/[id]/page.js"
+    ],
+    "/leaderboards/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/css-app_leaderboards_page_module_css.css",
+      "static/chunks/app/leaderboards/page.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

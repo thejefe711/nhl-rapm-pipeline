@@ -134,7 +134,6 @@ export default function SearchBox({ onSelect, placeholder = 'Search players...',
             {isOpen && query.length >= 2 && results.length === 0 && !isLoading && (
                 <div className={styles.dropdown}>
                     <div className={styles.noResults}>
-                        <span className={styles.noResultsIcon}>🔍</span>
                         <p>No players found for &ldquo;{query}&rdquo;</p>
                     </div>
                 </div>

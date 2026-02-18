@@ -12,16 +12,31 @@ interface SelectedPlayer {
     rapm: RAPMRow[];
 }
 
+const COMPARE_METRICS = [
+    { value: 'corsi_rapm_5v5', label: 'Corsi RAPM' },
+    { value: 'xg_rapm_5v5', label: 'xG RAPM' },
+    { value: 'goals_rapm_5v5', label: 'Goals RAPM' },
+    { value: 'corsi_off_rapm_5v5', label: 'Offensive Corsi' },
+    { value: 'corsi_def_rapm_5v5', label: 'Defensive Corsi' },
+    { value: 'xg_off_rapm_5v5', label: 'Offensive xG' },
+    { value: 'xg_def_rapm_5v5', label: 'Defensive xG' },
+    { value: 'hd_xg_rapm_5v5_ge020', label: 'High Danger xG' },
+    { value: 'primary_assist_rapm_5v5', label: 'Primary Assists' },
+    { value: 'takeaway_to_xg_swing_rapm_5v5_w10', label: 'Takeaway Swing' },
+    { value: 'penalties_drawn_rapm_5v5', label: 'Penalties Drawn' },
+];
+
 export default function ComparePage() {
     const router = useRouter();
     const [player1, setPlayer1] = useState<SelectedPlayer | null>(null);
     const [player2, setPlayer2] = useState<SelectedPlayer | null>(null);
     const [isLoading, setIsLoading] = useState<1 | 2 | null>(null);
+    const [selectedMetric, setSelectedMetric] = useState('corsi_rapm_5v5');
 
     const loadPlayer = async (player: PlayerSearchResult, slot: 1 | 2) => {
         setIsLoading(slot);
         try {
-            const rapmData = await getPlayerRAPM(player.player_id);
+            const rapmData = await getPlayerRAPM(player.player_id, selectedMetric);
             const selectedPlayer: SelectedPlayer = {
                 id: player.player_id,
                 name: player.full_name,
@@ -40,6 +55,24 @@ export default function ComparePage() {
         }
     };
 
+    const handleMetricChange = async (newMetric: string) => {
+        setSelectedMetric(newMetric);
+
+        // Reload both players with new metric
+        if (player1) {
+            try {
+                const rapmData = await getPlayerRAPM(player1.id, newMetric);
+                setPlayer1(prev => prev ? { ...prev, rapm: rapmData.rows } : null);
+            } catch { /* ignore */ }
+        }
+        if (player2) {
+            try {
+                const rapmData = await getPlayerRAPM(player2.id, newMetric);
+                setPlayer2(prev => prev ? { ...prev, rapm: rapmData.rows } : null);
+            } catch { /* ignore */ }
+        }
+    };
+
     const commonSeasons = player1 && player2
         ? player1.rapm
             .map(r => r.season)
@@ -50,16 +83,15 @@ export default function ComparePage() {
 
     const getBetterPlayer = () => {
         if (!player1 || !player2 || commonSeasons.length === 0) return null;
-
         const p1Avg = commonSeasons.reduce((sum, season) =>
             sum + (player1.rapm.find(r => r.season === season)?.value || 0), 0) / commonSeasons.length;
         const p2Avg = commonSeasons.reduce((sum, season) =>
             sum + (player2.rapm.find(r => r.season === season)?.value || 0), 0) / commonSeasons.length;
-
         return p1Avg > p2Avg ? 1 : p2Avg > p1Avg ? 2 : null;
     };
 
     const winner = getBetterPlayer();
+    const currentMetricLabel = COMPARE_METRICS.find(m => m.value === selectedMetric)?.label || selectedMetric;
 
     return (
         <div className={styles.page}>
@@ -70,9 +102,25 @@ export default function ComparePage() {
                     </div>
                     <h1>Compare Players</h1>
                     <p className={styles.subtitle}>
-                        See how two players stack up against each other
+                        Side-by-side comparison across any metric
                     </p>
                 </header>
+
+                {/* Metric Selector */}
+                <div className={styles.metricSelector}>
+                    <span className={styles.metricSelectorLabel}>Comparing:</span>
+                    <div className={styles.metricPills}>
+                        {COMPARE_METRICS.map(m => (
+                            <button
+                                key={m.value}
+                                className={`${styles.metricPill} ${selectedMetric === m.value ? styles.activePill : ''}`}
+                                onClick={() => handleMetricChange(m.value)}
+                            >
+                                {m.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
                 {/* Player Selection */}
                 <section className={styles.selection}>
@@ -97,12 +145,20 @@ export default function ComparePage() {
                                     {player1.name.split(' ').map(n => n[0]).join('')}
                                 </div>
                                 <h3>{player1.name}</h3>
-                                <button
-                                    className={styles.removeBtn}
-                                    onClick={() => setPlayer1(null)}
-                                >
-                                    Remove
-                                </button>
+                                <div className={styles.playerActions}>
+                                    <button
+                                        className={styles.viewBtn}
+                                        onClick={() => router.push(`/players/${player1.id}`)}
+                                    >
+                                        View Profile
+                                    </button>
+                                    <button
+                                        className={styles.removeBtn}
+                                        onClick={() => setPlayer1(null)}
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -132,12 +188,20 @@ export default function ComparePage() {
                                     {player2.name.split(' ').map(n => n[0]).join('')}
                                 </div>
                                 <h3>{player2.name}</h3>
-                                <button
-                                    className={styles.removeBtn}
-                                    onClick={() => setPlayer2(null)}
-                                >
-                                    Remove
-                                </button>
+                                <div className={styles.playerActions}>
+                                    <button
+                                        className={styles.viewBtn}
+                                        onClick={() => router.push(`/players/${player2.id}`)}
+                                    >
+                                        View Profile
+                                    </button>
+                                    <button
+                                        className={styles.removeBtn}
+                                        onClick={() => setPlayer2(null)}
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -147,10 +211,10 @@ export default function ComparePage() {
                 {player1 && player2 && commonSeasons.length > 0 && (
                     <section className={styles.comparison}>
                         <div className={styles.comparisonHeader}>
-                            <h2>Corsi RAPM 5v5 Comparison</h2>
+                            <h2>{currentMetricLabel} Comparison</h2>
                             {winner && (
                                 <div className={styles.winnerBadge}>
-                                    🏆 {winner === 1 ? player1.name : player2.name} leads
+                                    {winner === 1 ? player1.name : player2.name} leads
                                 </div>
                             )}
                         </div>
@@ -182,13 +246,13 @@ export default function ComparePage() {
                                                 />
                                             </div>
                                             <span className={`${styles.value} ${p1Better ? styles.highlight : ''}`}>
-                                                {p1Value >= 0 ? '+' : ''}{p1Value.toFixed(2)}
+                                                {p1Value >= 0 ? '+' : ''}{p1Value.toFixed(3)}
                                             </span>
                                         </div>
                                         <div className={styles.colSeason}>{formatSeason(season)}</div>
                                         <div className={styles.colPlayer}>
                                             <span className={`${styles.value} ${!p1Better ? styles.highlight : ''}`}>
-                                                {p2Value >= 0 ? '+' : ''}{p2Value.toFixed(2)}
+                                                {p2Value >= 0 ? '+' : ''}{p2Value.toFixed(3)}
                                             </span>
                                             <div className={styles.barContainer}>
                                                 <div
@@ -201,37 +265,23 @@ export default function ComparePage() {
                                 );
                             })}
                         </div>
-
-                        <div className={styles.actions}>
-                            <button
-                                className="btn btn-secondary"
-                                onClick={() => router.push(`/players/${player1.id}`)}
-                            >
-                                View {player1.name} →
-                            </button>
-                            <button
-                                className="btn btn-secondary"
-                                onClick={() => router.push(`/players/${player2.id}`)}
-                            >
-                                View {player2.name} →
-                            </button>
-                        </div>
                     </section>
                 )}
 
                 {player1 && player2 && commonSeasons.length === 0 && (
                     <div className={styles.noOverlap}>
-                        <div className={styles.noOverlapIcon}>📅</div>
                         <h3>No Overlapping Seasons</h3>
-                        <p>These players don&apos;t have data for the same seasons.</p>
+                        <p>These players don&apos;t have {currentMetricLabel} data for the same seasons.</p>
                     </div>
                 )}
 
                 {(!player1 || !player2) && (
                     <div className={styles.prompt}>
-                        <div className={styles.promptIcon}>⚔️</div>
+                        <svg className={styles.promptIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
                         <h3>Select Two Players</h3>
-                        <p>Search and select two players above to compare their stats.</p>
+                        <p>Search and select players above, then choose any metric to compare.</p>
                     </div>
                 )}
             </div>

@@ -201,7 +201,8 @@ def main():
     
     for shifts_path in sorted(shift_files):
         game_id = shifts_path.parent.name
-        season = shifts_path.parent.parent.parent.name
+        # raw/<season>/<game_id>/shifts.json -> season is parent.parent.name
+        season = shifts_path.parent.parent.name
         
         print(f"\nParsing {season}/{game_id}...")
         

@@ -281,7 +281,8 @@ def main():
     
     for pbp_path in sorted(pbp_files):
         game_id = pbp_path.parent.name
-        season = pbp_path.parent.parent.parent.name
+        # raw/<season>/<game_id>/play_by_play.json -> season is parent.parent.name
+        season = pbp_path.parent.parent.name
         
         print(f"\nParsing {season}/{game_id}...")
         

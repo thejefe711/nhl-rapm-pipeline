@@ -141,6 +141,77 @@ We will keep appending to this as we go.
 
 ---
 
+## 2026-02-17 — Season path traversal off-by-one in parse_pbp / parse_shifts
+
+- **Symptom**: Parsers assigned the wrong season to games (or failed to find data) when run from `run_pipeline.py`.
+- **Root cause**: Both `parse_pbp.py` and `parse_shifts.py` used `pbp_path.parent.parent.parent.name` to resolve the season from the file path, but the actual layout is `raw/<season>/<game_id>/play_by_play.json` — so the season is `parent.parent.name` (two levels up, not three).
+- **Fix**: Changed to `parent.parent.name` in both scripts and added a clarifying comment.
+
+---
+
+## 2026-02-17 — `sys.argv` leaking from orchestrator into child scripts
+
+- **Symptom**: Running `run_pipeline.py --step parse` caused child `argparse` handlers (e.g., `parse_shifts.main()`) to see the parent's CLI flags and error out with `unrecognized arguments`.
+- **Root cause**: `run_pipeline.py` imported and called `main()` from each sub-script directly. Since `argparse` reads `sys.argv` by default, the parent's flags leaked through.
+- **Fix** (in `run_pipeline.py`):
+  - Added an `_isolated_argv()` context manager that temporarily replaces `sys.argv` with just the script name before calling each child `main()`, then restores the original.
+
+---
+
+## 2026-02-17 — Unicode symbols still present in `validate_game.py`
+
+- **Symptom**: `validate_game.py` (under `scripts/diagnostic/`) crashed with `UnicodeEncodeError` on Windows.
+- **Root cause**: The January Unicode cleanup (see 2026-01-13 entry) only covered scripts in `scripts/core/`. The diagnostic script `validate_game.py` was missed and still had `✓` / `✗` characters.
+- **Fix**: Replaced with `OK` / `FAIL` to match the rest of the codebase.
+- **Learning**: When doing project-wide search-and-replace, also check `scripts/diagnostic/` and any other subdirectory trees — don't assume all scripts live in one folder.
+
+---
+
+## 2026-02-17 — RAPM metric fitting crashes on missing columns (KeyError)
+
+- **Symptom**: `compute_corsi_apm.py` raised `KeyError: 'net_faceoff_loss_xg_swing'` (and similar) when a required stint-level column was absent — e.g., because the upstream xG or shift-context enrichment hadn't been run yet.
+- **Root cause**: Each metric fit block did `data["net_<metric>"]` without checking whether the column existed first. If the stint builder didn't produce a column (new metric, missing upstream data), the entire RAPM step crashed.
+- **Fix**:
+  - Added `_preflight_required_columns(df, required_cols, metric_name)` helper that checks column existence and prints `FAIL: Skipping metric '<name>'` if any are missing.
+  - Every metric fit block now gates on this check instead of bare `else:`.
+- **Learning**: When adding new RAPM metrics, always use the preflight guard so missing upstream data degrades gracefully (skip the metric) instead of crashing the whole pipeline.
+
+---
+
+## 2026-02-17 — Faceoff-loss metric column name mismatch
+
+- **Symptom**: Faceoff-loss xG swing metric was always skipped even when the data was present.
+- **Root cause**: The stint builder created `net_face_xg_swing`, but the metric fit block expected `net_faceoff_loss_xg_swing`. Name mismatch.
+- **Fix**: Added the canonical `net_faceoff_loss_xg_swing` column in the stint builder. Kept `net_face_xg_swing` as a backward-compatible alias for older notebooks.
+- **Learning**: When naming net columns in the stint builder, use the exact same name the downstream metric block expects. Grep for the column name across both the builder and the fit section before declaring it done.
+
+---
+
+## 2026-02-17 — DuckDB schema migration for `players.position` column
+
+- **Symptom**: `load_to_db.py` crashed with a binder error after adding `position` to the `players` table DDL, because existing `.duckdb` files didn't have the column.
+- **Root cause**: The `CREATE TABLE IF NOT EXISTS` DDL only runs if the table doesn't exist; existing tables keep the old schema.
+- **Fix** (in `load_to_db.py`):
+  - After DDL, check `PRAGMA table_info(players)` for the `position` column.
+  - If missing, `ALTER TABLE players ADD COLUMN position VARCHAR`.
+  - Backfill with `'F'` as a safe default for existing rows.
+  - Also load positions from a cached `position_cache.json` file when available.
+- **Learning**: Any time we add a column to a DuckDB table DDL, pair it with an `ALTER TABLE … ADD COLUMN` migration guard for existing databases.
+
+---
+
+## 2026-02-17 — Frontend crashes when backend API is not running
+
+- **Symptom**: Next.js pages threw unhandled `fetch` errors and rendered blank when the FastAPI backend wasn't running.
+- **Root cause**: Every function in `frontend/lib/api.ts` called `fetchAPI()` without a try/catch, so a network error propagated as an uncaught exception.
+- **Fix** (in `frontend/lib/api.ts`):
+  - Wrapped every API function in try/catch.
+  - On failure, return data from `lib/mock-data.ts` so the frontend renders with realistic placeholder content.
+  - Created `mock-data.ts` with representative mock responses.
+- **Learning**: Always design the frontend API layer to degrade gracefully. Mock-data fallbacks let the UI be developed and demoed independently of the backend.
+
+---
+
 ## General learnings (project-level)
 
 - **Hard-gate modeling on validation**:
