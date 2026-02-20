@@ -33,7 +33,7 @@ except ImportError:
     print("DuckDB not installed. Run: pip install duckdb")
     raise
 
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, hstack
 from sklearn.linear_model import Ridge, RidgeCV
 from sklearn.linear_model import LogisticRegression
 try:
@@ -57,6 +57,105 @@ XG_EVENT_TYPES = {"SHOT", "MISSED_SHOT", "GOAL"}
 TURNOVER_EVENT_TYPES = {"TAKEAWAY", "GIVEAWAY"}
 DEF_TRIGGER_EVENT_TYPES = {"BLOCKED_SHOT", "FACEOFF"}
 DEFAULT_HD_XG_THRESHOLD = 0.20
+
+# Score-state buckets: maps raw goal differential to discrete states
+SCORE_STATE_CATEGORIES = [-2, -1, 0, 1, 2]
+
+
+def _bucket_score_state(score_diff: int) -> int:
+    """
+    Map a raw home-vs-away score differential to a discrete score state.
+    Clamps to [-2, +2] so each bucket has enough stints for estimation.
+    """
+    if score_diff <= -2:
+        return -2
+    elif score_diff >= 2:
+        return 2
+    else:
+        return int(score_diff)
+
+
+def _build_score_state_features(stints_df: pd.DataFrame) -> csr_matrix:
+    """
+    Build a sparse dummy-variable matrix for score state.
+
+    Columns represent states [-2, -1, +1, +2].  State 0 (tied) is the
+    omitted baseline category, so the fitted coefficients measure the
+    bias of each non-tied state relative to tied play.
+
+    Returns:
+        csr_matrix of shape (n_stints, 4)
+    """
+    n = len(stints_df)
+    # Column order: [-2, -1, +1, +2]
+    dummy_states = [-2, -1, 1, 2]
+    data_rows = []
+    data_cols = []
+    data_vals = []
+
+    states = stints_df["score_state"].values
+    for i, s in enumerate(states):
+        if s in (-2, -1, 1, 2):
+            col_idx = dummy_states.index(s)
+            data_rows.append(i)
+            data_cols.append(col_idx)
+            data_vals.append(1.0)
+
+    from scipy.sparse import coo_matrix
+    X = coo_matrix(
+        (data_vals, (data_rows, data_cols)),
+        shape=(n, 4),
+    ).tocsr()
+    return X
+
+
+def _map_zone_start(zone_code) -> str:
+    """
+    Map a zone code to a zone-start category.
+
+    O → "O" (offensive zone)
+    D → "D" (defensive zone)
+    N / None / NaN → "N" (neutral, baseline)
+    """
+    if zone_code is None or (isinstance(zone_code, float) and np.isnan(zone_code)):
+        return "N"
+    code = str(zone_code).strip().upper()
+    if code in ("O", "D"):
+        return code
+    return "N"
+
+
+def _build_zone_start_features(stints_df: pd.DataFrame) -> csr_matrix:
+    """
+    Build a sparse dummy-variable matrix for zone start.
+
+    Columns represent zone starts [O, D].  Zone N (neutral) is the
+    omitted baseline category, so the fitted coefficients measure the
+    bias of offensive/defensive starts relative to neutral.
+
+    Returns:
+        csr_matrix of shape (n_stints, 2)
+    """
+    n = len(stints_df)
+    dummy_zones = ["O", "D"]
+    data_rows = []
+    data_cols = []
+    data_vals = []
+
+    zones = stints_df["zone_start"].values
+    for i, z in enumerate(zones):
+        if z in ("O", "D"):
+            col_idx = dummy_zones.index(z)
+            data_rows.append(i)
+            data_cols.append(col_idx)
+            data_vals.append(1.0)
+
+    from scipy.sparse import coo_matrix
+    X = coo_matrix(
+        (data_vals, (data_rows, data_cols)),
+        shape=(n, 2),
+    ).tocsr()
+    return X
 
 
 def _preflight_required_columns(df: pd.DataFrame, required_cols: List[str], metric_name: str) -> bool:
@@ -364,6 +463,71 @@ def _ridge_fit(X: csr_matrix, y: np.ndarray, sample_weight: Optional[np.ndarray]
     return beta, alpha
 
 
+def _ridge_fit_adjusted(
+    X: csr_matrix,
+    y: np.ndarray,
+    sample_weight: Optional[np.ndarray],
+    alphas: List[float],
+    stints_df: Optional[pd.DataFrame] = None,
+    metric_label: str = "",
+) -> Tuple[np.ndarray, float]:
+    """
+    Wrapper around _ridge_fit that transparently augments the design matrix
+    with score-state and zone-start dummy columns.
+
+    After fitting, only the player coefficients (first `X.shape[1]` columns)
+    are returned. The adjustment fixed effects are logged but NOT included
+    in the returned coefs array, so callers don't need to change their
+    indexing logic.
+
+    Args:
+        X: sparse player indicator matrix (n_stints x n_players)
+        y, sample_weight, alphas: passed through to _ridge_fit
+        stints_df: DataFrame with 'score_state' and/or 'zone_start' columns.
+                   If None or columns missing, falls back to plain _ridge_fit.
+        metric_label: name of the metric being fitted, for log messages.
+
+    Returns:
+        (player_coefs, alpha_used) — same contract as _ridge_fit
+    """
+    n_player_cols = X.shape[1]
+    adjustment_blocks = []
+    fe_log_parts = []
+
+    # Score-state dummies
+    if stints_df is not None and "score_state" in stints_df.columns:
+        X_score = _build_score_state_features(stints_df)
+        if X_score.nnz > 0:
+            adjustment_blocks.append(X_score)
+            fe_log_parts.append(("score", ["-2", "-1", "+1", "+2"], X_score.shape[1]))
+
+    # Zone-start dummies
+    if stints_df is not None and "zone_start" in stints_df.columns:
+        X_zone = _build_zone_start_features(stints_df)
+        if X_zone.nnz > 0:
+            adjustment_blocks.append(X_zone)
+            fe_log_parts.append(("zone", ["O", "D"], X_zone.shape[1]))
+
+    if adjustment_blocks:
+        X_augmented = hstack([X] + adjustment_blocks, format="csr")
+        all_coefs, alpha_used = _ridge_fit(X_augmented, y, sample_weight, alphas)
+
+        player_coefs = all_coefs[:n_player_cols]
+
+        # Log fixed effects
+        offset = n_player_cols
+        for name, labels, ncols in fe_log_parts:
+            fe_vals = all_coefs[offset:offset + ncols]
+            fe_str = ", ".join(f"{lbl}={v:+.4f}" for lbl, v in zip(labels, fe_vals))
+            print(f"  {name.capitalize()}-state FE [{metric_label}]: {fe_str}")
+            offset += ncols
+
+        return player_coefs, alpha_used
+
+    # Fallback: no adjustment
+    return _ridge_fit(X, y, sample_weight, alphas)
+
+
 def debug_rapm_inputs(X, y, w, stints_df):
     print("=== RAPM INPUT DEBUGGING ===")
     
@@ -519,13 +683,26 @@ def _stint_level_rows_from_events(
         return pd.DataFrame()
     
     # --- Merge event details ---
-    event_cols = ["event_id", "event_type", "event_team_id", "player_1_id", "player_2_id", "player_3_id", "x_coord", "y_coord", "shot_type", "secondary_type"]
+    event_cols = ["event_id", "event_type", "event_team_id", "player_1_id", "player_2_id", "player_3_id", "x_coord", "y_coord", "shot_type", "secondary_type", "zone_code"]
     event_cols = [c for c in event_cols if c in events_df.columns]
     
     # Avoid duplicate columns
     merge_cols = [c for c in event_cols if c not in df.columns or c == "event_id"]
     if merge_cols:
         df = df.merge(events_df[merge_cols], on="event_id", how="left")
+    
+    # --- Propagate running scores (for score-state adjustment) ---
+    has_score_cols = "home_score" in events_df.columns and "away_score" in events_df.columns
+    if has_score_cols:
+        score_cols = ["event_id", "home_score", "away_score"]
+        score_cols = [c for c in score_cols if c in events_df.columns]
+        if "home_score" not in df.columns:
+            df = df.merge(events_df[score_cols], on="event_id", how="left")
+        df["score_diff"] = (df["home_score"].fillna(0) - df["away_score"].fillna(0)).astype(int)
+        df["score_state"] = df["score_diff"].apply(_bucket_score_state)
+    else:
+        # Backward compatibility: if events don't have score columns, default to 0
+        df["score_state"] = 0
     
     # Polyfill shot_type from secondary_type if needed
     if "shot_type" not in df.columns and "secondary_type" in df.columns:
@@ -735,6 +912,16 @@ def _stint_level_rows_from_events(
                 "block_xg_swing_away": block_swing_away,
                 "face_xg_swing_home": face_swing_home,
                 "face_xg_swing_away": face_swing_away,
+                
+                # Score state: the dominant score state during this stint
+                "score_state": int(stint_df["score_state"].mode().iloc[0]) if "score_state" in stint_df.columns else 0,
+
+                # Zone start: zone of the first faceoff in this stint (default N)
+                "zone_start": _map_zone_start(
+                    stint_df.loc[stint_df["is_faceoff"], "zone_code"].iloc[0]
+                    if "zone_code" in stint_df.columns and stint_df["is_faceoff"].any()
+                    else None
+                ),
             })
         except Exception as e:
             print(f"DEBUG: Error appending stint: {e}")
@@ -1336,7 +1523,7 @@ def main():
                 elif _preflight_required_columns(data, ["net_corsi", "duration_s", "weight"], "corsi"):
                     y = data["net_corsi"].astype(float) / data["duration_s"].astype(float)
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
-                    coefs, alpha_used = _ridge_fit(X, y.values, data["weight"].values, alphas)
+                    coefs, alpha_used = _ridge_fit_adjusted(X, y.values, data["weight"].values, alphas, stints_df=data, metric_label="corsi_rapm_5v5")
                     coefs = coefs * 3600.0  # Convert to per-60 AFTER fitting
                     coef_map = {pid: float(coefs[player_to_col[pid]]) for pid in players_sorted}
                     metric_name = "corsi_rapm_5v5"
@@ -1394,7 +1581,7 @@ def main():
                 elif _preflight_required_columns(data, ["net_goals", "duration_s", "weight"], "goals"):
                     y = data["net_goals"].astype(float) / data["duration_s"].astype(float)
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
-                    coefs, alpha_used = _ridge_fit(X, y.values, data["weight"].values, alphas)
+                    coefs, alpha_used = _ridge_fit_adjusted(X, y.values, data["weight"].values, alphas, stints_df=data, metric_label="goals_rapm_5v5")
                     coefs = coefs * 3600.0
                     coef_map = {pid: float(coefs[player_to_col[pid]]) for pid in players_sorted}
                     metric_name = "goals_rapm_5v5"
@@ -1407,7 +1594,7 @@ def main():
                 elif _preflight_required_columns(data, ["net_a1", "duration_s", "weight"], "a1"):
                     y = data["net_a1"].astype(float) / data["duration_s"].astype(float)
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
-                    coefs, alpha_used = _ridge_fit(X, y.values, data["weight"].values, alphas)
+                    coefs, alpha_used = _ridge_fit_adjusted(X, y.values, data["weight"].values, alphas, stints_df=data, metric_label="primary_assist_rapm_5v5")
                     coefs = coefs * 3600.0
                     coef_map = {pid: float(coefs[player_to_col[pid]]) for pid in players_sorted}
                     metric_name = "primary_assist_rapm_5v5"
@@ -1420,7 +1607,7 @@ def main():
                 elif _preflight_required_columns(data, ["net_a2", "duration_s", "weight"], "a2"):
                     y = data["net_a2"].astype(float) / data["duration_s"].astype(float)
                     X = _build_sparse_X_net(data, player_to_col, home_cols, away_cols)
-                    coefs, alpha_used = _ridge_fit(X, y.values, data["weight"].values, alphas)
+                    coefs, alpha_used = _ridge_fit_adjusted(X, y.values, data["weight"].values, alphas, stints_df=data, metric_label="secondary_assist_rapm_5v5")
                     coefs = coefs * 3600.0
                     coef_map = {pid: float(coefs[player_to_col[pid]]) for pid in players_sorted}
                     metric_name = "secondary_assist_rapm_5v5"

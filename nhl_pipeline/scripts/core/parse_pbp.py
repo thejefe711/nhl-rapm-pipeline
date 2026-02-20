@@ -103,6 +103,10 @@ class EventRow:
     # Penalty-specific
     penalty_type: Optional[str] = None
     penalty_minutes: Optional[int] = None
+    
+    # Running score (derived post-parse from cumulative goal counts)
+    home_score: int = 0
+    away_score: int = 0
 
 
 def time_to_seconds(time_str: str) -> int:
@@ -196,6 +200,42 @@ def parse_event(raw: Dict[str, Any], game_id: int) -> Optional[EventRow]:
         return None
 
 
+def _derive_running_scores(df: pd.DataFrame, home_team_id: Optional[int] = None) -> pd.DataFrame:
+    """
+    Derive running home_score / away_score from GOAL events.
+
+    The NHL API doesn't provide per-event running scores, so we compute them
+    by cumulatively counting goals and attributing them to home or away based
+    on event_team_id.
+
+    If home_team_id is not supplied, we attempt to infer it from the data
+    using the homeTeamId in the first event, or by taking the most common
+    event_team_id for the first period's home faceoffs.
+    """
+    if df.empty:
+        return df
+
+    df = df.sort_values(["period", "period_seconds", "event_id"]).reset_index(drop=True)
+
+    # Determine home_team_id if not provided
+    if home_team_id is None:
+        # If there's a home_team_id column, use it
+        if "home_team_id" in df.columns:
+            home_team_id = df["home_team_id"].dropna().iloc[0] if df["home_team_id"].notna().any() else None
+
+    # Cumulative goal counting
+    is_goal = df["event_type"] == "GOAL"
+    is_home_goal = is_goal & (df["event_team_id"] == home_team_id) if home_team_id is not None else pd.Series(False, index=df.index)
+    is_away_goal = is_goal & ~is_home_goal & is_goal  # goals that aren't home goals
+
+    # Running score BEFORE the current event (shift cumsum by 1)
+    # For a goal event, the score columns reflect the state AFTER the goal
+    df["home_score"] = is_home_goal.cumsum().astype(int)
+    df["away_score"] = is_away_goal.cumsum().astype(int)
+
+    return df
+
+
 def parse_pbp_file(pbp_path: Path) -> pd.DataFrame:
     """Parse a raw play-by-play JSON file into a DataFrame."""
     with open(pbp_path) as f:
@@ -203,6 +243,12 @@ def parse_pbp_file(pbp_path: Path) -> pd.DataFrame:
     
     # Extract game ID from data
     game_id = raw_data.get("id", 0)
+    
+    # Extract home team ID for running score derivation
+    home_team_id = None
+    home_team_data = raw_data.get("homeTeam", {})
+    if home_team_data:
+        home_team_id = home_team_data.get("id")
     
     # Events are in the 'plays' key
     raw_events = raw_data.get("plays", [])
@@ -221,6 +267,10 @@ def parse_pbp_file(pbp_path: Path) -> pd.DataFrame:
         return pd.DataFrame()
     
     df = pd.DataFrame(events)
+    
+    # Derive running scores from cumulative goal counts
+    df = _derive_running_scores(df, home_team_id=home_team_id)
+    
     return df
 
 

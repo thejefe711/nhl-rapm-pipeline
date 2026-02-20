@@ -18,8 +18,8 @@
 - [ ] **Score-state adjustment** – Add `score_state` column to stints (bucketed: -2, -1, 0, +1, +2+) and include as a fixed effect in ridge regression in `compute_corsi_apm.py`. Without this, RAPM values are biased for players deployed in blowouts.
 - [ ] **Zone-start adjustment** – Add `zone_start_type` (offensive/defensive/neutral) as a fixed effect. Requires zone start data from PBP. Matters most for forwards.
 - [x] **Fix `DUCKDB_PATH`** in `compute_conditional_metrics.py` – now uses `Path(__file__).resolve().parent...`.
-- [ ] **Fix `DUCKDB_PATH`** in `build_shift_context.py` – still uses relative string.
-- [ ] **Fix season derivation** in `build_shift_context.py` – replace `SUBSTRING(game_id...)` string manipulation with a JOIN on the `games` table.
+- [x] **Fix `DUCKDB_PATH`** in `build_shift_context.py` – now uses `Path(__file__).resolve().parent...`.
+- [x] **Fix season derivation** in `build_shift_context.py` – now JOINs on the `games` table instead of `SUBSTRING(game_id...)`.
 
 ### Conditional Metrics (`compute_conditional_metrics.py`)
 - [x] **Fix Shutdown formula** – now uses `(-xGA_residual)` duration-weighted mean. Measures defensive suppression only.
@@ -30,8 +30,8 @@
 - [x] **Store sample size columns** – `n_shutdown_shifts`, `n_breaker_shifts`, `total_toi_seconds`, `is_reliable` added to `advanced_player_metrics`.
 
 ### API
-- [ ] **Fix use-after-close bug** in `api_server.py` `explain_player` – `_get_player_name(con, player_id)` is called after `con.close()`.
-- [ ] **Connection singleton** – replace per-request `_connect()` with a FastAPI lifespan-managed read-only connection.
+- [x] **Fix use-after-close bug** in `api_server.py` `explain_player` – `_get_player_name(con, player_id)` now called inside the `try` block before `con.close()`.
+- [x] **Connection singleton** – replaced per-request `_connect()` with a FastAPI lifespan-managed read-only connection stored in `_DB`.
 
 ---
 

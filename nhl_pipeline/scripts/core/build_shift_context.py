@@ -15,14 +15,14 @@ from pathlib import Path
 # ----------------------------
 # CONFIGURATION
 # ----------------------------
-DUCKDB_PATH = "nhl_pipeline/nhl_canonical.duckdb"
+DUCKDB_PATH = Path(__file__).resolve().parent.parent.parent / "nhl_canonical.duckdb"
 OUTPUT_TABLE = "shift_context_xg_corsi_positions"
 MIN_SHIFT_DURATION = 30
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 
 def main():
-    con = duckdb.connect(DUCKDB_PATH)
+    con = duckdb.connect(str(DUCKDB_PATH))
     
     print("Loading data...")
     # Identify RAPM metrics
@@ -46,7 +46,7 @@ def main():
         CREATE OR REPLACE TEMPORARY TABLE shift_stats_raw AS
         SELECT 
             s.game_id, 
-            SUBSTRING(CAST(s.game_id AS VARCHAR), 1, 4) || CAST(CAST(SUBSTRING(CAST(s.game_id AS VARCHAR), 1, 4) AS INTEGER) + 1 AS VARCHAR) as season,
+            g.season,
             s.player_id, 
             s.team_id,
             s.period,
@@ -58,6 +58,7 @@ def main():
             SUM(CASE WHEN e.event_team_id = s.team_id THEN 1 ELSE 0 END) as CF,
             SUM(CASE WHEN e.event_team_id != s.team_id THEN 1 ELSE 0 END) as CA
         FROM shifts s
+        JOIN games g ON s.game_id = g.game_id
         LEFT JOIN events e ON s.game_id = e.game_id 
             AND e.period = s.period
             AND e.period_seconds >= s.start_seconds 

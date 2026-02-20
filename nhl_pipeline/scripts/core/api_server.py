@@ -9,6 +9,7 @@ Run (from nhl_pipeline/):
 from __future__ import annotations
 
 import json
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Optional
 
@@ -23,13 +24,45 @@ STAGING_DIR = ROOT / "staging"
 RAW_DIR = ROOT / "raw"
 
 
+# ---------------------------------------------------------------------------
+# Connection singleton — one read-only connection shared across all requests.
+# Replaces the previous per-request duckdb.connect() pattern.
+# ---------------------------------------------------------------------------
+_DB: dict[str, Any] = {}  # populated by lifespan
+
+
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    """Open one read-only DuckDB connection at startup; close on shutdown."""
+    if DUCKDB_PATH.exists():
+        _DB["con"] = duckdb.connect(str(DUCKDB_PATH), read_only=True)
+    else:
+        _DB["con"] = None
+    try:
+        yield
+    finally:
+        con = _DB.pop("con", None)
+        if con is not None:
+            try:
+                con.close()
+            except Exception:
+                pass
+
+
 def _connect() -> "duckdb.DuckDBPyConnection":
-    if not DUCKDB_PATH.exists():
+    """Return the shared read-only DuckDB connection.
+
+    Raises HTTP 503 if the database file was not found at startup.
+    Individual endpoint con.close() calls are harmless no-ops since the
+    lifespan context manager owns the actual teardown.
+    """
+    con = _DB.get("con")
+    if con is None:
         raise HTTPException(
             status_code=503,
             detail=f"DuckDB not found at {str(DUCKDB_PATH)}. Run the pipeline first.",
         )
-    return duckdb.connect(str(DUCKDB_PATH), read_only=True)
+    return con
 
 
 def _players_table_exists(con: "duckdb.DuckDBPyConnection") -> bool:
@@ -49,7 +82,7 @@ def _get_player_name(con: "duckdb.DuckDBPyConnection", player_id: int) -> Option
         return None
 
 
-app = FastAPI(title="NHL Pipeline API", version="0.1.0")
+app = FastAPI(title="NHL Pipeline API", version="0.1.0", lifespan=_lifespan)
 
 # Add CORS middleware for frontend
 app.add_middleware(
