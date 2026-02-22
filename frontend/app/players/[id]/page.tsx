@@ -6,6 +6,7 @@ import Link from 'next/link';
 import RadarChart from '@/components/RadarChart';
 import {
     getPlayer, getPlayerRAPM, getPlayerExplanation, getPlayerProfile,
+    getConditionalMetrics, getLinePairs,
     PlayerDetail, RAPMRow, PlayerExplanation, PlayerProfile, PlayerMetric
 } from '@/lib/api';
 import styles from './page.module.css';
@@ -74,9 +75,30 @@ const METRIC_CATEGORIES = [
         title: 'Discipline',
         keys: ['penalties_drawn_rapm_5v5', 'penalties_committed_rapm_5v5'],
     },
+    {
+        id: 'situational',
+        title: 'Situational',
+        keys: ['shutdown_score_z', 'breaker_score_z', 'clutch_shutdown_z', 'clutch_breaker_z', 'psi_z', 'psi_twoway_z', 'elasticity_z'],
+    },
+    {
+        id: 'linemates',
+        title: 'Linemates',
+        keys: [],
+    },
 ];
 
+const CONDITIONAL_LABELS: Record<string, string> = {
+    shutdown_score_z: 'Shutdown Rank',
+    breaker_score_z: 'Breaker Rank',
+    clutch_shutdown_z: 'Clutch Shutdown',
+    clutch_breaker_z: 'Clutch Breaker',
+    psi_z: 'Partner Sensitivity',
+    psi_twoway_z: 'Two-way PSI (Partner)',
+    elasticity_z: 'Growth Elasticity',
+};
+
 function getMetricLabel(key: string): string {
+    if (CONDITIONAL_LABELS[key]) return CONDITIONAL_LABELS[key];
     return RAPM_METRICS.find(m => m.value === key)?.label || key;
 }
 
@@ -93,6 +115,8 @@ export default function PlayerDetailPage() {
     const [profile, setProfile] = useState<PlayerProfile | null>(null);
     const [rapmData, setRapmData] = useState<RAPMRow[]>([]);
     const [explanation, setExplanation] = useState<PlayerExplanation | null>(null);
+    const [conditionalMetrics, setConditionalMetrics] = useState<any | null>(null);
+    const [linePairs, setLinePairs] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isRapmLoading, setIsRapmLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -109,9 +133,16 @@ export default function PlayerDetailPage() {
                 setProfile(profileRes);
 
                 try {
-                    const explanationRes = await getPlayerExplanation(playerId);
-                    setExplanation(explanationRes);
-                } catch { /* not available */ }
+                    const [explanationRes, conditionalRes, pairsRes] = await Promise.all([
+                        getPlayerExplanation(playerId, profileRes.season).catch(() => null),
+                        getConditionalMetrics(playerId, profileRes.season).catch(() => null),
+                        getLinePairs(playerId, profileRes.season).catch(() => ({ pairs: [] }))
+                    ]);
+
+                    if (explanationRes) setExplanation(explanationRes);
+                    if (conditionalRes) setConditionalMetrics(conditionalRes.metrics);
+                    if (pairsRes) setLinePairs(pairsRes.pairs);
+                } catch { /* subsets might fail, it's okay */ }
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Failed to load player data');
             } finally {
@@ -316,45 +347,110 @@ export default function PlayerDetailPage() {
                             </div>
 
                             <div className={styles.metricsList}>
-                                {METRIC_CATEGORIES.find(c => c.id === activeCategory)?.keys.map(key => {
-                                    const m = metricsMap.get(key);
-                                    const pct = percentilesMap[key];
-                                    if (!m) return null;
-
-                                    return (
-                                        <div key={key} className={styles.metricRow}>
-                                            <div className={styles.metricInfo}>
-                                                <span className={styles.metricName}>{getMetricLabel(key)}</span>
-                                                <div className={`${styles.metricValue} ${m.value >= 0 ? styles.positive : styles.negative}`}>
-                                                    {m.value >= 0 ? '+' : ''}{m.value.toFixed(3)}
+                                {activeCategory === 'linemates' ? (
+                                    <div className={styles.linematesList}>
+                                        {linePairs.length > 0 ? linePairs.map(pair => (
+                                            <div key={pair.partner_id} className={styles.linemateRow}>
+                                                <div className={styles.linemateInfo}>
+                                                    <span className={styles.linemateName}>{pair.partner_name}</span>
+                                                    <span className={styles.linemateToi}>{Math.round(pair.toi_seconds / 60)} min overlap</span>
+                                                </div>
+                                                <div className={styles.linemateMetrics}>
+                                                    <div className={styles.linemateMetric}>
+                                                        <span className={styles.linemateLabel}>xGA/60</span>
+                                                        <span className={styles.linemateValue}>{pair.xga_per60.toFixed(2)}</span>
+                                                    </div>
+                                                    <div className={styles.linemateMetric}>
+                                                        <span className={styles.linemateLabel}>Chemistry</span>
+                                                        <span className={`${styles.linemateValue} ${pair.xga_delta_per60 <= 0 ? styles.positive : styles.negative}`}>
+                                                            {pair.xga_delta_per60 <= 0 ? '+' : '-'}{Math.abs(pair.xga_delta_per60).toFixed(2)}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            {pct && (
-                                                <div className={styles.percentileBar}>
-                                                    <div className={styles.percentileTrack}>
-                                                        <div
-                                                            className={styles.percentileFill}
-                                                            style={{
-                                                                width: `${pct.percentile}%`,
-                                                                background: pct.percentile >= 75
-                                                                    ? 'var(--positive)'
-                                                                    : pct.percentile >= 50
-                                                                        ? 'var(--accent)'
-                                                                        : pct.percentile >= 25
-                                                                            ? 'var(--warning)'
-                                                                            : 'var(--negative)',
-                                                            }}
-                                                        />
-                                                        <div className={styles.percentileMedian} />
+                                        )) : (
+                                            <div className={styles.noData}><p>No pairing data available (min 5 min overlap required).</p></div>
+                                        )}
+                                    </div>
+                                ) : activeCategory === 'situational' ? (
+                                    <div className={styles.situationalList}>
+                                        {conditionalMetrics ? METRIC_CATEGORIES.find(c => c.id === 'situational')?.keys.map(key => {
+                                            const val = conditionalMetrics[key];
+                                            const rawKey = key.replace('_z', '');
+                                            const rawVal = conditionalMetrics[rawKey];
+
+                                            return (
+                                                <div key={key} className={styles.metricRow}>
+                                                    <div className={styles.metricInfo}>
+                                                        <div className={styles.metricNameColumn}>
+                                                            <span className={styles.metricName}>{getMetricLabel(key)}</span>
+                                                            {rawVal !== undefined && (
+                                                                <span className={styles.metricSubtext}>Score: {rawVal.toFixed(3)}</span>
+                                                            )}
+                                                        </div>
+                                                        <div className={`${styles.metricValue} ${val >= 0 ? styles.positive : styles.negative}`}>
+                                                            {val >= 0 ? '+' : ''}{val.toFixed(2)}σ
+                                                        </div>
                                                     </div>
-                                                    <span className={styles.percentileLabel}>
-                                                        {Math.round(pct.percentile)}th
-                                                    </span>
+                                                    <div className={styles.percentileBar}>
+                                                        <div className={styles.percentileTrack}>
+                                                            <div
+                                                                className={styles.percentileFill}
+                                                                style={{
+                                                                    width: `${Math.max(0, Math.min(100, (val + 3) * 16.6))}%`,
+                                                                    background: val >= 1.0 ? 'var(--positive)' : val >= 0 ? 'var(--accent)' : val >= -1.0 ? 'var(--warning)' : 'var(--negative)',
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <span className={styles.percentileLabel}>Z-Score</span>
+                                                    </div>
                                                 </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                                            );
+                                        }) : (
+                                            <div className={styles.noData}><p>No situational metrics available for this player.</p></div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    METRIC_CATEGORIES.find(c => c.id === activeCategory)?.keys.map(key => {
+                                        const m = metricsMap.get(key);
+                                        const pct = percentilesMap[key];
+                                        if (!m) return null;
+
+                                        return (
+                                            <div key={key} className={styles.metricRow}>
+                                                <div className={styles.metricInfo}>
+                                                    <span className={styles.metricName}>{getMetricLabel(key)}</span>
+                                                    <div className={`${styles.metricValue} ${m.value >= 0 ? styles.positive : styles.negative}`}>
+                                                        {m.value >= 0 ? '+' : ''}{m.value.toFixed(3)}
+                                                    </div>
+                                                </div>
+                                                {pct && (
+                                                    <div className={styles.percentileBar}>
+                                                        <div className={styles.percentileTrack}>
+                                                            <div
+                                                                className={styles.percentileFill}
+                                                                style={{
+                                                                    width: `${pct.percentile}%`,
+                                                                    background: pct.percentile >= 75
+                                                                        ? 'var(--positive)'
+                                                                        : pct.percentile >= 50
+                                                                            ? 'var(--accent)'
+                                                                            : pct.percentile >= 25
+                                                                                ? 'var(--warning)'
+                                                                                : 'var(--negative)',
+                                                                }}
+                                                            />
+                                                            <div className={styles.percentileMedian} />
+                                                        </div>
+                                                        <span className={styles.percentileLabel}>
+                                                            {Math.round(pct.percentile)}th
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })
+                                )}
                             </div>
                         </section>
                     </div>

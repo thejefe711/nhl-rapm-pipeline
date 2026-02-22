@@ -212,3 +212,57 @@ export async function getStatsOverview() {
         return getMockStatsOverview();
     }
 }
+
+// Conditional Metrics (Phase 1)
+export interface ConditionalMetrics {
+    player_id: number;
+    season: string;
+    metrics: {
+        shutdown_score: number;
+        shutdown_score_z: number;
+        breaker_score: number;
+        breaker_score_z: number;
+        clutch_shutdown: number;
+        clutch_shutdown_z: number;
+        clutch_breaker: number;
+        clutch_breaker_z: number;
+        psi: number;
+        psi_z: number;
+        psi_twoway: number;
+        psi_twoway_z: number;
+        elasticity: number;
+        elasticity_z: number;
+        is_reliable: boolean;
+        total_toi_seconds: number;
+        [key: string]: any;
+    };
+}
+
+export async function getConditionalMetrics(playerId: number, season?: string) {
+    let url = `/api/player/${playerId}/conditional-metrics`;
+    if (season) url += `?season=${encodeURIComponent(season)}`;
+    return await fetchAPI<ConditionalMetrics>(url);
+}
+
+// Line Pairs (Phase 1)
+export interface DLinePair {
+    partner_id: number;
+    partner_name: string;
+    toi_seconds: number;
+    xga_per60: number;
+    league_avg_xga_per60: number;
+    xga_delta_per60: number;
+}
+
+export async function getLinePairs(playerId: number, season?: string, limit = 5) {
+    let url = `/api/player/${playerId}/line-pairs?limit=${limit}`;
+    if (season) url += `&season=${encodeURIComponent(season)}`;
+    return await fetchAPI<{ player_id: number; season: string; pairs: DLinePair[] }>(url);
+}
+
+// Conditional Leaderboard (Phase 1)
+export async function getConditionalLeaderboard(metric: string, season?: string, top = 20) {
+    let url = `/api/leaderboards/conditional?metric=${encodeURIComponent(metric)}&top=${top}`;
+    if (season) url += `&season=${encodeURIComponent(season)}`;
+    return await fetchAPI<{ metric: string; season: string; rows: any[] }>(url);
+}

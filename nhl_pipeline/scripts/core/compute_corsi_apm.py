@@ -1513,6 +1513,8 @@ def main():
                             "weight": dur,
                             "off_scale": off_scale,
                             "def_scale": def_scale,
+                            "score_state": s.get("score_state", 0),
+                            "zone_start": s.get("zone_start", "N"),
                         }
                     )
                 return pd.DataFrame(obs), off_cols, def_cols
@@ -1535,7 +1537,7 @@ def main():
                     obs_df, off_cols, def_cols = _special_teams_offdef_obs("corsi_home", "corsi_away")
                     if not obs_df.empty:
                         X = _build_sparse_X_off_def(obs_df, player_to_col, off_cols, def_cols)
-                        coefs, alpha_used = _ridge_fit(X, obs_df["y"].values.astype(float), obs_df["weight"].values.astype(float), alphas)
+                        coefs, alpha_used = _ridge_fit_adjusted(X, obs_df["y"].values.astype(float), obs_df["weight"].values.astype(float), alphas, stints_df=obs_df, metric_label="corsi_pp/pk")
                         off_map = {pid: float(coefs[2 * player_to_col[pid]]) for pid in players_sorted}
                         def_map = {pid: float(-coefs[2 * player_to_col[pid] + 1]) for pid in players_sorted}  # higher=better PK suppression
                         print(f"  Fit [corsi_pp/pk]: rows={len(obs_df):,} players={len(players_sorted):,} alpha={alpha_used:g}")
@@ -1547,6 +1549,11 @@ def main():
                     def_cols = [f"def_skater_{i}" for i in range(1, 7)]
                     valid = data[data["duration_s"] > 0].copy()
                     dur = valid["duration_s"].values
+                    
+                    # Score/Zone carry-over
+                    ss = valid["score_state"].values
+                    zs = valid["zone_start"].values
+
                     # Home offense obs: off=home, def=away
                     home_obs = pd.DataFrame()
                     for i, (hc, ac) in enumerate(zip(home_cols, away_cols)):
@@ -1554,6 +1561,9 @@ def main():
                         home_obs[def_cols[i]] = valid[ac].values
                     home_obs["y"] = valid["corsi_home"].values / dur
                     home_obs["weight"] = dur
+                    home_obs["score_state"] = ss
+                    home_obs["zone_start"] = zs
+
                     # Away offense obs: off=away, def=home
                     away_obs = pd.DataFrame()
                     for i, (hc, ac) in enumerate(zip(home_cols, away_cols)):
@@ -1561,12 +1571,16 @@ def main():
                         away_obs[def_cols[i]] = valid[hc].values
                     away_obs["y"] = valid["corsi_away"].values / dur
                     away_obs["weight"] = dur
+                    # For away team, score state is inverted
+                    away_obs["score_state"] = -ss
+                    away_obs["zone_start"] = zs # Zone start is shared/neutral relative to faceoff location
+
                     obs_df = pd.concat([home_obs, away_obs], ignore_index=True)
                     # Drop rows missing any players (shouldn't happen, but safe)
                     obs_df = obs_df.dropna(subset=[off_cols[0], def_cols[0]])
 
                     X = _build_sparse_X_off_def(obs_df, player_to_col, off_cols, def_cols)
-                    coefs, alpha_used = _ridge_fit(X, obs_df["y"].values.astype(float), obs_df["weight"].values.astype(float), alphas)
+                    coefs, alpha_used = _ridge_fit_adjusted(X, obs_df["y"].values.astype(float), obs_df["weight"].values.astype(float), alphas, stints_df=obs_df, metric_label="corsi_off/def")
                     coefs = coefs * 3600.0  # Convert to per-60 AFTER fitting
                     off_map = {pid: float(coefs[2 * player_to_col[pid]]) for pid in players_sorted}
                     def_map = {pid: float(-coefs[2 * player_to_col[pid] + 1]) for pid in players_sorted}  # higher=better suppression

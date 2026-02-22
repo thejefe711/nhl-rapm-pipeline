@@ -76,6 +76,8 @@ CREATE TABLE IF NOT EXISTS events (
     xg_model_version VARCHAR,
     xg_model_season VARCHAR,
     xg_scored_at TIMESTAMP,
+    home_score INTEGER DEFAULT 0,
+    away_score INTEGER DEFAULT 0,
     PRIMARY KEY (game_id, event_id)
 );
 
@@ -248,6 +250,12 @@ def load_to_duckdb(
         conn.execute("ALTER TABLE events ADD COLUMN xg_model_season VARCHAR")
     if "xg_scored_at" not in event_cols:
         conn.execute("ALTER TABLE events ADD COLUMN xg_scored_at TIMESTAMP")
+    # Migration safety for score columns
+    if "home_score" not in event_cols:
+        conn.execute("ALTER TABLE events ADD COLUMN home_score INTEGER DEFAULT 0")
+    if "away_score" not in event_cols:
+        conn.execute("ALTER TABLE events ADD COLUMN away_score INTEGER DEFAULT 0")
+        
     # Migration safety for older DBs that predate player position.
     player_cols = set(conn.execute("PRAGMA table_info(players)").df()["name"].tolist())
     if "position" not in player_cols:
@@ -305,12 +313,19 @@ def load_to_duckdb(
         # Calculate xG on the fly
         events_df = add_xg_to_events(events_df, season, models_dir, allow_season_fallback)
         
+        # Ensure score columns exist
+        if "home_score" not in events_df.columns:
+            events_df["home_score"] = 0
+        if "away_score" not in events_df.columns:
+            events_df["away_score"] = 0
+            
         events_to_load = events_df[[
             "game_id", "event_id", "event_type", "period",
             "period_seconds", "game_seconds", "x_coord", "y_coord",
             "zone_code", "event_team_id", "player_1_id", "player_2_id",
             "player_3_id", "goalie_id", "shot_type", "strength", "empty_net", "xg",
-            "xg_model_version", "xg_model_season", "xg_scored_at"
+            "xg_model_version", "xg_model_season", "xg_scored_at",
+            "home_score", "away_score"
         ]]
         
         conn.execute("DELETE FROM events WHERE game_id = ?", [int(game_id)])

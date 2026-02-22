@@ -451,3 +451,82 @@
     .playerNameRow { justify-content: center; }
     .headerStats { width: 100%; justify-content: center; }
 }
+
+/* ── Linemates Section ── */
+.linematesList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+}
+
+.linemateRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sp-4);
+    background: var(--bg-1);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    transition: transform var(--duration-fast) var(--ease);
+}
+.linemateRow:hover {
+    transform: translateX(4px);
+    border-color: var(--accent);
+}
+
+.linemateInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.linemateName {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--text-0);
+}
+.linemateToi {
+    font-size: var(--text-xs);
+    color: var(--text-3);
+    font-family: var(--font-mono);
+}
+
+.linemateMetrics {
+    display: flex;
+    gap: var(--sp-5);
+}
+.linemateMetric {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+.linemateLabel {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: var(--text-3);
+}
+.linemateValue {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 700;
+}
+
+/* ── Situational Section ── */
+.situationalList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+}
+
+.metricNameColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.metricSubtext {
+    font-size: 10px;
+    color: var(--text-3);
+    font-weight: 600;
+}
