@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import RadarChart from '@/components/RadarChart';
+import ReliabilityBadge from '@/components/ReliabilityBadge';
 import {
     getPlayer, getPlayerRAPM, getPlayerExplanation, getPlayerProfile,
     getConditionalMetrics, getLinePairs,
@@ -31,6 +32,8 @@ const RAPM_METRICS = [
     { value: 'secondary_assist_rapm_5v5', label: 'Secondary Assists', category: 'Playmaking' },
     { value: 'xg_primary_assist_on_goals_rapm_5v5', label: 'Primary Assist xG', category: 'Playmaking' },
     { value: 'xg_secondary_assist_on_goals_rapm_5v5', label: 'Secondary Assist xG', category: 'Playmaking' },
+    { value: 'xg_pp_off_rapm', label: 'PP Offense xG', category: 'Special Teams' },
+    { value: 'xg_pk_def_rapm', label: 'PK Defense xG', category: 'Special Teams' },
 ];
 
 const RADAR_METRICS = [
@@ -79,6 +82,11 @@ const METRIC_CATEGORIES = [
         id: 'situational',
         title: 'Situational',
         keys: ['shutdown_score_z', 'breaker_score_z', 'clutch_shutdown_z', 'clutch_breaker_z', 'psi_z', 'psi_twoway_z', 'elasticity_z'],
+    },
+    {
+        id: 'special_teams',
+        title: 'Special Teams',
+        keys: ['xg_pp_off_rapm', 'xg_pk_def_rapm'],
     },
     {
         id: 'linemates',
@@ -374,6 +382,14 @@ export default function PlayerDetailPage() {
                                     </div>
                                 ) : activeCategory === 'situational' ? (
                                     <div className={styles.situationalList}>
+                                        {conditionalMetrics && (!conditionalMetrics.is_reliable || conditionalMetrics.total_toi_seconds < 1800) && (
+                                            <div style={{ paddingBottom: '16px' }}>
+                                                <ReliabilityBadge
+                                                    isReliable={conditionalMetrics.is_reliable}
+                                                    toiSeconds={conditionalMetrics.total_toi_seconds}
+                                                />
+                                            </div>
+                                        )}
                                         {conditionalMetrics ? METRIC_CATEGORIES.find(c => c.id === 'situational')?.keys.map(key => {
                                             const val = conditionalMetrics[key];
                                             const rawKey = key.replace('_z', '');

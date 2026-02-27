@@ -3,7 +3,7 @@
  * All values are realistic but synthetic.
  */
 
-export const MOCK_SEASONS = ['20192020', '20202021', '20212022', '20222023', '20232024', '20242025'];
+export const MOCK_SEASONS = ['20192020', '20202021', '20212022', '20222023', '20232024', '20242025', '20252026'];
 
 export interface MockPlayer {
     player_id: number;

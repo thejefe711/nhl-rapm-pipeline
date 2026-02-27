@@ -8,7 +8,7 @@ Run (from nhl_pipeline/):
 
 from __future__ import annotations
 
-import json
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Optional
@@ -84,10 +84,16 @@ def _get_player_name(con: "duckdb.DuckDBPyConnection", player_id: int) -> Option
 
 app = FastAPI(title="NHL Pipeline API", version="0.1.0", lifespan=_lifespan)
 
+cors_origins_str = os.environ.get(
+    "CORS_ORIGINS",
+    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
+)
+allow_origins = [o.strip() for o in cors_origins_str.split(",") if o.strip()]
+
 # Add CORS middleware for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -453,20 +459,26 @@ def leaderboard(
     metric: str = Query(..., min_length=1, description="Metric name in apm_results (e.g. corsi_rapm_5v5)"),
     season: Optional[str] = Query(default=None, description="Optional season like 20242025"),
     top: int = Query(default=20, ge=1, le=200),
+    min_toi: int = Query(default=0, ge=0, description="Minimum 5v5 TOI seconds to include player"),
 ) -> dict[str, Any]:
     """
     Generic leaderboard over `apm_results` using SQL JOIN for performance.
     """
     con = _connect()
     sql = f"""
-        SELECT a.season, a.player_id, a.value, a.games_count, a.events_count, p.full_name
+        SELECT a.season, a.player_id, a.value, p.games_count, a.toi_seconds, a.events_count, p.full_name
         FROM apm_results a
         LEFT JOIN players p ON a.player_id = p.player_id
         WHERE a.metric_name = ?
         {"AND a.season = ?" if season else ""}
+        {"AND a.toi_seconds >= ?" if min_toi > 0 else ""}
         ORDER BY a.value DESC
     """
-    params = [metric, season] if season else [metric]
+    params: list = [metric]
+    if season:
+        params.append(season)
+    if min_toi > 0:
+        params.append(min_toi)
     df = con.execute(sql, params).df()
 
     if df.empty:
@@ -733,37 +745,49 @@ def player_profile(
         if full:
             player_data["full_name"] = full
 
-    # Get all RAPM metrics for this player+season
+    # Get all RAPM metrics and their percentiles for this player+season
+    # NOTE: games_count in apm_results is the total games the RAPM model processed
+    # for the season (not the player's individual games). We get the real per-player
+    # games_count from the players table instead.
     metrics_df = con.execute(
         """
-        SELECT metric_name, value, games_count, toi_seconds, events_count
-        FROM apm_results
-        WHERE player_id = ? AND season = ?
+        WITH ranked AS (
+            SELECT 
+                a.player_id,
+                a.metric_name, 
+                a.value, 
+                p.games_count,
+                a.toi_seconds, 
+                a.events_count,
+                PERCENT_RANK() OVER (PARTITION BY a.metric_name ORDER BY a.value) * 100.0 AS percentile,
+                COUNT(*) OVER (PARTITION BY a.metric_name) AS total_players
+            FROM apm_results a
+            LEFT JOIN players p ON a.player_id = p.player_id
+            WHERE a.season = ?
+        )
+        SELECT * FROM ranked 
+        WHERE player_id = ?
         ORDER BY metric_name
         """,
-        [int(player_id), season],
+        [season, int(player_id)],
     ).df()
 
-    metrics_list = metrics_df.to_dict(orient="records") if not metrics_df.empty else []
-
-    # Get percentile ranks: for each metric, what percentile is this player in?
+    metrics_list = []
     percentiles: dict[str, Any] = {}
-    for m in metrics_list:
-        mn = m["metric_name"]
-        pct_row = con.execute(
-            """
-            SELECT
-                COUNT(*) FILTER (WHERE value <= ?) * 100.0 / COUNT(*) AS percentile,
-                COUNT(*) as total_players
-            FROM apm_results
-            WHERE metric_name = ? AND season = ?
-            """,
-            [m["value"], mn, season],
-        ).fetchone()
-        if pct_row:
+    
+    if not metrics_df.empty:
+        for _, row in metrics_df.iterrows():
+            mn = row["metric_name"]
+            metrics_list.append({
+                "metric_name": mn,
+                "value": row["value"],
+                "games_count": row["games_count"],
+                "toi_seconds": row["toi_seconds"],
+                "events_count": row["events_count"]
+            })
             percentiles[mn] = {
-                "percentile": round(float(pct_row[0]), 1),
-                "total_players": int(pct_row[1]),
+                "percentile": round(float(row["percentile"]), 1),
+                "total_players": int(row["total_players"]),
             }
 
     # Get career history (all seasons for corsi_rapm_5v5)
@@ -876,6 +900,7 @@ def conditional_leaderboard(
     season: Optional[str] = Query(default=None),
     position: Optional[str] = Query(default=None),
     top: int = Query(default=20, ge=1, le=100),
+    min_toi: int = Query(default=0, ge=0, description="Minimum 5v5 TOI seconds to include player"),
 ) -> dict[str, Any]:
     """
     Leaderboard for situational metrics with z-score normalization.
@@ -887,7 +912,7 @@ def conditional_leaderboard(
 
     # Sanitize metric column name - restricted to valid z-score columns
     valid_metrics = {
-        "shutdown_score_z", "breaker_score_z", "clutch_shutdown_z", 
+        "shutdown_score_z", "breaker_score_z", "clutch_shutdown_z",
         "clutch_breaker_z", "psi_z", "psi_twoway_z", "elasticity_z"
     }
     if metric not in valid_metrics:
@@ -898,10 +923,16 @@ def conditional_leaderboard(
         FROM advanced_player_metrics
         WHERE season = ?
         {"AND position = ?" if position else ""}
+        {"AND total_toi_seconds >= ?" if min_toi > 0 else ""}
         ORDER BY {metric} DESC
         LIMIT ?
     """
-    params = [season, position, int(top)] if position else [season, int(top)]
+    params: list = [season]
+    if position:
+        params.append(position)
+    if min_toi > 0:
+        params.append(min_toi)
+    params.append(int(top))
     df = con.execute(sql, params).df()
 
     return {

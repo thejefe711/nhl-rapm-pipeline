@@ -120,12 +120,17 @@ export interface LeaderboardRow {
     full_name: string | null;
     games_count?: number;
     events_count?: number;
+    is_reliable?: boolean;
+    total_toi_seconds?: number;
 }
 
-export async function getLeaderboard(metric: string, season?: string, top = 20) {
+export async function getLeaderboard(metric: string, season?: string, top = 20, minToi = 0) {
     let url = `/api/leaderboards?metric=${encodeURIComponent(metric)}&top=${top}`;
     if (season) {
         url += `&season=${encodeURIComponent(season)}`;
+    }
+    if (minToi > 0) {
+        url += `&min_toi=${minToi}`;
     }
     try {
         return await fetchAPI<{ season: string | null; metric: string; top: number; rows: LeaderboardRow[] }>(url);
@@ -261,8 +266,10 @@ export async function getLinePairs(playerId: number, season?: string, limit = 5)
 }
 
 // Conditional Leaderboard (Phase 1)
-export async function getConditionalLeaderboard(metric: string, season?: string, top = 20) {
+export async function getConditionalLeaderboard(metric: string, season?: string, position?: string, top = 20, minToi = 0) {
     let url = `/api/leaderboards/conditional?metric=${encodeURIComponent(metric)}&top=${top}`;
     if (season) url += `&season=${encodeURIComponent(season)}`;
+    if (position && position !== 'All') url += `&position=${encodeURIComponent(position)}`;
+    if (minToi > 0) url += `&min_toi=${minToi}`;
     return await fetchAPI<{ metric: string; season: string; rows: any[] }>(url);
 }

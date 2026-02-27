@@ -1,0 +1,13 @@
+# Production dependencies — installed by Railway (NIXPACKS)
+# Do NOT add dev/research tools here (mlflow, optuna, etc.)
+
+fastapi
+uvicorn[standard]
+duckdb
+pandas
+numpy
+scipy
+scikit-learn
+pykalman
+joblib
+python-dotenv

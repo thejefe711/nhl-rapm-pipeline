@@ -176,9 +176,9 @@ def run_rapm(season: str | None = None, extra_args: list[str] | None = None):
     for i, s in enumerate(seasons, 1):
         season_start = time.time()
         pct = f"[{i}/{total}]"
-        print(f"\n{'─'*60}")
+        print(f"\n{'-'*60}")
         print(f"  {pct} Season {s}  (elapsed: {_fmt_duration(time.time() - overall_start)})")
-        print(f"{'─'*60}")
+        print(f"{'-'*60}")
 
         cmd = [sys.executable, str(rapm_script), "--season", s] + base_args
         try:

@@ -3,7 +3,8 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { getLeaderboard, getSeasons, LeaderboardRow } from '@/lib/api';
+import { getLeaderboard, getSeasons, getConditionalLeaderboard, LeaderboardRow } from '@/lib/api';
+import ReliabilityBadge from '@/components/ReliabilityBadge';
 import styles from './page.module.css';
 
 const METRIC_CATEGORIES = [
@@ -69,6 +70,19 @@ const METRIC_CATEGORIES = [
             { value: 'penalties_committed_rapm_5v5', label: 'Taken', description: 'Penalty avoidance (lower better)' },
         ],
     },
+    {
+        id: 'situational',
+        label: 'Situational',
+        metrics: [
+            { value: 'shutdown_score_z', label: 'Shutdown Rank', description: 'Defensive suppression against elite competition' },
+            { value: 'breaker_score_z', label: 'Breaker Rank', description: 'Offensive generation against elite competition' },
+            { value: 'clutch_shutdown_z', label: 'Clutch Shutdown', description: 'Defensive suppression in close games (score diff <= 1)' },
+            { value: 'clutch_breaker_z', label: 'Clutch Breaker', description: 'Offensive generation in close games (score diff <= 1)' },
+            { value: 'psi_z', label: 'Independence (low PSI)', description: 'Performance independent of linemates (lower PSI is better)' },
+            { value: 'psi_twoway_z', label: 'Two-way PSI', description: 'Two-way performance dependence on linemates' },
+            { value: 'elasticity_z', label: 'Elasticity', description: 'Growth potential with more ice time' },
+        ],
+    },
 ];
 
 export default function LeaderboardsPage() {
@@ -85,6 +99,7 @@ function LeaderboardsContent() {
 
     const [seasons, setSeasons] = useState<string[]>([]);
     const [selectedSeason, setSelectedSeason] = useState<string>('');
+    const [selectedPosition, setSelectedPosition] = useState<string>('All');
     const [selectedMetric, setSelectedMetric] = useState(initialMetric);
     const [activeCategory, setActiveCategory] = useState(() => {
         const cat = METRIC_CATEGORIES.find(c => c.metrics.some(m => m.value === initialMetric));
@@ -92,6 +107,7 @@ function LeaderboardsContent() {
     });
     const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [minToi, setMinToi] = useState(3600); // default: ~10 GP
 
     useEffect(() => {
         async function loadSeasons() {
@@ -113,7 +129,12 @@ function LeaderboardsContent() {
             if (!selectedSeason) return;
             setIsLoading(true);
             try {
-                const data = await getLeaderboard(selectedMetric, selectedSeason, 50);
+                let data;
+                if (activeCategory === 'situational') {
+                    data = await getConditionalLeaderboard(selectedMetric, selectedSeason, selectedPosition, 50, minToi);
+                } else {
+                    data = await getLeaderboard(selectedMetric, selectedSeason, 50, minToi);
+                }
                 setLeaderboard(data.rows);
             } catch (err) {
                 console.error('Failed to load leaderboard:', err);
@@ -123,7 +144,7 @@ function LeaderboardsContent() {
             }
         }
         loadLeaderboard();
-    }, [selectedSeason, selectedMetric]);
+    }, [selectedSeason, selectedMetric, activeCategory, selectedPosition, minToi]);
 
     const handleCategoryChange = (catId: string) => {
         setActiveCategory(catId);
@@ -192,6 +213,37 @@ function LeaderboardsContent() {
                                 </option>
                             ))}
                         </select>
+                        {activeCategory === 'situational' && (
+                            <select
+                                className={styles.seasonSelect}
+                                value={selectedPosition}
+                                onChange={(e) => setSelectedPosition(e.target.value)}
+                            >
+                                <option value="All">All Positions</option>
+                                <option value="F">Forward</option>
+                                <option value="D">Defenseman</option>
+                                <option value="L">Left Wing</option>
+                                <option value="R">Right Wing</option>
+                                <option value="C">Center</option>
+                            </select>
+                        )}
+                    </div>
+                    <div className={styles.qualifierRow}>
+                        <span className={styles.qualifierLabel}>Min. Qualifier:</span>
+                        {[
+                            { label: 'All', toi: 0 },
+                            { label: '10+ GP', toi: 3600 },
+                            { label: '20+ GP', toi: 7200 },
+                            { label: '30+ GP', toi: 10800 },
+                        ].map(opt => (
+                            <button
+                                key={opt.label}
+                                className={`${styles.qualifierBtn} ${minToi === opt.toi ? styles.activeQualifier : ''}`}
+                                onClick={() => setMinToi(opt.toi)}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
                     </div>
 
                     {currentMetricInfo && (
@@ -216,16 +268,6 @@ function LeaderboardsContent() {
                         </div>
                     ) : (
                         <>
-                            {leaderboard[0]?.games_count && leaderboard[0].games_count < 100 && (
-                                <div className={styles.dataWarning}>
-                                    <span className={styles.warningIcon}>!</span>
-                                    <div>
-                                        <strong>Limited Sample Size</strong>
-                                        <p>Computed from {leaderboard[0].games_count} games. Full-season data provides more reliable estimates.</p>
-                                    </div>
-                                </div>
-                            )}
-
                             {/* Top 3 Podium */}
                             <div className={styles.podium}>
                                 {leaderboard.slice(0, 3).map((row, index) => (
@@ -243,6 +285,11 @@ function LeaderboardsContent() {
                                         <h3 className={styles.podiumName}>
                                             {row.full_name || `Player #${row.player_id}`}
                                         </h3>
+                                        {activeCategory === 'situational' && (
+                                            <div style={{ marginTop: '4px', marginBottom: '4px', display: 'flex', justifyContent: 'center' }}>
+                                                <ReliabilityBadge isReliable={row.is_reliable ?? true} toiSeconds={row.total_toi_seconds} />
+                                            </div>
+                                        )}
                                         <div className={`${styles.podiumValue} ${row.value >= 0 ? styles.positive : styles.negative}`}>
                                             {row.value >= 0 ? '+' : ''}{row.value.toFixed(3)}
                                         </div>
@@ -266,6 +313,11 @@ function LeaderboardsContent() {
                                             <span className={styles.playerName}>
                                                 {row.full_name || `Player #${row.player_id}`}
                                             </span>
+                                            {activeCategory === 'situational' && (
+                                                <div style={{ marginLeft: '8px' }}>
+                                                    <ReliabilityBadge isReliable={row.is_reliable ?? true} toiSeconds={row.total_toi_seconds} />
+                                                </div>
+                                            )}
                                         </div>
                                         <div className={styles.valueCell}>
                                             <div className={styles.valueBar}>

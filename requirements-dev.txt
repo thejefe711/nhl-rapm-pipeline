@@ -1,0 +1,8 @@
+# Local dev + research tools — never installed on production (Railway ignores this file)
+# Install with: pip install -r requirements-dev.txt
+
+-r requirements.txt
+
+# Hyperparameter search & experiment tracking
+mlflow
+optuna
