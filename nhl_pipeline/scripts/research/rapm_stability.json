@@ -1,0 +1,840 @@
+{
+  "stability_results": [
+    {
+      "metric": "corsi_def_rapm_5v5",
+      "r": 0.28,
+      "r2": 0.078,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 142,
+      "signal_grade": "NOISE",
+      "note": "Do not ship -- likely overfitting or role artifact",
+      "shrinkage_lambda": 0.28,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.308,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.38,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.394,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.363,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.261,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "corsi_off_rapm_5v5",
+      "r": 0.362,
+      "r2": 0.131,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 144,
+      "signal_grade": "WEAK",
+      "note": "Exploratory only -- do not feature on leaderboards",
+      "shrinkage_lambda": 0.362,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.507,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.545,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.423,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.446,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.401,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "corsi_rapm_5v5",
+      "r": 0.396,
+      "r2": 0.156,
+      "p_value": 0.0,
+      "n_player_pairs": 3631,
+      "n_season_pairs": 5,
+      "n_outliers": 141,
+      "signal_grade": "WEAK",
+      "note": "Exploratory only -- do not feature on leaderboards",
+      "shrinkage_lambda": 0.396,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.394,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.49,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.464,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.495,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.26,
+          "n": 673
+        }
+      ]
+    },
+    {
+      "metric": "giveaway_to_xg_swing_rapm_5v5_w10",
+      "r": 0.049,
+      "r2": 0.002,
+      "p_value": 0.0033,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 145,
+      "signal_grade": "NOISE",
+      "note": "Do not ship -- likely overfitting or role artifact",
+      "shrinkage_lambda": 0.049,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.104,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.116,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.013,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.019,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": -0.003,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "goals_rapm_5v5",
+      "r": 0.206,
+      "r2": 0.043,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 146,
+      "signal_grade": "NOISE",
+      "note": "Do not ship -- likely overfitting or role artifact",
+      "shrinkage_lambda": 0.206,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.235,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.182,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.206,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.256,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.153,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "hd_xg_def_rapm_5v5_ge020",
+      "r": 0.332,
+      "r2": 0.11,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 143,
+      "signal_grade": "WEAK",
+      "note": "Exploratory only -- do not feature on leaderboards",
+      "shrinkage_lambda": 0.332,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.274,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.329,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.37,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.385,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.301,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "hd_xg_off_rapm_5v5_ge020",
+      "r": 0.551,
+      "r2": 0.303,
+      "p_value": NaN,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 135,
+      "signal_grade": "MODERATE",
+      "note": "Ship with reliability warning",
+      "shrinkage_lambda": 0.551,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.529,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.572,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.555,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.605,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.529,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "hd_xg_rapm_5v5_ge020",
+      "r": 0.319,
+      "r2": 0.101,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 146,
+      "signal_grade": "WEAK",
+      "note": "Exploratory only -- do not feature on leaderboards",
+      "shrinkage_lambda": 0.319,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.422,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.396,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.349,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.432,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.446,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "penalties_committed_rapm_5v5",
+      "r": 0.309,
+      "r2": 0.096,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 144,
+      "signal_grade": "WEAK",
+      "note": "Exploratory only -- do not feature on leaderboards",
+      "shrinkage_lambda": 0.309,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.277,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.329,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.371,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.335,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.201,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "penalties_drawn_rapm_5v5",
+      "r": 0.207,
+      "r2": 0.043,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 146,
+      "signal_grade": "NOISE",
+      "note": "Do not ship -- likely overfitting or role artifact",
+      "shrinkage_lambda": 0.207,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.189,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.233,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.252,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.186,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.159,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "primary_assist_rapm_5v5",
+      "r": 0.205,
+      "r2": 0.042,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 145,
+      "signal_grade": "NOISE",
+      "note": "Do not ship -- likely overfitting or role artifact",
+      "shrinkage_lambda": 0.205,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.225,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.18,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.219,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.25,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.148,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "secondary_assist_rapm_5v5",
+      "r": 0.214,
+      "r2": 0.046,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 144,
+      "signal_grade": "NOISE",
+      "note": "Do not ship -- likely overfitting or role artifact",
+      "shrinkage_lambda": 0.214,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.251,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.192,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.2,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.265,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.165,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "takeaway_to_xg_swing_rapm_5v5_w10",
+      "r": 0.048,
+      "r2": 0.002,
+      "p_value": 0.004,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 145,
+      "signal_grade": "NOISE",
+      "note": "Do not ship -- likely overfitting or role artifact",
+      "shrinkage_lambda": 0.048,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.029,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.004,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.096,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.06,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.074,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "turnover_to_xg_swing_rapm_5v5_w10",
+      "r": 0.085,
+      "r2": 0.007,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 148,
+      "signal_grade": "NOISE",
+      "note": "Do not ship -- likely overfitting or role artifact",
+      "shrinkage_lambda": 0.085,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.075,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.109,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.088,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.068,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.082,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "xg_def_rapm_5v5",
+      "r": 0.335,
+      "r2": 0.112,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 143,
+      "signal_grade": "WEAK",
+      "note": "Exploratory only -- do not feature on leaderboards",
+      "shrinkage_lambda": 0.335,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.282,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.333,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.371,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.388,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.299,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "xg_off_rapm_5v5",
+      "r": 0.542,
+      "r2": 0.294,
+      "p_value": NaN,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 135,
+      "signal_grade": "MODERATE",
+      "note": "Ship with reliability warning",
+      "shrinkage_lambda": 0.542,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.524,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.57,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.549,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.594,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.509,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "xg_primary_assist_on_goals_rapm_5v5",
+      "r": 0.173,
+      "r2": 0.03,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 146,
+      "signal_grade": "NOISE",
+      "note": "Do not ship -- likely overfitting or role artifact",
+      "shrinkage_lambda": 0.173,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.177,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.131,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.194,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.238,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.118,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "xg_rapm_5v5",
+      "r": 0.333,
+      "r2": 0.111,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 144,
+      "signal_grade": "WEAK",
+      "note": "Exploratory only -- do not feature on leaderboards",
+      "shrinkage_lambda": 0.333,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.425,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.41,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.354,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.412,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.374,
+          "n": 684
+        }
+      ]
+    },
+    {
+      "metric": "xg_secondary_assist_on_goals_rapm_5v5",
+      "r": 0.179,
+      "r2": 0.032,
+      "p_value": 0.0,
+      "n_player_pairs": 3642,
+      "n_season_pairs": 5,
+      "n_outliers": 144,
+      "signal_grade": "NOISE",
+      "note": "Do not ship -- likely overfitting or role artifact",
+      "shrinkage_lambda": 0.179,
+      "pair_breakdown": [
+        {
+          "season_n": "20202021",
+          "season_n1": "20212022",
+          "r": 0.199,
+          "n": 748
+        },
+        {
+          "season_n": "20212022",
+          "season_n1": "20222023",
+          "r": 0.152,
+          "n": 754
+        },
+        {
+          "season_n": "20222023",
+          "season_n1": "20232024",
+          "r": 0.166,
+          "n": 734
+        },
+        {
+          "season_n": "20232024",
+          "season_n1": "20242025",
+          "r": 0.244,
+          "n": 722
+        },
+        {
+          "season_n": "20242025",
+          "season_n1": "20252026",
+          "r": 0.135,
+          "n": 684
+        }
+      ]
+    }
+  ]
+}

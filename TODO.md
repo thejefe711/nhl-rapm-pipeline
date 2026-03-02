@@ -47,25 +47,25 @@
 - [x] `GET /api/player/{id}/conditional-metrics?season=` – returns row from `advanced_player_metrics` with z-scores, raw scores, sample sizes, `is_reliable` flag.
 - [x] `GET /api/leaderboards/conditional?metric=&season=&position=&top=` – top-N by any z-scored conditional metric, filterable by position.
 - [x] `GET /api/player/{id}/line-pairs?season=` – returns top linemates by TOI, with xGF/60, xGA/60, chemistry delta.
-- [ ] **N+1 percentile fix** in `player_profile` – replace per-metric loop with a single window function query.
-- [ ] **CORS origins via env var** – move hardcoded `localhost:3000` to `CORS_ORIGINS` in `.env`.
+- [x] **N+1 percentile fix** in `player_profile` – replace per-metric loop with a single window function query.
+- [x] **CORS origins via env var** – move hardcoded `localhost:3000` to `CORS_ORIGINS` in `.env`.
 
 ### Frontend
 - [x] **TypeScript types** – add `ConditionalMetrics`, `LinePair`, `ChemistryDelta` interfaces to `lib/api.ts`.
 - [x] **"Situational" tab** on player detail page – show Shutdown, Breaker, Upside/Floor PSI, Elasticity with percentile bars and reliability warnings.
-- [ ] **"Special Teams" tab** on player detail page – surface `xg_pp_off_rapm` / `xg_pk_def_rapm` (already computed, not displayed).
+- [x] **"Special Teams" tab** on player detail page – surface `xg_pp_off_rapm` / `xg_pk_def_rapm` (already computed, not displayed).
 - [x] **"Linemates" section** on player detail page – top 5 linemates by TOI with xGF/60, xGA/60, chemistry delta.
-- [ ] **"Situational" category** on leaderboards page – Shutdown / Breaker / Independence (low PSI) / Elasticity, with position filter.
-- [ ] **Glossary entries** – add definitions for Shutdown, Breaker, PSI (Upside/Floor), Elasticity, Chemistry Delta.
-- [ ] **Reliability warning component** – reusable badge shown when `is_reliable = false` or `n_shifts < threshold`.
+- [x] **"Situational" category** on leaderboards page – Shutdown / Breaker / Independence (low PSI) / Elasticity, with position filter.
+- [x] **Glossary entries** – add definitions for Shutdown, Breaker, PSI (Upside/Floor), Elasticity, Chemistry Delta.
+- [x] **Reliability warning component** – reusable badge shown when `is_reliable = false` or `n_shifts < threshold`.
 
 ---
 
 ## P1 – Scalability / Performance
-- [ ] Single xG parquet read per season (or filter by `game_id`); avoid re-read per worker
-- [ ] Reduce overlap-join cost in shift context (pre-bucket or lineup/event-on-ice grain)
-- [ ] Push `compute_conditional_metrics.py` aggregations into DuckDB SQL `GROUP BY` instead of Python loop over full table load
-- [ ] Runtime instrumentation: per-stage timing, rows processed, memory stats
+- [x] Single xG parquet read per season (or filter by `game_id`); avoid re-read per worker
+- [x] Reduce overlap-join cost in shift context (pre-bucket or lineup/event-on-ice grain)
+- [x] Push `compute_conditional_metrics.py` aggregations into DuckDB SQL `GROUP BY` instead of Python loop over full table load
+- [x] Runtime instrumentation: per-stage timing, rows processed, memory stats
 
 ---
 

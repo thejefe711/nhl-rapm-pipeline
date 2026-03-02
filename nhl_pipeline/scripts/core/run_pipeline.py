@@ -25,8 +25,31 @@ import sys
 import time
 import argparse
 import subprocess
+import tracemalloc
 from pathlib import Path
 from contextlib import contextmanager
+
+
+@contextmanager
+def track_stage(stage_name: str):
+    print(f"\n{'=' * 60}")
+    print(f"▶ STARTING: {stage_name}")
+    print(f"{'=' * 60}")
+    tracemalloc.start()
+    start_time = time.time()
+    try:
+        yield
+    finally:
+        elapsed = _fmt_duration(time.time() - start_time)
+        _, peak_mem = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        peak_mb = peak_mem / (1024 * 1024)
+        print(f"\n[✔] {stage_name} COMPLETED")
+        print(f"    Elapsed Time : {elapsed}")
+        print(f"    Peak Memory  : {peak_mb:.1f} MB")
+        print(f"{'-' * 60}")
+
+@contextmanager
 
 
 @contextmanager
@@ -55,52 +78,42 @@ def _fmt_duration(seconds: float) -> str:
 
 def run_fetch():
     """Run the fetch step."""
-    print("\n" + "=" * 60)
-    print("STEP 1: FETCH RAW DATA")
-    print("=" * 60)
-    from fetch_game import main as fetch_main
-    with _isolated_argv("fetch_game.py"):
-        return fetch_main()
+    with track_stage("STEP 1: FETCH RAW DATA"):
+        from fetch_game import main as fetch_main
+        with _isolated_argv("fetch_game.py"):
+            return fetch_main()
 
 
 def run_parse_shifts():
     """Run the shift parsing step."""
-    print("\n" + "=" * 60)
-    print("STEP 2a: PARSE SHIFTS")
-    print("=" * 60)
-    from parse_shifts import main as parse_shifts_main
-    with _isolated_argv("parse_shifts.py"):
-        return parse_shifts_main()
+    with track_stage("STEP 2a: PARSE SHIFTS"):
+        from parse_shifts import main as parse_shifts_main
+        with _isolated_argv("parse_shifts.py"):
+            return parse_shifts_main()
 
 
 def run_parse_pbp():
     """Run the play-by-play parsing step."""
-    print("\n" + "=" * 60)
-    print("STEP 2b: PARSE PLAY-BY-PLAY")
-    print("=" * 60)
-    from parse_pbp import main as parse_pbp_main
-    with _isolated_argv("parse_pbp.py"):
-        return parse_pbp_main()
+    with track_stage("STEP 2b: PARSE PLAY-BY-PLAY"):
+        from parse_pbp import main as parse_pbp_main
+        with _isolated_argv("parse_pbp.py"):
+            return parse_pbp_main()
 
 
 def run_validate():
     """Run the validation step."""
-    print("\n" + "=" * 60)
-    print("STEP 3: VALIDATE")
-    print("=" * 60)
-    from validate_game import main as validate_main
-    with _isolated_argv("validate_game.py"):
-        return validate_main()
+    with track_stage("STEP 3: VALIDATE"):
+        from validate_game import main as validate_main
+        with _isolated_argv("validate_game.py"):
+            return validate_main()
 
 
 def run_load():
     """Run the database load step."""
-    print("\n" + "=" * 60)
-    print("STEP 4: LOAD TO DATABASE")
-    print("=" * 60)
-    from load_to_db import main as load_main
-    with _isolated_argv("load_to_db.py"):
-        return load_main()
+    with track_stage("STEP 4: LOAD TO DATABASE"):
+        from load_to_db import main as load_main
+        with _isolated_argv("load_to_db.py"):
+            return load_main()
 
 
 def _discover_seasons() -> list[str]:
@@ -141,96 +154,91 @@ def run_rapm(season: str | None = None, extra_args: list[str] | None = None):
     Run RAPM computation. If season is given, runs only that season.
     Otherwise discovers all seasons and runs them one by one with progress tracking.
     """
-    print("\n" + "=" * 60)
-    print("STEP 5: COMPUTE RAPM METRICS")
-    print("=" * 60)
+    with track_stage("STEP 5: COMPUTE RAPM METRICS"):
 
-    _here = Path(__file__).resolve().parent
-    rapm_script = _here / "compute_corsi_apm.py"
+        _here = Path(__file__).resolve().parent
+        rapm_script = _here / "compute_corsi_apm.py"
 
-    if not rapm_script.exists():
-        print(f"  ERROR: compute_corsi_apm.py not found at {rapm_script}")
-        return False
-
-    base_args = extra_args or [
-        "--mode", "stint",
-        "--metrics", "xg_offdef",
-        "--workers", "4",
-    ]
-
-    if season:
-        seasons = [season]
-    else:
-        seasons = _discover_seasons()
-        if not seasons:
-            print("  WARN: No seasons found. Run --fetch and --load first.")
+        if not rapm_script.exists():
+            print(f"  ERROR: compute_corsi_apm.py not found at {rapm_script}")
             return False
 
-    total = len(seasons)
-    print(f"  Seasons to process: {seasons}")
-    print(f"  Total: {total} season(s)\n")
+        base_args = extra_args or [
+            "--mode", "stint",
+            "--metrics", "xg_offdef",
+            "--workers", "4",
+        ]
 
-    overall_start = time.time()
-    results: dict[str, str] = {}
+        if season:
+            seasons = [season]
+        else:
+            seasons = _discover_seasons()
+            if not seasons:
+                print("  WARN: No seasons found. Run --fetch and --load first.")
+                return False
 
-    for i, s in enumerate(seasons, 1):
-        season_start = time.time()
-        pct = f"[{i}/{total}]"
-        print(f"\n{'-'*60}")
-        print(f"  {pct} Season {s}  (elapsed: {_fmt_duration(time.time() - overall_start)})")
-        print(f"{'-'*60}")
+        total = len(seasons)
+        print(f"  Seasons to process: {seasons}")
+        print(f"  Total: {total} season(s)\n")
 
-        cmd = [sys.executable, str(rapm_script), "--season", s] + base_args
-        try:
-            proc = subprocess.run(
-                cmd,
-                cwd=str(_here),
-                capture_output=False,   # stream output to console
-                text=True,
-            )
-            elapsed = _fmt_duration(time.time() - season_start)
-            if proc.returncode == 0:
-                results[s] = f"OK  ({elapsed})"
-                print(f"  {pct} Season {s} DONE in {elapsed}")
-            else:
-                results[s] = f"FAIL (exit {proc.returncode}, {elapsed})"
-                print(f"  {pct} Season {s} FAILED (exit {proc.returncode}) in {elapsed}")
-        except Exception as e:
-            elapsed = _fmt_duration(time.time() - season_start)
-            results[s] = f"ERROR ({e}, {elapsed})"
-            print(f"  {pct} Season {s} ERROR: {e}")
+        overall_start = time.time()
+        results: dict[str, str] = {}
 
-    # Summary table
-    total_elapsed = _fmt_duration(time.time() - overall_start)
-    print(f"\n{'='*60}")
-    print(f"RAPM SUMMARY  (total: {total_elapsed})")
-    print(f"{'='*60}")
-    ok_count = sum(1 for v in results.values() if v.startswith("OK"))
-    fail_count = total - ok_count
-    for s, status in results.items():
-        icon = "OK " if status.startswith("OK") else "FAIL"
-        print(f"  {icon}  {s}: {status}")
-    print(f"\n  {ok_count}/{total} seasons succeeded, {fail_count} failed.")
-    print(f"{'='*60}")
+        for i, s in enumerate(seasons, 1):
+            season_start = time.time()
+            pct = f"[{i}/{total}]"
+            print(f"\n{'-'*60}")
+            print(f"  {pct} Season {s}  (elapsed: {_fmt_duration(time.time() - overall_start)})")
+            print(f"{'-'*60}")
 
-    return fail_count == 0
+            cmd = [sys.executable, str(rapm_script), "--season", s] + base_args
+            try:
+                proc = subprocess.run(
+                    cmd,
+                    cwd=str(_here),
+                    capture_output=False,   # stream output to console
+                    text=True,
+                )
+                elapsed = _fmt_duration(time.time() - season_start)
+                if proc.returncode == 0:
+                    results[s] = f"OK  ({elapsed})"
+                    print(f"  {pct} Season {s} DONE in {elapsed}")
+                else:
+                    results[s] = f"FAIL (exit {proc.returncode}, {elapsed})"
+                    print(f"  {pct} Season {s} FAILED (exit {proc.returncode}) in {elapsed}")
+            except Exception as e:
+                elapsed = _fmt_duration(time.time() - season_start)
+                results[s] = f"ERROR ({e}, {elapsed})"
+                print(f"  {pct} Season {s} ERROR: {e}")
+
+        # Summary table
+        total_elapsed = _fmt_duration(time.time() - overall_start)
+        print(f"\n{'='*60}")
+        print(f"RAPM SUMMARY  (total: {total_elapsed})")
+        print(f"{'='*60}")
+        ok_count = sum(1 for v in results.values() if v.startswith("OK"))
+        fail_count = total - ok_count
+        for s, status in results.items():
+            icon = "OK " if status.startswith("OK") else "FAIL"
+            print(f"  {icon}  {s}: {status}")
+        print(f"\n  {ok_count}/{total} seasons succeeded, {fail_count} failed.")
+        print(f"{'='*60}")
+        
+        return fail_count == 0
 
 
 def run_analyze():
     """Run the analysis steps (Shift Context + Conditional Metrics)."""
-    print("\n" + "=" * 60)
-    print("STEP 6: ANALYZE (CONTEXT & ADVANCED METRICS)")
-    print("=" * 60)
+    with track_stage("STEP 6: ANALYZE (CONTEXT & ADVANCED METRICS)"):
+        import build_shift_context
+        import compute_conditional_metrics
 
-    import build_shift_context
-    import compute_conditional_metrics
+        print("\nBuilding Shift Context...")
+        build_shift_context.main()
 
-    print("\nBuilding Shift Context...")
-    build_shift_context.main()
-
-    print("\nComputing Advanced Conditional Metrics...")
-    compute_conditional_metrics.main()
-    return True
+        print("\nComputing Advanced Conditional Metrics...")
+        compute_conditional_metrics.main()
+        return True
 
 
 def main():

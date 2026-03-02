@@ -29,8 +29,8 @@ DB_PATH = ROOT / "nhl_canonical.duckdb"
 
 # ── Search config ─────────────────────────────────────────────────────────────
 EVAL_SEASON = "20252026"        # season to tune on
-GAME_LIMIT = 100                # number of games per trial (lower = faster search)
-N_TRIALS = 20                   # total trials Optuna will run
+GAME_LIMIT = 200                # increased for better stability
+N_TRIALS = 10                   # reduced for speed
 TARGET_METRIC = "corsi_rapm_5v5"
 
 # Good RAPM distributions: std ~3-6, almost no players with |value| > 15

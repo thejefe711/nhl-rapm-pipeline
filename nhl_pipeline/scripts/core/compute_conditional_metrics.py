@@ -69,147 +69,117 @@ def main():
         return
     df['duration_seconds'] = pd.to_numeric(df['duration_seconds'], errors='coerce').fillna(0)
 
-    # -------------------------------------------------------
-    # Season-level thresholds (shift-weighted quantiles)
-    # -------------------------------------------------------
-    season_thresholds = {}
-    for season, s_df in df.groupby('season'):
-        season_thresholds[season] = {
-            'off_elite': s_df['avg_opponent_off_rapm'].quantile(ELITE_OFF_OPPONENT_QUANTILE),
-            'def_elite': s_df['avg_opponent_def_rapm'].quantile(ELITE_DEF_OPPONENT_QUANTILE),
-            'fwd_tm_high': s_df['avg_fwd_teammate_off_rapm'].quantile(PSI_HIGH_QUANTILE),
-            'fwd_tm_low':  s_df['avg_fwd_teammate_off_rapm'].quantile(PSI_LOW_QUANTILE),
-            'def_tm_high': s_df['avg_def_teammate_def_rapm'].quantile(PSI_HIGH_QUANTILE),
-            'def_tm_low':  s_df['avg_def_teammate_def_rapm'].quantile(PSI_LOW_QUANTILE),
-        }
-
-    # -------------------------------------------------------
-    # Per player-season metrics
-    # -------------------------------------------------------
-    results = []
-
-    for (player_id, season), p_df in df.groupby(['player_id', 'season']):
-        total_toi = p_df['duration_seconds'].sum()
-        if total_toi < MIN_TOI_SECONDS:
-            continue
-
-        thresholds = season_thresholds[season]
-        dur = p_df['duration_seconds']
-
-        # --- Overall residuals ---
-        avg_residual_off = _weighted_mean(p_df['rapm_residual_xGF'], dur)
-        avg_residual_def = _weighted_mean(p_df['rapm_residual_xGA'], dur)
-
-        # --- Shutdown ---
-        shutdown_df = p_df[p_df['avg_opponent_off_rapm'] >= thresholds['off_elite']]
-        n_shutdown_shifts = len(shutdown_df)
-        if not shutdown_df.empty:
-            shutdown_score = _weighted_mean(-shutdown_df['rapm_residual_xGA'], shutdown_df['duration_seconds'])
-            shutdown_consistency = float(shutdown_df['rapm_residual_xGA'].std())
-        else:
-            shutdown_score = 0.0
-            shutdown_consistency = 0.0
-
-        # --- Breaker ---
-        breaker_df = p_df[p_df['avg_opponent_def_rapm'] <= thresholds['def_elite']]
-        n_breaker_shifts = len(breaker_df)
-        breaker_score = _weighted_mean(breaker_df['rapm_residual_xGF'], breaker_df['duration_seconds']) if not breaker_df.empty else 0.0
-
-        # --- Clutch Metrics (|Score| <= 1) ---
-        clutch_df = p_df[p_df['score_state'].abs() <= 1]
-        n_clutch_shifts = len(clutch_df)
-        if not clutch_df.empty:
-            clutch_shutdown = _weighted_mean(-clutch_df['rapm_residual_xGA'], clutch_df['duration_seconds'])
-            clutch_breaker = _weighted_mean(clutch_df['rapm_residual_xGF'], clutch_df['duration_seconds'])
-        else:
-            clutch_shutdown = 0.0
-            clutch_breaker = 0.0
-
-        # --- PSI (Partner Sensitivity Index) - Forward Quality ---
-        fwd_col = 'avg_fwd_teammate_off_rapm'
-        psi_upside, psi_floor, psi = 0.0, 0.0, 0.0
-        if fwd_col in p_df.columns:
-            high_df = p_df[p_df[fwd_col] >= thresholds['fwd_tm_high']]
-            low_df  = p_df[p_df[fwd_col] <= thresholds['fwd_tm_low']]
-            if not high_df.empty and not low_df.empty:
-                psi_upside = _weighted_mean(high_df['rapm_residual_xGF'], high_df['duration_seconds'])
-                psi_floor  = _weighted_mean(low_df['rapm_residual_xGF'], low_df['duration_seconds'])
-                psi = psi_upside - psi_floor
-
-        # --- Two-way PSI (Defense Partner Sensitivity) ---
-        def_tm_col = 'avg_def_teammate_def_rapm'
-        psi_twoway_upside, psi_twoway_floor, psi_twoway = 0.0, 0.0, 0.0
-        if def_tm_col in p_df.columns:
-            high_def_df = p_df[p_df[def_tm_col] >= thresholds['def_tm_high']]
-            low_def_df  = p_df[p_df[def_tm_col] <= thresholds['def_tm_low']]
-            if not high_def_df.empty and not low_def_df.empty:
-                # Better partner = better suppression (lower xGA). We want positive value for "better with better partner"
-                # so: floor (residual with bad partner) - upside (residual with good partner)
-                psi_twoway_upside = _weighted_mean(high_def_df['rapm_residual_xGA'], high_def_df['duration_seconds'])
-                psi_twoway_floor  = _weighted_mean(low_def_df['rapm_residual_xGA'], low_def_df['duration_seconds'])
-                psi_twoway = psi_twoway_floor - psi_twoway_upside
-
-        # --- Elasticity ---
-        elasticity, elasticity_se, elasticity_pvalue = 0.0, 0.0, 1.0
-        if fwd_col in p_df.columns:
-            valid = p_df[[fwd_col, 'rapm_residual_xGF', 'duration_seconds']].dropna()
-            if len(valid) >= 10 and valid[fwd_col].std() > 0:
-                try:
-                    slope, _, _, p_value, std_err = stats.linregress(valid[fwd_col].values, valid['rapm_residual_xGF'].values)
-                    elasticity, elasticity_se, elasticity_pvalue = float(slope), float(std_err), float(p_value)
-                except Exception: pass
-
-        results.append({
-            'player_id': player_id,
-            'season': season,
-            'total_shifts': len(p_df),
-            'total_toi_seconds': float(total_toi),
-            'is_reliable': total_toi >= MIN_TOI_SECONDS,
-            'avg_residual_off': avg_residual_off,
-            'avg_residual_def': avg_residual_def,
-            'shutdown_score': shutdown_score,
-            'shutdown_consistency': shutdown_consistency,
-            'breaker_score': breaker_score,
-            'clutch_shutdown': clutch_shutdown,
-            'clutch_breaker': clutch_breaker,
-            'psi': psi,
-            'psi_upside': psi_upside,
-            'psi_floor': psi_floor,
-            'psi_twoway': psi_twoway,
-            'elasticity': elasticity,
-            'elasticity_se': elasticity_se,
-            'elasticity_pvalue': elasticity_pvalue,
-            'n_shutdown_shifts': n_shutdown_shifts,
-            'n_breaker_shifts': n_breaker_shifts,
-            'n_clutch_shifts': n_clutch_shifts
-        })
-
-    if not results:
-        print("WARN: No player-seasons met threshold.")
-        con.close()
-        return
-
-    results_df = pd.DataFrame(results)
-
-    # Z-score normalization
-    z_cols = ['shutdown_score', 'breaker_score', 'clutch_shutdown', 'clutch_breaker', 'psi', 'psi_twoway', 'elasticity']
-    for col in z_cols:
-        results_df[f'{col}_z'] = results_df.groupby('season')[col].transform(
-            lambda x: (x - x.mean()) / x.std() if x.std() > 0 else 0.0
-        )
-
-    # Store in DuckDB
-    print(f"Storing {len(results_df):,} player-season rows in '{OUTPUT_TABLE}'...")
-    con.execute(f"DROP TABLE IF EXISTS {OUTPUT_TABLE}")
-    con.register("adv_temp", results_df)
-    con.execute(f"CREATE TABLE {OUTPUT_TABLE} AS SELECT * FROM adv_temp")
-
-    # Final Enrichment
+    print(f"Computing thresholds natively in DuckDB...")
     con.execute(f"""
-        CREATE OR REPLACE TABLE {OUTPUT_TABLE} AS
-        SELECT p.full_name, p.position, m.*
-        FROM {OUTPUT_TABLE} m
-        LEFT JOIN players p ON m.player_id = p.player_id
+        CREATE OR REPLACE TEMPORARY TABLE thresholds AS
+        SELECT 
+            season,
+            QUANTILE_CONT(avg_opponent_off_rapm, {ELITE_OFF_OPPONENT_QUANTILE}) as off_elite,
+            QUANTILE_CONT(avg_opponent_def_rapm, {ELITE_DEF_OPPONENT_QUANTILE}) as def_elite,
+            QUANTILE_CONT(avg_fwd_teammate_off_rapm, {PSI_HIGH_QUANTILE}) as fwd_tm_high,
+            QUANTILE_CONT(avg_fwd_teammate_off_rapm, {PSI_LOW_QUANTILE}) as fwd_tm_low,
+            QUANTILE_CONT(avg_def_teammate_def_rapm, {PSI_HIGH_QUANTILE}) as def_tm_high,
+            QUANTILE_CONT(avg_def_teammate_def_rapm, {PSI_LOW_QUANTILE}) as def_tm_low
+        FROM {INPUT_TABLE}
+        GROUP BY season;
+    """)
+
+    print(f"Aggregating shifts grouped by player_id and season...")
+    con.execute(f"""
+        CREATE OR REPLACE TEMPORARY TABLE shift_flags AS
+        SELECT 
+            s.*,
+            CASE WHEN s.avg_opponent_off_rapm >= t.off_elite THEN 1 ELSE 0 END as is_shutdown_shift,
+            CASE WHEN s.avg_opponent_def_rapm <= t.def_elite THEN 1 ELSE 0 END as is_breaker_shift,
+            CASE WHEN ABS(s.score_state) <= 1 THEN 1 ELSE 0 END as is_clutch_shift,
+            CASE WHEN s.avg_fwd_teammate_off_rapm >= t.fwd_tm_high THEN 1 ELSE 0 END as is_psi_high_shift,
+            CASE WHEN s.avg_fwd_teammate_off_rapm <= t.fwd_tm_low THEN 1 ELSE 0 END as is_psi_low_shift,
+            CASE WHEN s.avg_def_teammate_def_rapm >= t.def_tm_high THEN 1 ELSE 0 END as is_psi_twoway_high,
+            CASE WHEN s.avg_def_teammate_def_rapm <= t.def_tm_low THEN 1 ELSE 0 END as is_psi_twoway_low
+        FROM {INPUT_TABLE} s
+        JOIN thresholds t ON s.season = t.season
+        WHERE COALESCE(s.duration_seconds, 0) > 0;
+    """)
+
+    con.execute(f"""
+        CREATE OR REPLACE TEMPORARY TABLE raw_metrics AS
+        SELECT 
+            player_id,
+            season,
+            COUNT(*) as total_shifts,
+            SUM(duration_seconds) as total_toi_seconds,
+            SUM(duration_seconds) >= {MIN_TOI_SECONDS} as is_reliable,
+            
+            -- Overall residuals
+            SUM(rapm_residual_xGF * duration_seconds) / SUM(duration_seconds) as avg_residual_off,
+            SUM(rapm_residual_xGA * duration_seconds) / SUM(duration_seconds) as avg_residual_def,
+            
+            -- Shutdown
+            SUM(is_shutdown_shift) as n_shutdown_shifts,
+            COALESCE(SUM(CASE WHEN is_shutdown_shift=1 THEN -rapm_residual_xGA * duration_seconds ELSE 0 END) / 
+                     NULLIF(SUM(CASE WHEN is_shutdown_shift=1 THEN duration_seconds ELSE 0 END), 0), 0) as shutdown_score,
+            COALESCE(STDDEV_SAMP(CASE WHEN is_shutdown_shift=1 THEN rapm_residual_xGA END), 0) as shutdown_consistency,
+            
+            -- Breaker
+            SUM(is_breaker_shift) as n_breaker_shifts,
+            COALESCE(SUM(CASE WHEN is_breaker_shift=1 THEN rapm_residual_xGF * duration_seconds ELSE 0 END) / 
+                     NULLIF(SUM(CASE WHEN is_breaker_shift=1 THEN duration_seconds ELSE 0 END), 0), 0) as breaker_score,
+                     
+            -- Clutch
+            SUM(is_clutch_shift) as n_clutch_shifts,
+            COALESCE(SUM(CASE WHEN is_clutch_shift=1 THEN -rapm_residual_xGA * duration_seconds ELSE 0 END) / 
+                     NULLIF(SUM(CASE WHEN is_clutch_shift=1 THEN duration_seconds ELSE 0 END), 0), 0) as clutch_shutdown,
+            COALESCE(SUM(CASE WHEN is_clutch_shift=1 THEN rapm_residual_xGF * duration_seconds ELSE 0 END) / 
+                     NULLIF(SUM(CASE WHEN is_clutch_shift=1 THEN duration_seconds ELSE 0 END), 0), 0) as clutch_breaker,
+                     
+            -- PSI
+            COALESCE(SUM(CASE WHEN is_psi_high_shift=1 THEN rapm_residual_xGF * duration_seconds ELSE 0 END) / 
+                     NULLIF(SUM(CASE WHEN is_psi_high_shift=1 THEN duration_seconds ELSE 0 END), 0), 0) as psi_upside,
+            COALESCE(SUM(CASE WHEN is_psi_low_shift=1 THEN rapm_residual_xGF * duration_seconds ELSE 0 END) / 
+                     NULLIF(SUM(CASE WHEN is_psi_low_shift=1 THEN duration_seconds ELSE 0 END), 0), 0) as psi_floor,
+            
+            -- Two-way PSI
+            COALESCE(SUM(CASE WHEN is_psi_twoway_high=1 THEN rapm_residual_xGA * duration_seconds ELSE 0 END) / 
+                     NULLIF(SUM(CASE WHEN is_psi_twoway_high=1 THEN duration_seconds ELSE 0 END), 0), 0) as psi_twoway_upside,
+            COALESCE(SUM(CASE WHEN is_psi_twoway_low=1 THEN rapm_residual_xGA * duration_seconds ELSE 0 END) / 
+                     NULLIF(SUM(CASE WHEN is_psi_twoway_low=1 THEN duration_seconds ELSE 0 END), 0), 0) as psi_twoway_floor,
+                     
+            -- Elasticity
+            CASE WHEN COUNT(rapm_residual_xGF) >= 10 THEN 
+                COALESCE(REGR_SLOPE(rapm_residual_xGF, avg_fwd_teammate_off_rapm), 0.0) 
+            ELSE 0.0 END as elasticity,
+            0.0 as elasticity_se,
+            1.0 as elasticity_pvalue
+            
+        FROM shift_flags
+        GROUP BY player_id, season
+        HAVING SUM(duration_seconds) >= {MIN_TOI_SECONDS};
+    """)
+
+    print(f"Normalizing Z-scores and forming final output table '{OUTPUT_TABLE}'...")
+    con.execute(f"""
+        CREATE OR REPLACE TEMPORARY TABLE scored_metrics AS
+        SELECT 
+            *,
+            (psi_upside - psi_floor) as psi,
+            (psi_twoway_floor - psi_twoway_upside) as psi_twoway
+        FROM raw_metrics;
+        
+        DROP TABLE IF EXISTS {OUTPUT_TABLE};
+        CREATE TABLE {OUTPUT_TABLE} AS
+        SELECT 
+            s.*,
+            p.full_name,
+            p.position,
+            COALESCE((shutdown_score - AVG(shutdown_score) OVER (PARTITION BY s.season)) / NULLIF(STDDEV_SAMP(shutdown_score) OVER (PARTITION BY s.season), 0), 0.0) as shutdown_score_z,
+            COALESCE((breaker_score - AVG(breaker_score) OVER (PARTITION BY s.season)) / NULLIF(STDDEV_SAMP(breaker_score) OVER (PARTITION BY s.season), 0), 0.0) as breaker_score_z,
+            COALESCE((clutch_shutdown - AVG(clutch_shutdown) OVER (PARTITION BY s.season)) / NULLIF(STDDEV_SAMP(clutch_shutdown) OVER (PARTITION BY s.season), 0), 0.0) as clutch_shutdown_z,
+            COALESCE((clutch_breaker - AVG(clutch_breaker) OVER (PARTITION BY s.season)) / NULLIF(STDDEV_SAMP(clutch_breaker) OVER (PARTITION BY s.season), 0), 0.0) as clutch_breaker_z,
+            COALESCE((psi - AVG(psi) OVER (PARTITION BY s.season)) / NULLIF(STDDEV_SAMP(psi) OVER (PARTITION BY s.season), 0), 0.0) as psi_z,
+            COALESCE((psi_twoway - AVG(psi_twoway) OVER (PARTITION BY s.season)) / NULLIF(STDDEV_SAMP(psi_twoway) OVER (PARTITION BY s.season), 0), 0.0) as psi_twoway_z,
+            COALESCE((elasticity - AVG(elasticity) OVER (PARTITION BY s.season)) / NULLIF(STDDEV_SAMP(elasticity) OVER (PARTITION BY s.season), 0), 0.0) as elasticity_z
+        FROM scored_metrics s
+        LEFT JOIN players p ON s.player_id = p.player_id;
     """)
 
     con.close()

@@ -1053,7 +1053,7 @@ def process_game_wrapper(
     args_strength: str,
     args_hd_xg_threshold: float,
     xg_model: Optional[LogisticRegression],
-    precomputed_xg_path: Optional[Path],
+    precomputed_xg_df: Optional[pd.DataFrame],
 ) -> Tuple[Optional[pd.DataFrame], Dict[int, int], int]:
     """
     Process a single game to generate stint/event rows and TOI counts.
@@ -1061,34 +1061,6 @@ def process_game_wrapper(
     """
     # print(f"DEBUG: Starting game {game_id}")  # Uncomment for deep debugging
     try:
-        # Load precomputed xG locally to avoid IPC overhead
-        precomputed_xg = None
-        if precomputed_xg_path and precomputed_xg_path.exists():
-            # Load only necessary columns to save memory/time if not already done
-            # But read_parquet is fast.
-            # IMPORTANT: Filter by game_id to avoid Cartesian product on event_id!
-            # We assume precomputed_xg has "game_id" column.
-            # If it's a single file for the season, we must filter.
-            # If we can't filter efficiently (read entire file), we do it in memory.
-            # Ideally we'd use filters=[('game_id', '==', game_id)] but game_id type matters.
-            
-            # Read full file (it's small, 85k rows) and filter in memory
-            full_xg = pd.read_parquet(precomputed_xg_path)
-            
-            # Ensure game_id types match. 
-            # game_id arg is str (e.g. "2024020001"). 
-            # Check column type in df.
-            if "game_id" in full_xg.columns:
-                # Try matching as string first
-                precomputed_xg = full_xg[full_xg["game_id"].astype(str) == str(game_id)].copy()
-            else:
-                # Fallback: if no game_id column, assume it's already filtered? 
-                # No, precompute_xg.py saves all shots.
-                # If game_id is missing, we can't safely use it.
-                print(f"  WARN: precomputed_xg missing 'game_id' column. Skipping xG load.")
-                precomputed_xg = None
-
-
         on_ice_path = canonical_dir / season / f"{game_id}_event_on_ice.parquet"
         shifts_path = staging_dir / season / f"{game_id}_shifts.parquet"
         events_path = staging_dir / season / f"{game_id}_events.parquet"
@@ -1142,7 +1114,7 @@ def process_game_wrapper(
                 home_team_id=home_team_id,
                 away_team_id=away_team_id,
                 xg_model=xg_model,
-                precomputed_xg=precomputed_xg,
+                precomputed_xg=precomputed_xg_df,
                 turnover_window_s=args_turnover_window,
                 hd_xg_threshold=args_hd_xg_threshold,
             )
@@ -1327,14 +1299,19 @@ def main():
         total_events = 0
 
         xg_model: Optional[LogisticRegression] = pooled_xg_model
-        precomputed_xg_path: Optional[Path] = None  # For fast reruns
+        precomputed_xg_grouped: Dict[str, pd.DataFrame] = {}
         
         if needs_xg:
             # Check for precomputed xG first (fastest path)
             precomputed_path = staging_dir / season / "shots_with_xg.parquet"
             if getattr(args, 'use_precomputed_xg', False) and precomputed_path.exists():
-                print(f"  OK Found precomputed xG at {precomputed_path}")
-                precomputed_xg_path = precomputed_path
+                print(f"  OK Found precomputed xG at {precomputed_path}. Loading into memory...")
+                # Load the entire season's xG file once
+                full_xg = pd.read_parquet(precomputed_path)
+                if "game_id" in full_xg.columns:
+                    # Group by game_id to avoid filtering per worker
+                    for gid, group in full_xg.groupby("game_id"):
+                        precomputed_xg_grouped[str(gid)] = group.copy()
 
         if args.workers > 1:
             print(f"  Processing {len(game_ids)} games with {args.workers} workers...")
@@ -1352,7 +1329,7 @@ def main():
                         str(args.strength),
                         float(args.hd_xg_threshold),
                         xg_model,
-                        precomputed_xg_path
+                        precomputed_xg_grouped.get(game_id)
                     ): game_id for game_id in sorted(game_ids)
                 }
                 
@@ -1402,7 +1379,7 @@ def main():
                     str(args.strength),
                     float(args.hd_xg_threshold),
                     xg_model,
-                    precomputed_xg_path
+                    precomputed_xg_grouped.get(game_id)
                 )
                 
                 if df is not None and not df.empty:

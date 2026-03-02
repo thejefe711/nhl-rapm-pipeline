@@ -133,34 +133,81 @@ def main():
     """)
 
     # 3. Teammate and Opponent Contextual RAPM
-    print("Computing teammate and opponent context...")
+    print("Computing teammate and opponent context via timeline bucketing (optimized)...")
     # This involves a join with shifts to find everyone on ice at the same time.
-    # To avoid N^2, we optimize by joining with shifts then grouping.
+    # To avoid N^2 overlaps, we pre-bucket the game into 5-second intervals.
     con.execute("""
+        -- 1. Create a 5-second timeline for every game/period
+        CREATE OR REPLACE TEMPORARY TABLE timeline AS
+        SELECT DISTINCT game_id, period, UNNEST(GENERATE_SERIES(0, 1200, 5)) as tick
+        FROM shifts;
+        
+        -- 2. Map players to timeline ticks
+        CREATE OR REPLACE TEMPORARY TABLE tick_players AS
+        SELECT 
+            t.game_id, t.period, t.tick, 
+            s.player_id, s.team_id, 
+            l.off_rapm, l.def_rapm, l.position
+        FROM timeline t
+        JOIN shifts s ON t.game_id = s.game_id AND t.period = s.period
+            AND t.tick >= s.start_seconds AND t.tick < s.end_seconds
+        JOIN games g ON s.game_id = g.game_id
+        LEFT JOIN player_lookup l ON s.player_id = l.player_id AND g.season = l.season;
+        
+        -- 3. Aggregate 5-man unit SUMS at each tick for each team
+        CREATE OR REPLACE TEMPORARY TABLE tick_team_sums AS
+        SELECT 
+            game_id, period, tick, team_id,
+            SUM(off_rapm) as sum_off_rapm,
+            SUM(def_rapm) as sum_def_rapm,
+            SUM(CASE WHEN position IN ('F', 'C', 'L', 'R') THEN off_rapm ELSE 0 END) as sum_fwd_off_rapm,
+            SUM(CASE WHEN position = 'D' THEN def_rapm ELSE 0 END) as sum_def_def_rapm,
+            COUNT(off_rapm) as cnt_off,
+            COUNT(def_rapm) as cnt_def,
+            COUNT(CASE WHEN position IN ('F', 'C', 'L', 'R') THEN off_rapm END) as cnt_fwd,
+            COUNT(CASE WHEN position = 'D' THEN def_rapm END) as cnt_def_pos
+        FROM tick_players
+        GROUP BY game_id, period, tick, team_id;
+        
+        -- 4. Roll up ticks back into the individual shift's context
         CREATE OR REPLACE TEMPORARY TABLE context_averages AS
         SELECT 
             s1.game_id, s1.player_id, s1.start_seconds, s1.period,
             
-            -- Teammates
-            AVG(CASE WHEN s2.team_id = s1.team_id THEN l.off_rapm END) as avg_teammate_off_rapm,
-            AVG(CASE WHEN s2.team_id = s1.team_id THEN l.def_rapm END) as avg_teammate_def_rapm,
+            -- Teammates (exclude self)
+            AVG(CASE WHEN ta.team_id = s1.team_id THEN 
+                (ta.sum_off_rapm - COALESCE(l.off_rapm, 0)) / NULLIF(ta.cnt_off - 1, 0)
+            END) as avg_teammate_off_rapm,
             
-            -- Specific Forward Teammates
-            AVG(CASE WHEN s2.team_id = s1.team_id AND l.position IN ('F', 'C', 'L', 'R') THEN l.off_rapm END) as avg_fwd_teammate_off_rapm,
-            -- Specific Defenseman Teammates
-            AVG(CASE WHEN s2.team_id = s1.team_id AND l.position = 'D' THEN l.def_rapm END) as avg_def_teammate_def_rapm,
+            AVG(CASE WHEN ta.team_id = s1.team_id THEN 
+                (ta.sum_def_rapm - COALESCE(l.def_rapm, 0)) / NULLIF(ta.cnt_def - 1, 0)
+            END) as avg_teammate_def_rapm,
             
-            -- Opponents
-            AVG(CASE WHEN s2.team_id != s1.team_id THEN l.off_rapm END) as avg_opponent_off_rapm,
-            AVG(CASE WHEN s2.team_id != s1.team_id THEN l.def_rapm END) as avg_opponent_def_rapm
+            AVG(CASE WHEN ta.team_id = s1.team_id THEN 
+                (ta.sum_fwd_off_rapm - CASE WHEN l.position IN ('F', 'C', 'L', 'R') THEN COALESCE(l.off_rapm, 0) ELSE 0 END) 
+                / NULLIF(ta.cnt_fwd - CASE WHEN l.position IN ('F', 'C', 'L', 'R') THEN 1 ELSE 0 END, 0)
+            END) as avg_fwd_teammate_off_rapm,
+            
+            AVG(CASE WHEN ta.team_id = s1.team_id THEN 
+                (ta.sum_def_def_rapm - CASE WHEN l.position = 'D' THEN COALESCE(l.def_rapm, 0) ELSE 0 END) 
+                / NULLIF(ta.cnt_def_pos - CASE WHEN l.position = 'D' THEN 1 ELSE 0 END, 0)
+            END) as avg_def_teammate_def_rapm,
+            
+            -- Opponents (entire team)
+            AVG(CASE WHEN ta.team_id != s1.team_id THEN 
+                ta.sum_off_rapm / NULLIF(ta.cnt_off, 0)
+            END) as avg_opponent_off_rapm,
+            
+            AVG(CASE WHEN ta.team_id != s1.team_id THEN 
+                ta.sum_def_rapm / NULLIF(ta.cnt_def, 0)
+            END) as avg_opponent_def_rapm
+            
         FROM shift_stats_raw s1
-        JOIN shifts s2 ON s1.game_id = s2.game_id 
-            AND s2.period = s1.period
-            AND s2.start_seconds <= s1.start_seconds 
-            AND s2.end_seconds >= s1.end_seconds
-            AND s1.player_id != s2.player_id
-        LEFT JOIN player_lookup l ON s2.player_id = l.player_id AND s1.season = l.season
-        GROUP BY ALL
+        JOIN player_lookup l ON s1.player_id = l.player_id AND s1.season = l.season
+        JOIN timeline t ON s1.game_id = t.game_id AND s1.period = t.period 
+            AND t.tick >= s1.start_seconds AND t.tick < s1.end_seconds
+        JOIN tick_team_sums ta ON t.game_id = ta.game_id AND t.period = ta.period AND t.tick = ta.tick
+        GROUP BY s1.game_id, s1.player_id, s1.start_seconds, s1.period;
     """)
 
     # 4. Final Output Table (with residuals)
